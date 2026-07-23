@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+:root {
+  /* Charte graphique DNPEC — cf. cahier des charges §7 */
+  --color-navy: #132b5e;
+  --color-navy-dark: #0d2047;
+  --color-green: #0f6b3c;
+  --color-green-dark: #0a4e2b;
+  --color-yellow: #f4c227;
+  --color-red: #d62e27;
+  --color-paper: #f4f5f7;
+  --color-ink: #1a1a1a;
+  --color-muted: #5b6270;
+  --color-line: #e4e6ea;
+  --color-white: #ffffff;
+}
+
+@theme inline {
+  --color-navy: var(--color-navy);
+  --color-navy-dark: var(--color-navy-dark);
+  --color-green: var(--color-green);
+  --color-green-dark: var(--color-green-dark);
+  --color-yellow: var(--color-yellow);
+  --color-red: var(--color-red);
+  --color-paper: var(--color-paper);
+  --color-ink: var(--color-ink);
+  --color-muted: var(--color-muted);
+  --color-line: var(--color-line);
+
+  --font-heading: var(--font-poppins), sans-serif;
+  --font-body: var(--font-plex-sans), sans-serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+.disp {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* Liseré tricolore (drapeau guinéen) */
+.flag-strip {
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--color-red) 0 33.3%,
+    var(--color-yellow) 33.3% 66.6%,
+    var(--color-green) 66.6% 100%
+  );
+}
+
+.mini-flag {
+  height: 3px;
+  width: 100%;
+  max-width: 220px;
+  margin: 6px 0 5px;
+  background: linear-gradient(
+    90deg,
+    var(--color-red) 0 33.3%,
+    var(--color-yellow) 33.3% 66.6%,
+    var(--color-green) 66.6% 100%
+  );
+}
+
+/* Bandeau d'annonces défilant */
+.ticker-track {
+  display: flex;
+  gap: 60px;
+  padding-left: 24px;
+  animation: ticker-scroll 22s linear infinite;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Bloc hero */
+.hero-slider {
+  background: linear-gradient(120deg, var(--color-navy-dark), var(--color-navy));
+}
+
+/* Bloc indicateurs clés */
+.indic-section {
+  background: linear-gradient(120deg, var(--color-navy-dark) 0%, #1c3d70 100%);
+}
+
+/* Cartes actualités */
+.news-card {
+  background: linear-gradient(160deg, #2a4a6b, #0d2047);
+}
+
+.news-overlay {
+  background: linear-gradient(
+    0deg,
+    rgba(10, 20, 40, 0.94),
+    rgba(10, 20, 40, 0.75) 60%,
+    transparent
+  );
+}
+
+/* Bandeau publications */
+.pub-hero {
+  background: linear-gradient(160deg, #0d2047, #132b5e);
+}
+
+/* Bloc newsletter — forme en "pilule" */
+.nl-left {
+  border-radius: 0 999px 999px 0 / 0 52% 52% 0;
+  border-right: 6px solid var(--color-yellow);
+  margin-right: -90px;
+}
+
+@media (max-width: 900px) {
+  .nl-left {
+    border-radius: 16px;
+    margin-right: 0;
+  }
+}
