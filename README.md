@@ -91,6 +91,25 @@ réel :
 5. Adapter le mapping JSON → types TypeScript (`lib/types.ts`) au schéma réel
    exposé par WordPress (champs ACF, médias, taxonomies).
 
+## Déployer sur Render
+
+Le dépôt inclut un `render.yaml` (Blueprint) minimal : Render détecte
+automatiquement le service Node à la racine du dépôt.
+
+- Build : `npm ci && npm run build` — Start : `npm start` (`next start`).
+- Aucune variable d'environnement n'est obligatoire au build ou au démarrage.
+  `WORDPRESS_API_URL` est optionnelle (`sync: false` dans `render.yaml`,
+  laissez-la vide) — le site sert les données de démonstration tant qu'elle
+  n'est pas renseignée.
+- Le port d'écoute est géré automatiquement : `next start` lit la variable
+  `PORT` fournie par Render (repli sur `3000` en local) — rien à configurer.
+- `NODE_VERSION` est fixée à 22 dans `render.yaml` (Next.js 16 exige Node
+  ≥ 20.9 — voir le champ `engines` de `package.json`).
+
+Pour déployer : sur Render, « New + » → « Blueprint », pointer vers ce dépôt
+et cette branche ; Render lit `render.yaml` et propose le service `dnpec-site`
+prêt à créer.
+
 ## Prochaines étapes (hors périmètre de cette itération)
 
 - Recherche plein texte sur publications et actualités.
@@ -101,5 +120,5 @@ réel :
   contenu tranchée avec la DNPEC).
 - Portail de données interactives (graphiques dynamiques, export CSV) —
   prévu en phase 2 selon le cahier des charges.
-- Déploiement de démonstration sur un hébergeur moderne (Render ou
-  équivalent) avant bascule vers l'hébergement définitif du ministère.
+- Bascule de l'environnement de test Render vers l'hébergement définitif du
+  ministère, une fois validé par le service informatique.
