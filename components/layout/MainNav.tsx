@@ -26,7 +26,7 @@ export default function MainNav() {
     <nav className="bg-navy">
       <ul
         role="menubar"
-        className="wrap flex flex-wrap items-center gap-x-5 gap-y-1 min-h-[52px] py-2 text-[13.5px] font-medium"
+        className="wrap flex flex-wrap xl:flex-nowrap items-center gap-x-3.5 gap-y-1 min-h-[52px] py-2 text-[13px] font-medium"
       >
         {NAV_ITEMS.map((item, index) => (
           <DropdownMenu
