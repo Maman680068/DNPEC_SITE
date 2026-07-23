@@ -1,58 +1,6 @@
 import Link from "next/link";
 import { FacebookIcon, LinkedinIcon, TwitterIcon, YoutubeIcon } from "./SocialIcons";
 
-const sitemapColumns = [
-  {
-    title: "Présentation",
-    links: [
-      { label: "Mot du Directeur National", href: "/la-dnpec/mot-du-directeur" },
-      { label: "Historique", href: "/la-dnpec/historique" },
-      { label: "Mission", href: "/la-dnpec/mission" },
-      { label: "Cabinet", href: "/la-dnpec/cabinet" },
-      { label: "Organigramme", href: "/la-dnpec/organigramme" },
-    ],
-  },
-  {
-    title: "Publications",
-    links: [
-      { label: "Documents budgétaires", href: "/publications?type=budgetaires" },
-      { label: "Documents conjoncturels", href: "/publications?type=conjoncturels" },
-      {
-        label: "Documents de suivi de l'intégration économique régionale",
-        href: "/publications?type=integration-regionale",
-      },
-      { label: "Documents de politique économique", href: "/publications?type=politique-economique" },
-      { label: "Documents d'analyse et d'études économiques", href: "/publications?type=analyses-etudes" },
-      { label: "Documents de travail", href: "/publications?type=travail" },
-      { label: "Documents statistiques", href: "/publications?type=statistiques" },
-    ],
-  },
-  {
-    title: "Données",
-    links: [
-      { label: "Secteur réel", href: "/donnees#secteur-reel" },
-      { label: "Finances publiques (TOFE)", href: "/donnees#tofe" },
-      { label: "Balance des paiements", href: "/donnees#balance-paiements" },
-      { label: "Situation monétaire intégrée (SMI)", href: "/donnees#smi" },
-    ],
-  },
-  {
-    title: "Conférences & séminaires",
-    links: [
-      { label: "Journées scientifiques", href: "/conferences-seminaires#journees-scientifiques" },
-      { label: "Conférences périodiques", href: "/conferences-seminaires#conferences-periodiques" },
-      { label: "Séminaires de recherche", href: "/conferences-seminaires#seminaires-recherche" },
-    ],
-  },
-  {
-    title: "Revue scientifique",
-    links: [
-      { label: "Revue scientifique de la DNPEC", href: "/revue-scientifique" },
-      { label: "Soumission d'articles", href: "/revue-scientifique#soumission" },
-    ],
-  },
-];
-
 const usefulLinks = [
   { label: "Présidence République", href: "http://www.presidence.gov.gn/" },
   { label: "Primature", href: "https://primature.gov.gn/" },
@@ -78,26 +26,7 @@ export default function Footer() {
   return (
     <footer className="bg-paper text-navy border-t border-line">
       <div className="wrap">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 pt-[52px]">
-          {sitemapColumns.map((column) => (
-            <div key={column.title}>
-              <h4 className="text-navy text-base font-bold mb-5 pb-3 border-b-2 border-yellow font-heading">
-                {column.title}
-              </h4>
-              {column.links.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block text-sm text-navy opacity-75 hover:opacity-100 hover:text-green hover:underline mb-3.5 leading-snug"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1.1fr] gap-8 py-9 md:py-11">
+        <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1.1fr] gap-8 pt-[52px] pb-9 md:pb-11">
           <div>
             <h4 className="text-navy text-base tracking-wide mb-5 pb-3 border-b-2 border-yellow font-bold font-heading">
               Liens utiles
