@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Topbar() {
   return (
     <div className="bg-white border-b border-line">
-      <div className="wrap flex items-center justify-between h-[84px]">
+      <div className="wrap grid grid-cols-[auto_1fr_auto] items-center gap-6 h-[84px]">
         <div className="flex items-center gap-3.5">
           <div className="w-[52px] h-[52px] rounded-full overflow-hidden relative shrink-0 bg-white">
             <Image
@@ -25,12 +25,10 @@ export default function Topbar() {
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-[22px] text-[13.5px] text-navy font-medium">
+        <div className="hidden lg:flex items-center justify-center gap-[28px] text-[13.5px] text-navy font-medium">
           <span>infos@dnpec.gov.gn</span>
           <div className="w-px h-[18px] bg-line" />
           <span>(+224) 662 46 45 67</span>
-          <div className="w-px h-[18px] bg-line" />
-          <span className="text-red font-bold text-[12.5px]">Certifiée ISO 9001-2015</span>
         </div>
 
         <div className="flex items-center gap-3.5">
