@@ -1,10 +1,18 @@
+import Image from "next/image";
+
 export default function Topbar() {
   return (
     <div className="bg-white border-b border-line">
       <div className="wrap flex items-center justify-between h-[84px]">
         <div className="flex items-center gap-3.5">
-          <div className="w-[52px] h-[52px] rounded-full bg-navy text-yellow border-2 border-yellow flex items-center justify-center font-heading font-bold text-[16px]">
-            DN
+          <div className="w-[52px] h-[52px] rounded-full overflow-hidden relative shrink-0 bg-white">
+            <Image
+              src="/logos/logo-dnpec-clean.png"
+              alt="Logo de la Direction Nationale des Prévisions Économiques et de la Conjoncture (DNPEC)"
+              fill
+              sizes="52px"
+              className="object-contain"
+            />
           </div>
           <div>
             <div className="text-[16.5px] font-bold text-navy leading-tight">
@@ -26,8 +34,14 @@ export default function Topbar() {
         </div>
 
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-full bg-paper border-2 border-navy flex items-center justify-center text-[10px] text-navy font-bold text-center">
-            MEFB
+          <div className="w-12 h-12 rounded-full overflow-hidden relative shrink-0 bg-white">
+            <Image
+              src="/logos/logo-mefb-clean.png"
+              alt="Logo du Ministère de l'Économie, des Finances et du Budget (MEFB)"
+              fill
+              sizes="48px"
+              className="object-contain"
+            />
           </div>
           <div className="hidden md:block">
             <div className="text-[11.5px] font-bold text-navy">
