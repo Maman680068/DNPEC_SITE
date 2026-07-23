@@ -26,9 +26,22 @@ export default function PageEnConstruction({ title, backHref = "/" }: PageEnCons
           </svg>
         </div>
 
-        <h1 className="font-heading text-2xl md:text-[28px] text-navy font-semibold">{title}</h1>
+        <div className="rounded-sm overflow-hidden shadow-sm">
+          <svg
+            width="44"
+            height="30"
+            viewBox="0 0 3 2"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Drapeau de la République de Guinée"
+          >
+            <rect width="1" height="2" x="0" fill="#CE1126" />
+            <rect width="1" height="2" x="1" fill="#FCD116" />
+            <rect width="1" height="2" x="2" fill="#009460" />
+          </svg>
+        </div>
 
-        <div className="mini-flag" />
+        <h1 className="font-heading text-2xl md:text-[28px] text-navy font-semibold">{title}</h1>
 
         <p className="text-[15px] text-muted leading-relaxed">
           Cette page est en cours de construction.
