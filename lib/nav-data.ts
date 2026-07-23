@@ -14,7 +14,17 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "Historique", href: "/la-dnpec/historique" },
       { label: "Mission", href: "/la-dnpec/mission" },
       { label: "Cabinet", href: "/la-dnpec/cabinet" },
-      { label: "Textes réglementaires", href: "/la-dnpec/textes-reglementaires" },
+      {
+        label: "Textes réglementaires",
+        href: "/la-dnpec/textes-reglementaires",
+        children: [
+          { label: "Loi des finances", href: "/la-dnpec/textes-reglementaires#loi-des-finances" },
+          { label: "Code des investissements", href: "/la-dnpec/textes-reglementaires#code-des-investissements" },
+          { label: "Code général des impôts", href: "/la-dnpec/textes-reglementaires#code-general-des-impots" },
+          { label: "Code des marchés publics", href: "/la-dnpec/textes-reglementaires#code-des-marches-publics" },
+          { label: "Code minier", href: "/la-dnpec/textes-reglementaires#code-minier" },
+        ],
+      },
       { label: "Organigramme", href: "/la-dnpec/organigramme" },
     ],
   },
