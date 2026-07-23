@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: dnpec-site
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      # Optionnelle : URL du WordPress headless (wp-json/wp/v2). Tant qu'elle
+      # n'est pas définie, le site fonctionne avec les données de démonstration
+      # de lib/mock-data.ts (voir README § Connecter le WordPress headless).
+      - key: WORDPRESS_API_URL
+        sync: false
