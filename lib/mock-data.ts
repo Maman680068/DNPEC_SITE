@@ -71,16 +71,15 @@ export const mockPublications: Publication[] = [
   },
 ];
 
-/** Types de publications listés au §4 du cahier des charges, pour les filtres. */
+/** Catégories de publications reprises du menu Publications (lib/nav-data.ts), pour les filtres. */
 export const publicationTypes: { value: string; label: string }[] = [
   { value: "budgetaires", label: "Documents budgétaires" },
   { value: "conjoncturels", label: "Documents conjoncturels" },
   { value: "integration-regionale", label: "Documents de suivi de l'intégration économique régionale" },
-  { value: "rapports", label: "Rapports" },
   { value: "politique-economique", label: "Documents de politique économique" },
+  { value: "analyses-etudes", label: "Documents d'analyse et d'études économiques" },
   { value: "travail", label: "Documents de travail" },
   { value: "statistiques", label: "Documents statistiques" },
-  { value: "autres", label: "Autres études" },
 ];
 
 export const mockPartners: Partner[] = [

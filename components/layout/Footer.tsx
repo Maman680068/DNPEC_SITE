@@ -21,11 +21,10 @@ const sitemapColumns = [
         label: "Documents de suivi de l'intégration économique régionale",
         href: "/publications?type=integration-regionale",
       },
-      { label: "Rapports", href: "/publications?type=rapports" },
       { label: "Documents de politique économique", href: "/publications?type=politique-economique" },
+      { label: "Documents d'analyse et d'études économiques", href: "/publications?type=analyses-etudes" },
       { label: "Documents de travail", href: "/publications?type=travail" },
       { label: "Documents statistiques", href: "/publications?type=statistiques" },
-      { label: "Autres études", href: "/publications?type=autres" },
     ],
   },
   {

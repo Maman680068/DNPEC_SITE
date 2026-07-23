@@ -26,6 +26,24 @@ export default function ContactPage() {
         </div>
         <ContactForm />
       </section>
+
+      <section id="directeur-national" className="pb-14 max-w-3xl scroll-mt-24">
+        <h2 className="text-2xl text-navy relative pb-2.5 mb-5 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-11 after:h-[3px] after:bg-yellow">
+          Écrire au Directeur National
+        </h2>
+        <div className="bg-white rounded-lg border border-line p-6 text-[14.5px] leading-relaxed text-muted">
+          <p className="mb-4">
+            Pour une correspondance adressée directement au Directeur National de la DNPEC,
+            écrivez à l&apos;adresse ci-dessous en précisant l&apos;objet de votre demande.
+          </p>
+          <a
+            href="mailto:infos@dnpec.gov.gn?subject=%C3%80%20l%27attention%20du%20Directeur%20National"
+            className="inline-block bg-red text-white font-bold text-sm px-6 h-11 rounded-lg leading-[44px]"
+          >
+            Écrire au Directeur National
+          </a>
+        </div>
+      </section>
     </div>
   );
 }
