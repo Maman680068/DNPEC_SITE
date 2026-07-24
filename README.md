@@ -43,7 +43,6 @@ app/                        Routes (App Router)
   revue-scientifique/        Revue + soumission d'articles
   contact/                    Formulaire, coordonnées, carte
   mentions-legales/           Mentions légales / politique de confidentialité
-  enquetes/                   Postuler aux enquêtes
 
 components/
   layout/                    Topbar, Ticker, MainNav, SiteHeader, Footer
