@@ -33,11 +33,26 @@ export default async function ActualitePage({ params }: ActualitePageProps) {
       <PageTitle eyebrow={article.category} title={article.title} />
       <section className="pb-14 max-w-3xl">
         <p className="text-xs text-muted mb-6">{formatDate(article.date)}</p>
+        {article.coverImage && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={article.coverImage}
+            alt={article.title}
+            className="w-full max-h-[420px] object-cover rounded-lg mb-6"
+          />
+        )}
         <p className="text-[15px] text-muted leading-relaxed mb-6">{article.excerpt}</p>
-        <ContentPlaceholder>
-          Le texte complet, les photos et documents liés à cette actualité seront publiés ici par
-          la cellule éditoriale, après validation du profil « Validateur / Publicateur ».
-        </ContentPlaceholder>
+        {article.content ? (
+          <div
+            className="article-content text-[15px] text-ink leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
+        ) : (
+          <ContentPlaceholder>
+            Le texte complet, les photos et documents liés à cette actualité seront publiés ici par
+            la cellule éditoriale, après validation du profil « Validateur / Publicateur ».
+          </ContentPlaceholder>
+        )}
       </section>
     </div>
   );

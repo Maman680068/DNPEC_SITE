@@ -27,6 +27,14 @@ export default async function ActualitesPage() {
               href={`/actualites/${article.slug}`}
               className="news-card rounded-[10px] overflow-hidden relative h-[300px] block"
             >
+              {article.coverImage && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={article.coverImage}
+                  alt={article.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
               <span className="absolute top-3.5 left-3.5 bg-green text-white text-[10.5px] font-bold px-2.5 py-1 rounded uppercase tracking-wide">
                 {article.category}
               </span>

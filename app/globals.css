@@ -121,6 +121,18 @@ h3,
   background: linear-gradient(160deg, #0d2047, #132b5e);
 }
 
+/* Contenu d'article (HTML issu de WordPress, injecté via dangerouslySetInnerHTML) */
+.article-content p {
+  margin-bottom: 1rem;
+}
+.article-content a {
+  color: var(--color-navy);
+  text-decoration: underline;
+}
+.article-content strong {
+  font-weight: 600;
+}
+
 /* Bloc newsletter — forme en "pilule" */
 .nl-left {
   border-radius: 0 999px 999px 0 / 0 52% 52% 0;

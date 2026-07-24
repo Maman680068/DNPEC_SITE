@@ -61,38 +61,49 @@ type WpPost = {
   date: string;
   title: WpRenderedField;
   excerpt: WpRenderedField;
+  content: WpRenderedField;
   _embedded?: {
     "wp:term"?: WpTerm[][];
     "wp:featuredmedia"?: WpMedia[];
   };
 };
 
-/** Retire les balises HTML et décode les entités les plus courantes renvoyées par l'API WordPress. */
+const HTML_ENTITIES: Record<string, string> = {
+  "&amp;": "&",
+  "&nbsp;": " ",
+  "&#8217;": "’",
+  "&#8216;": "‘",
+  "&#8220;": "“",
+  "&#8221;": "”",
+  "&#8211;": "–",
+  "&#8212;": "—",
+  "&#8230;": "…",
+  "&hellip;": "…",
+  "&eacute;": "é",
+  "&Eacute;": "É",
+  "&egrave;": "è",
+  "&Egrave;": "È",
+  "&agrave;": "à",
+  "&Agrave;": "À",
+  "&laquo;": "«",
+  "&raquo;": "»",
+};
+const HTML_ENTITY_PATTERN = new RegExp(
+  Object.keys(HTML_ENTITIES)
+    .map((e) => e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|"),
+  "g",
+);
+
+/** Décode les entités HTML les plus courantes renvoyées par l'API WordPress, sans toucher aux balises. */
+function decodeEntities(html: string): string {
+  return html.replace(HTML_ENTITY_PATTERN, (m) => HTML_ENTITIES[m] ?? m);
+}
+
+/** Retire les balises HTML et décode les entités — utilisé pour les champs texte brut (titre, extrait). */
 function stripHtml(html: string): string {
-  const entities: Record<string, string> = {
-    "&amp;": "&",
-    "&nbsp;": " ",
-    "&#8217;": "’",
-    "&#8216;": "‘",
-    "&#8220;": "“",
-    "&#8221;": "”",
-    "&#8211;": "–",
-    "&#8212;": "—",
-    "&#8230;": "…",
-    "&hellip;": "…",
-    "&eacute;": "é",
-    "&Eacute;": "É",
-    "&egrave;": "è",
-    "&Egrave;": "È",
-    "&agrave;": "à",
-    "&Agrave;": "À",
-    "&laquo;": "«",
-    "&raquo;": "»",
-  };
-  const entityPattern = new RegExp(Object.keys(entities).map((e) => e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g");
-  return html
+  return decodeEntities(html)
     .replace(/<[^>]*>/g, "")
-    .replace(entityPattern, (m) => entities[m] ?? m)
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -106,6 +117,7 @@ function mapWpPostToNewsArticle(post: WpPost): NewsArticle {
     excerpt: stripHtml(post.excerpt.rendered),
     date: post.date,
     coverImage: post._embedded?.["wp:featuredmedia"]?.[0]?.source_url,
+    content: decodeEntities(post.content.rendered),
   };
 }
 
