@@ -6,6 +6,8 @@ export type NewsArticle = {
   excerpt: string;
   date: string;
   coverImage?: string;
+  /** Contenu HTML complet (paragraphes conservés) — absent pour les données mock. */
+  content?: string;
 };
 
 export type Publication = {
