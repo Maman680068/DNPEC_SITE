@@ -16,18 +16,16 @@ export default function BackToTop() {
 
       // Repousse le bouton au-dessus du footer dès que celui-ci entre dans
       // le viewport, pour qu'il ne chevauche jamais son texte — quelle que
-      // soit la hauteur du footer sur la page courante. Plafonné à la fois
-      // par le bas de la barre de navigation collante (pour ne pas se
-      // superposer à elle sur mobile, où elle peut s'étaler sur plusieurs
-      // lignes) et par le haut du viewport, pour que le bouton reste
-      // toujours entièrement visible même sur un footer plus haut que
-      // l'écran (empilement des colonnes en mobile).
+      // soit la hauteur du footer sur la page courante. Ce calcul ne
+      // référence que le footer : le positionnement par défaut (bas à
+      // droite du viewport) est totalement indépendant du header sticky.
+      // Plafonné pour que le bouton reste toujours entièrement visible à
+      // l'écran, même sur un footer plus haut que le viewport (empilement
+      // des colonnes en mobile).
       const footer = document.querySelector("footer");
-      const nav = document.getElementById("main-nav");
       if (footer) {
         const overlap = window.innerHeight - footer.getBoundingClientRect().top;
-        const navBottom = nav ? Math.max(nav.getBoundingClientRect().bottom, 0) : 0;
-        const maxOffset = window.innerHeight - navBottom - BUTTON_SIZE_PX - BASE_MARGIN_PX;
+        const maxOffset = window.innerHeight - BUTTON_SIZE_PX - BASE_MARGIN_PX;
         const offset = overlap > 0 ? overlap + BASE_MARGIN_PX : BASE_MARGIN_PX;
         setBottomOffset(Math.min(offset, Math.max(maxOffset, BASE_MARGIN_PX)));
       }
