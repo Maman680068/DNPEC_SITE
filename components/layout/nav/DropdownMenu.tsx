@@ -143,7 +143,7 @@ export default function DropdownMenu({
       ? "p-1 text-[#dbe2f0] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2 rounded"
       : "px-2 py-2 text-[#dbe2f0] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2 rounded";
 
-  const chevronIconClasses = `inline-block text-[10px] transition-transform ${
+  const chevronIconClasses = `inline-block ${level === 1 ? "text-[11px]" : "text-[10px]"} transition-transform ${
     level === 1 ? (isOpen ? "-rotate-180" : "") : isOpen ? "rotate-90" : ""
   }`;
 
