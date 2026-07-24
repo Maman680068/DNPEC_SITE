@@ -68,27 +68,75 @@ Plex Sans (texte), chargées via `next/font` dans `app/layout.tsx`.
 
 Le site fonctionne dès maintenant avec des données de démonstration
 (`lib/mock-data.ts`) afin que chaque page soit visualisable sans dépendance
-externe. La couche `lib/wordpress.ts` est prête à basculer sur un WordPress
-réel :
+externe. La couche `lib/wordpress.ts` interroge l'API REST WordPress dès que
+`WORDPRESS_API_URL` est définie, et retombe automatiquement sur les données
+mock si l'appel échoue (timeout, 404, site injoignable) — ce repli reste actif
+en permanence, ce n'est pas une étape à retirer plus tard.
 
-1. Installer et configurer un WordPress classique (back-office uniquement,
-   pas de thème public) avec les custom post types suivants : `actualites`,
-   `publications`, `indicateurs`, `partenaires`, et les rôles éditoriaux
-   « Rédacteur » / « Validateur-Publicateur » décrits au cahier des charges
-   (workflow brouillon → soumis → publié).
-2. Exposer l'API REST WordPress (`/wp-json/wp/v2/...`) ou WPGraphQL selon la
-   préférence retenue avec le prestataire.
-3. Définir la variable d'environnement `WORDPRESS_API_URL` dans un fichier
-   `.env.local` (voir `.env.example` à créer) :
-   ```
-   WORDPRESS_API_URL=https://cms.dnpec.gov.gn/wp-json/wp/v2
-   ```
-4. Dans `lib/wordpress.ts`, chaque fonction (`getNews`, `getPublications`,
-   `getIndicators`, `getPartners`) retombe automatiquement sur les données
-   mock si l'appel échoue ou si `WORDPRESS_API_URL` n'est pas défini — retirer
-   ce fallback une fois la connexion validée en recette.
-5. Adapter le mapping JSON → types TypeScript (`lib/types.ts`) au schéma réel
-   exposé par WordPress (champs ACF, médias, taxonomies).
+### Configurer `WORDPRESS_API_URL`
+
+**En local** : créer un fichier `.env.local` à la racine du projet (jamais
+commité — couvert par `.env*` dans `.gitignore`) :
+
+```
+WORDPRESS_API_URL=https://mon-wordpress.example.com/wp-json/wp/v2
+```
+
+Next.js le charge automatiquement au démarrage (`npm run dev` / `npm run
+build`), sans rien configurer de plus.
+
+**Sur Render** : la variable est déclarée dans `render.yaml` avec
+`sync: false` — elle n'est pas stockée dans le dépôt. Sur le dashboard
+Render du service, aller dans **Environment** et renseigner
+`WORDPRESS_API_URL` avec l'URL complète de l'API REST (`.../wp-json/wp/v2`),
+puis redéployer. Tant qu'elle est vide, le site sert les données mock (build
+et démarrage restent fonctionnels, voir [Déployer sur
+Render](#déployer-sur-render)).
+
+**N'importe quel autre environnement** (autre hébergeur, CI, etc.) : définir
+`WORDPRESS_API_URL` comme variable d'environnement standard avant `npm run
+build` ou `npm run start` — `lib/wordpress.ts` ne fait aucune hypothèse sur
+la plateforme.
+
+### État actuel des endpoints
+
+- **Actualités** (`getNews`, `getNewsBySlug`) : branchées sur `/posts`,
+  l'endpoint natif de tout WordPress — fonctionne sans aucune configuration
+  côté back-office, y compris sur une installation neuve. Le mapping
+  (`lib/wordpress.ts`) convertit le format natif (`title.rendered`,
+  `excerpt.rendered`, `_embedded` pour l'image mise en avant et la
+  catégorie) vers `NewsArticle` (`lib/types.ts`).
+- **Publications / Indicateurs / Partenaires** (`getPublications`,
+  `getIndicators`, `getPartners`) : ciblent des endpoints dédiés
+  (`/publications`, `/indicateurs`, `/partenaires`) qui n'existent pas sur
+  un WordPress par défaut. Ils nécessitent, côté back-office :
+  1. Des custom post types (ou une route REST sur-mesure) exposant ces
+     contenus, avec les rôles éditoriaux « Rédacteur » / « Validateur-
+     Publicateur » décrits au cahier des charges (workflow brouillon →
+     soumis → publié).
+  2. Un JSON de sortie déjà dans la forme attendue par `lib/types.ts`
+     (`Publication`, `Indicator`, `Partner`), ou un ajustement du mapping
+     dans `lib/wordpress.ts` si le plugin/thème utilisé structure les
+     champs différemment (ACF, taxonomies, médias).
+
+  Tant que ces endpoints ne sont pas configurés côté WordPress, ils
+  répondent 404 et le site sert les données mock pour ces trois
+  sections — c'est le comportement normal, pas une erreur à corriger côté
+  frontend.
+
+### Vérifier que la connexion fonctionne
+
+Chaque appel à `lib/wordpress.ts` logue son résultat côté serveur (visible
+dans le terminal en `npm run dev`, ou dans les logs Render en production) :
+
+```
+[wordpress] https://.../wp-json/wp/v2/posts?_embed&per_page=20 -> OK
+[wordpress] https://.../wp-json/wp/v2/publications?_embed -> HTTP 404, repli sur les données mock
+```
+
+Un `-> OK` confirme que les données affichées viennent réellement de
+WordPress ; un repli sur le mock explique pourquoi (code HTTP, erreur
+réseau) sans jamais faire planter la page.
 
 ## Déployer sur Render
 
