@@ -41,11 +41,11 @@ export default function MainNav() {
             onNavigate={() => setOpenIndex(null)}
           />
         ))}
-        <li className="list-none ml-auto">
+        <li className="list-none">
           <button
             type="button"
             aria-label="Rechercher"
-            className="text-[#dbe2f0] hover:text-white text-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2 rounded"
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full text-base text-[#dbe2f0] cursor-pointer transition-colors hover:text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2"
           >
             ⌕
           </button>

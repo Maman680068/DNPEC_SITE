@@ -108,5 +108,4 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "Écrire au Directeur National", href: "/contact#directeur-national" },
     ],
   },
-  { label: "Postuler aux enquêtes", href: "/enquetes" },
 ];
