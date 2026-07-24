@@ -41,7 +41,6 @@ export default async function ActualitePage({ params }: ActualitePageProps) {
             className="w-full max-h-[420px] object-cover rounded-lg mb-6"
           />
         )}
-        <p className="text-[15px] text-muted leading-relaxed mb-6">{article.excerpt}</p>
         {article.content ? (
           <div
             className="article-content text-[15px] text-ink leading-relaxed"
