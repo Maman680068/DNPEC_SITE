@@ -1,5 +1,6 @@
 import type { Indicator, NewsArticle, Partner, Publication } from "./types";
 import { mockIndicators, mockNews, mockPartners, mockPublications } from "./mock-data";
+import { decodeHtmlEntities } from "./decodeHtml";
 
 /**
  * Couche d'accès au WordPress headless (back-office CMS).
@@ -68,41 +69,9 @@ type WpPost = {
   };
 };
 
-const HTML_ENTITIES: Record<string, string> = {
-  "&amp;": "&",
-  "&nbsp;": " ",
-  "&#8217;": "’",
-  "&#8216;": "‘",
-  "&#8220;": "“",
-  "&#8221;": "”",
-  "&#8211;": "–",
-  "&#8212;": "—",
-  "&#8230;": "…",
-  "&hellip;": "…",
-  "&eacute;": "é",
-  "&Eacute;": "É",
-  "&egrave;": "è",
-  "&Egrave;": "È",
-  "&agrave;": "à",
-  "&Agrave;": "À",
-  "&laquo;": "«",
-  "&raquo;": "»",
-};
-const HTML_ENTITY_PATTERN = new RegExp(
-  Object.keys(HTML_ENTITIES)
-    .map((e) => e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    .join("|"),
-  "g",
-);
-
-/** Décode les entités HTML les plus courantes renvoyées par l'API WordPress, sans toucher aux balises. */
-function decodeEntities(html: string): string {
-  return html.replace(HTML_ENTITY_PATTERN, (m) => HTML_ENTITIES[m] ?? m);
-}
-
 /** Retire les balises HTML et décode les entités — utilisé pour les champs texte brut (titre, extrait). */
 function stripHtml(html: string): string {
-  return decodeEntities(html)
+  return decodeHtmlEntities(html)
     .replace(/<[^>]*>/g, "")
     .replace(/\s+/g, " ")
     .trim();
@@ -113,11 +82,11 @@ function mapWpPostToNewsArticle(post: WpPost): NewsArticle {
     id: String(post.id),
     slug: post.slug,
     title: stripHtml(post.title.rendered),
-    category: post._embedded?.["wp:term"]?.[0]?.[0]?.name ?? "Actualité",
+    category: decodeHtmlEntities(post._embedded?.["wp:term"]?.[0]?.[0]?.name ?? "Actualité"),
     excerpt: stripHtml(post.excerpt.rendered),
     date: post.date,
     coverImage: post._embedded?.["wp:featuredmedia"]?.[0]?.source_url,
-    content: decodeEntities(post.content.rendered),
+    content: decodeHtmlEntities(post.content.rendered),
   };
 }
 
