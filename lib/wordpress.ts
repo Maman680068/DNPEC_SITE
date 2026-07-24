@@ -80,10 +80,19 @@ function stripHtml(html: string): string {
     "&#8212;": "—",
     "&#8230;": "…",
     "&hellip;": "…",
+    "&eacute;": "é",
+    "&Eacute;": "É",
+    "&egrave;": "è",
+    "&Egrave;": "È",
+    "&agrave;": "à",
+    "&Agrave;": "À",
+    "&laquo;": "«",
+    "&raquo;": "»",
   };
+  const entityPattern = new RegExp(Object.keys(entities).map((e) => e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g");
   return html
     .replace(/<[^>]*>/g, "")
-    .replace(/&#8217;|&#8216;|&#8220;|&#8221;|&#8211;|&#8212;|&#8230;|&hellip;|&amp;|&nbsp;/g, (m) => entities[m] ?? m)
+    .replace(entityPattern, (m) => entities[m] ?? m)
     .replace(/\s+/g, " ")
     .trim();
 }
