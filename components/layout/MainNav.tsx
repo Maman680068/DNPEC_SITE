@@ -26,7 +26,7 @@ export default function MainNav() {
     <nav className="bg-navy">
       <ul
         role="menubar"
-        className="wrap flex flex-wrap xl:flex-nowrap items-center gap-x-3.5 gap-y-1 min-h-[52px] py-2 text-[13px] font-medium"
+        className="wrap flex flex-wrap xl:flex-nowrap items-center gap-x-5 gap-y-2 min-h-[58px] py-2.5 text-[14.5px] font-medium"
       >
         {NAV_ITEMS.map((item, index) => (
           <DropdownMenu
@@ -45,7 +45,7 @@ export default function MainNav() {
           <button
             type="button"
             aria-label="Rechercher"
-            className="inline-flex items-center justify-center w-8 h-8 rounded-full text-base text-[#dbe2f0] cursor-pointer transition-colors hover:text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2"
+            className="inline-flex items-center justify-center w-9 h-9 rounded-full text-lg text-[#dbe2f0] cursor-pointer transition-colors hover:text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2"
           >
             ⌕
           </button>
