@@ -4,16 +4,27 @@ import { mockIndicators, mockNews, mockPartners, mockPublications } from "./mock
 /**
  * Couche d'accès au WordPress headless (back-office CMS).
  *
- * Tant que WORDPRESS_API_URL n'est pas défini (variable d'environnement),
- * chaque fonction retombe sur les données de démonstration de lib/mock-data.ts
- * afin que le site public reste fonctionnel en développement.
+ * Tant que WORDPRESS_API_URL n'est pas défini — ou si l'appel échoue —
+ * chaque fonction retombe sur les données de démonstration de
+ * lib/mock-data.ts, afin que le site public reste toujours fonctionnel.
  *
- * Une fois le WordPress connecté, définir dans .env.local :
- *   WORDPRESS_API_URL=https://cms.dnpec.gov.gn/wp-json/wp/v2
+ * Définir dans .env.local (jamais commité, voir .gitignore) :
+ *   WORDPRESS_API_URL=https://mon-wordpress.example.com/wp-json/wp/v2
  *
- * Voir README.md § "Connecter le WordPress headless" pour le détail des
- * endpoints attendus (actualites, publications, indicateurs, partenaires)
- * et le mapping des custom post types / ACF vers les types de lib/types.ts.
+ * Voir README.md § "Connecter le WordPress headless" pour la configuration
+ * détaillée (local, Render) et l'état actuel de chaque endpoint.
+ *
+ * État des endpoints :
+ * - Actualités (getNews / getNewsBySlug) : branché sur /posts, l'endpoint
+ *   natif de tout WordPress (aucune configuration serveur requise). C'est
+ *   le seul type de contenu immédiatement disponible sur une installation
+ *   neuve.
+ * - Publications / Indicateurs / Partenaires : ciblent des endpoints
+ *   dédiés (/publications, /indicateurs, /partenaires) qui n'existent pas
+ *   sur une installation WordPress par défaut — ils nécessitent des custom
+ *   post types (ou une route REST sur-mesure) côté back-office. Tant que ce
+ *   n'est pas en place, ces endpoints répondent 404 et le repli sur les
+ *   données mock est le comportement normal, pas une erreur.
  */
 
 const WORDPRESS_API_URL = process.env.WORDPRESS_API_URL;
@@ -21,25 +32,84 @@ const WORDPRESS_API_URL = process.env.WORDPRESS_API_URL;
 async function fetchFromWordpress<T>(path: string): Promise<T | null> {
   if (!WORDPRESS_API_URL) return null;
 
+  const url = `${WORDPRESS_API_URL}${path}`;
   try {
-    const res = await fetch(`${WORDPRESS_API_URL}${path}`, {
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return null;
+    const res = await fetch(url, { next: { revalidate: 300 } });
+    if (!res.ok) {
+      console.warn(`[wordpress] ${url} -> HTTP ${res.status}, repli sur les données mock`);
+      return null;
+    }
+    console.info(`[wordpress] ${url} -> OK`);
     return (await res.json()) as T;
-  } catch {
+  } catch (error) {
+    console.warn(`[wordpress] ${url} -> échec de connexion, repli sur les données mock`, error);
     return null;
   }
 }
 
+// --- Mapping du format natif WordPress (endpoint /posts) -----------------
+
+type WpRenderedField = { rendered: string };
+
+type WpTerm = { id: number; name: string; slug: string };
+
+type WpMedia = { source_url: string };
+
+type WpPost = {
+  id: number;
+  slug: string;
+  date: string;
+  title: WpRenderedField;
+  excerpt: WpRenderedField;
+  _embedded?: {
+    "wp:term"?: WpTerm[][];
+    "wp:featuredmedia"?: WpMedia[];
+  };
+};
+
+/** Retire les balises HTML et décode les entités les plus courantes renvoyées par l'API WordPress. */
+function stripHtml(html: string): string {
+  const entities: Record<string, string> = {
+    "&amp;": "&",
+    "&nbsp;": " ",
+    "&#8217;": "’",
+    "&#8216;": "‘",
+    "&#8220;": "“",
+    "&#8221;": "”",
+    "&#8211;": "–",
+    "&#8212;": "—",
+    "&#8230;": "…",
+    "&hellip;": "…",
+  };
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&#8217;|&#8216;|&#8220;|&#8221;|&#8211;|&#8212;|&#8230;|&hellip;|&amp;|&nbsp;/g, (m) => entities[m] ?? m)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function mapWpPostToNewsArticle(post: WpPost): NewsArticle {
+  return {
+    id: String(post.id),
+    slug: post.slug,
+    title: stripHtml(post.title.rendered),
+    category: post._embedded?.["wp:term"]?.[0]?.[0]?.name ?? "Actualité",
+    excerpt: stripHtml(post.excerpt.rendered),
+    date: post.date,
+    coverImage: post._embedded?.["wp:featuredmedia"]?.[0]?.source_url,
+  };
+}
+
+// --- API publique ----------------------------------------------------------
+
 export async function getNews(): Promise<NewsArticle[]> {
-  const data = await fetchFromWordpress<NewsArticle[]>("/actualites?_embed");
-  return data ?? mockNews;
+  const data = await fetchFromWordpress<WpPost[]>("/posts?_embed&per_page=20");
+  return data ? data.map(mapWpPostToNewsArticle) : mockNews;
 }
 
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
-  const data = await fetchFromWordpress<NewsArticle[]>(`/actualites?slug=${slug}`);
-  if (data && data.length > 0) return data[0];
+  const data = await fetchFromWordpress<WpPost[]>(`/posts?slug=${encodeURIComponent(slug)}&_embed`);
+  if (data && data.length > 0) return mapWpPostToNewsArticle(data[0]);
   return mockNews.find((article) => article.slug === slug) ?? null;
 }
 
