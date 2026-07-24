@@ -23,7 +23,7 @@ export default function MainNav() {
   }
 
   return (
-    <nav className="bg-navy">
+    <nav id="main-nav" className="bg-navy sticky top-0 z-40 shadow-md">
       <ul
         role="menubar"
         className="wrap flex flex-wrap xl:flex-nowrap items-center gap-x-5 gap-y-2 min-h-[58px] py-2.5 text-[14.5px] font-medium"

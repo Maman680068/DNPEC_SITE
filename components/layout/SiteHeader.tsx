@@ -1,6 +1,5 @@
 import Topbar from "./Topbar";
 import Ticker from "./Ticker";
-import MainNav from "./MainNav";
 
 export default function SiteHeader() {
   return (
@@ -8,7 +7,6 @@ export default function SiteHeader() {
       <div className="flag-strip" />
       <Topbar />
       <Ticker />
-      <MainNav />
     </header>
   );
 }

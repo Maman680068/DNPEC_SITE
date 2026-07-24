@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/layout/SiteHeader";
+import MainNav from "@/components/layout/MainNav";
 import Footer from "@/components/layout/Footer";
 import BackToTop from "@/components/ui/BackToTop";
 
@@ -35,6 +36,7 @@ export default function RootLayout({
     <html lang="fr" className={`${poppins.variable} ${plexSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <SiteHeader />
+        <MainNav />
         <main className="flex-1">{children}</main>
         <Footer />
         <BackToTop />
