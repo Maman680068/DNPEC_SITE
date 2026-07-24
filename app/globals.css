@@ -135,70 +135,11 @@ h3,
 .article-content figure {
   margin: 1.5rem 0;
 }
-.article-content figure img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  display: block;
-}
 .article-content figcaption {
   font-size: 0.85rem;
   color: var(--color-muted);
   margin-top: 0.5rem;
   text-align: center;
-}
-
-/*
- * Blocs Galerie/Colonnes Gutenberg : leur mise en page (grille) repose sur
- * la feuille de style wp-block-library de WordPress, jamais chargée par ce
- * frontend headless (on ne récupère que le HTML via l'API REST) — d'où ces
- * règles équivalentes, gardées volontairement simples (grille CSS plutôt
- * que la reproduction flex exacte de WordPress).
- */
-.article-content .wp-block-gallery {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin: 1.5rem 0;
-  padding: 0;
-  list-style: none;
-}
-.article-content .wp-block-gallery.columns-1 {
-  grid-template-columns: 1fr;
-}
-.article-content .wp-block-gallery.columns-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-.article-content .wp-block-gallery.columns-4 {
-  grid-template-columns: repeat(4, 1fr);
-}
-.article-content .wp-block-gallery.columns-5 {
-  grid-template-columns: repeat(5, 1fr);
-}
-.article-content .wp-block-gallery.columns-6 {
-  grid-template-columns: repeat(6, 1fr);
-}
-.article-content .wp-block-gallery figure.wp-block-image {
-  margin: 0;
-}
-.article-content .wp-block-gallery img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 6px;
-  display: block;
-}
-.article-content .wp-block-gallery.is-cropped img {
-  aspect-ratio: 1 / 1;
-}
-.article-content .wp-block-columns {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
-  margin: 1.5rem 0;
-}
-.article-content .wp-block-column {
-  min-width: 0;
 }
 
 /* Bloc newsletter — forme en "pilule" */
