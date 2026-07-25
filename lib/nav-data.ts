@@ -25,7 +25,7 @@ export const NAV_ITEMS: NavItem[] = [
           { label: "Code minier", href: "/code-minier" },
         ],
       },
-      { label: "Organigramme", href: "/la-dnpec/organigramme" },
+      { label: "Organigramme", href: "/organigramme" },
     ],
   },
   {
