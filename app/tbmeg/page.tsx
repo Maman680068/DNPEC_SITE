@@ -10,6 +10,7 @@ export default function TbmegPage() {
       slug="tableau-de-bord-mensuel-de-leconomie-guineenne-tbmeg"
       fallbackTitle="Tableau de Bord Mensuel de l'Économie Guinéenne (TBMEG)"
       eyebrow="Publications"
+      yearlyGrid
     />
   );
 }
