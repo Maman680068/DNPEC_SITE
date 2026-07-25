@@ -53,7 +53,7 @@ export default async function ActualitePage({ params }: ActualitePageProps) {
               dangerouslySetInnerHTML={{ __html: contentText }}
             />
             {contentImages.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6 mb-6">
                 {contentImages.map((img, index) => (
                   <div key={index} className="aspect-square overflow-hidden rounded-lg bg-line">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
