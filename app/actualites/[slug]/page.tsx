@@ -35,7 +35,7 @@ export default async function ActualitePage({ params }: ActualitePageProps) {
 
   return (
     <div className="wrap">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <PageTitle eyebrow={article.category} title={article.title} />
         <section className="pb-14">
           <p className="text-xs text-muted mb-6">{formatDate(article.date)}</p>
@@ -44,7 +44,7 @@ export default async function ActualitePage({ params }: ActualitePageProps) {
             <img
               src={article.coverImage}
               alt={article.title}
-              className="w-full max-h-[420px] object-cover rounded-lg mb-6"
+              className="w-full aspect-[21/9] object-cover rounded-lg mb-6"
             />
           )}
           {article.content ? (
