@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import PageEnConstruction from "@/components/ui/PageEnConstruction";
+import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
 
 export const metadata: Metadata = { title: "Textes réglementaires" };
 
 export default function TextesReglementairesPage() {
-  return <PageEnConstruction title="Textes réglementaires" />;
+  return <InstitutionalPage slug="textes-reglementaires" fallbackTitle="Textes réglementaires" />;
 }

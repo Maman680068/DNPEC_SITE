@@ -36,3 +36,11 @@ export type Partner = {
   logoUrl?: string;
   websiteUrl?: string;
 };
+
+/** Page de contenu institutionnel (endpoint WordPress wp/v2/pages). */
+export type InstitutionalPage = {
+  title: string;
+  /** Contenu HTML complet (paragraphes conservés), entités déjà décodées. */
+  content: string;
+  coverImage?: string;
+};
