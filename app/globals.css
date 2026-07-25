@@ -133,6 +133,7 @@ h3,
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: 1.05rem;
   font-weight: 600;
 }
 .article-content a[href$=".pdf" i]::after {
@@ -141,13 +142,16 @@ h3,
   flex-shrink: 0;
   background: var(--color-yellow);
   color: var(--color-navy-dark);
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.03em;
-  padding: 0.15rem 0.4rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 4px;
   line-height: 1.4;
   text-decoration: none;
+}
+.article-content li:has(a[href$=".pdf" i]) {
+  margin-bottom: 0.85rem;
 }
 .article-content strong {
   font-weight: 600;
