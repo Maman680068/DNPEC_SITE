@@ -4,6 +4,7 @@ import IndicateursSection from "@/components/home/IndicateursSection";
 import { getIndicators } from "@/lib/wordpress";
 
 export const metadata: Metadata = { title: "Quelques chiffres" };
+export const revalidate = 300;
 
 export default async function QuelquesChiffresPage() {
   const indicators = await getIndicators();

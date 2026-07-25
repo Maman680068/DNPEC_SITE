@@ -9,6 +9,8 @@ type ActualitePageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export const revalidate = 300;
+
 export async function generateMetadata({ params }: ActualitePageProps): Promise<Metadata> {
   const { slug } = await params;
   const article = await getNewsBySlug(slug);
