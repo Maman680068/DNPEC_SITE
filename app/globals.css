@@ -135,6 +135,10 @@ h3,
   gap: 0.5rem;
   font-size: 1.05rem;
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+.article-content a[href$=".pdf" i]:hover {
+  color: var(--color-green);
 }
 .article-content a[href$=".pdf" i]::after {
   content: "PDF";
@@ -149,6 +153,11 @@ h3,
   border-radius: 4px;
   line-height: 1.4;
   text-decoration: none;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.article-content a[href$=".pdf" i]:hover::after {
+  box-shadow: 0 3px 8px rgba(13, 32, 71, 0.25);
+  transform: translateY(-1px);
 }
 .article-content li:has(a[href$=".pdf" i]) {
   margin-bottom: 0.85rem;
