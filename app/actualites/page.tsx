@@ -25,14 +25,14 @@ export default async function ActualitesPage() {
             <Link
               key={article.id}
               href={`/actualites/${article.slug}`}
-              className="news-card rounded-[10px] overflow-hidden relative h-[300px] block"
+              className="news-card group rounded-[10px] overflow-hidden relative h-[300px] block shadow-md hover:shadow-xl transition-shadow duration-300"
             >
               {article.coverImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={article.coverImage}
                   alt={article.title}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               )}
               <span className="absolute top-3.5 left-3.5 bg-green text-white text-[10.5px] font-bold px-2.5 py-1 rounded uppercase tracking-wide">
