@@ -33,7 +33,7 @@ const cards = [
   {
     title: "Organigramme",
     description: "Organisation interne et services de la Direction.",
-    href: "/la-dnpec/organigramme",
+    href: "/organigramme",
   },
 ];
 
