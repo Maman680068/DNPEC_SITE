@@ -1,4 +1,4 @@
-import type { Indicator, NewsArticle, Partner, Publication } from "./types";
+import type { Indicator, InstitutionalPage, NewsArticle, Partner, Publication } from "./types";
 import { mockIndicators, mockNews, mockPartners, mockPublications } from "./mock-data";
 import { decodeHtmlEntities } from "./decodeHtml";
 
@@ -90,6 +90,26 @@ function mapWpPostToNewsArticle(post: WpPost): NewsArticle {
   };
 }
 
+// --- Mapping du format natif WordPress (endpoint /pages) -----------------
+
+type WpPage = {
+  id: number;
+  slug: string;
+  title: WpRenderedField;
+  content: WpRenderedField;
+  _embedded?: {
+    "wp:featuredmedia"?: WpMedia[];
+  };
+};
+
+function mapWpPageToInstitutionalPage(page: WpPage): InstitutionalPage {
+  return {
+    title: stripHtml(page.title.rendered),
+    content: decodeHtmlEntities(page.content.rendered),
+    coverImage: page._embedded?.["wp:featuredmedia"]?.[0]?.source_url,
+  };
+}
+
 // --- API publique ----------------------------------------------------------
 
 export async function getNews(): Promise<NewsArticle[]> {
@@ -101,6 +121,19 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
   const data = await fetchFromWordpress<WpPost[]>(`/posts?slug=${encodeURIComponent(slug)}&_embed`);
   if (data && data.length > 0) return mapWpPostToNewsArticle(data[0]);
   return mockNews.find((article) => article.slug === slug) ?? null;
+}
+
+/**
+ * Page de contenu institutionnel (wp/v2/pages) — ex. "Mot du Directeur
+ * National". Renvoie null si la page n'existe pas côté WordPress OU si son
+ * contenu réel (une fois les balises retirées) est vide, pour que
+ * l'appelant retombe sur PageEnConstruction dans les deux cas.
+ */
+export async function getPageBySlug(slug: string): Promise<InstitutionalPage | null> {
+  const data = await fetchFromWordpress<WpPage[]>(`/pages?slug=${encodeURIComponent(slug)}&_embed`);
+  if (!data || data.length === 0) return null;
+  const page = mapWpPageToInstitutionalPage(data[0]);
+  return stripHtml(page.content).length > 0 ? page : null;
 }
 
 export async function getPublications(): Promise<Publication[]> {

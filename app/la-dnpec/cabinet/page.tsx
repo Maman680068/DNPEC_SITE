@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import PageEnConstruction from "@/components/ui/PageEnConstruction";
+import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
 
 export const metadata: Metadata = { title: "Cabinet" };
 
 export default function CabinetPage() {
-  return <PageEnConstruction title="Cabinet" />;
+  return <InstitutionalPage slug="cabinet" fallbackTitle="Cabinet" />;
 }
