@@ -44,7 +44,7 @@ export const NAV_ITEMS: NavItem[] = [
         label: "Documents conjoncturels",
         href: "/publications?type=conjoncturels",
         children: [
-          { label: "TBMEG", href: "/publications?type=conjoncturels" },
+          { label: "TBMEG", href: "/tbmeg" },
           { label: "Rapport régional de conjoncture (RRC)", href: "/publications?type=conjoncturels" },
           { label: "Note hebdomadaire de l'économie guinéenne", href: "/publications?type=conjoncturels" },
           { label: "Note de conjoncture économique de la Guinée", href: "/publications?type=conjoncturels" },

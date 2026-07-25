@@ -1,5 +1,6 @@
 import PageTitle from "@/components/ui/PageTitle";
 import PageEnConstruction from "@/components/ui/PageEnConstruction";
+import YearlyContentGrid from "@/components/la-dnpec/YearlyContentGrid";
 import { getPageBySlug } from "@/lib/wordpress";
 
 type PhotoCaption = {
@@ -15,6 +16,8 @@ type InstitutionalPageProps = {
   eyebrow?: string;
   /** Légende affichée sous la photo (ex. nom/fonction d'une personne) — n'a de sens que pour certaines pages. */
   photoCaption?: PhotoCaption;
+  /** Contenu classé par année (ex. tableaux de bord mensuels) : affiché en grille 2 colonnes plutôt qu'empilé. */
+  yearlyGrid?: boolean;
 };
 
 export default async function InstitutionalPage({
@@ -22,6 +25,7 @@ export default async function InstitutionalPage({
   fallbackTitle,
   eyebrow = "La DNPEC",
   photoCaption,
+  yearlyGrid = false,
 }: InstitutionalPageProps) {
   const page = await getPageBySlug(slug);
 
@@ -51,10 +55,13 @@ export default async function InstitutionalPage({
                 )}
               </div>
             )}
-            <div
-              className="article-content text-[15px] text-ink leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: page.content }}
-            />
+            <div className="article-content text-[15px] text-ink leading-relaxed">
+              {yearlyGrid ? (
+                <YearlyContentGrid html={page.content} />
+              ) : (
+                <div dangerouslySetInnerHTML={{ __html: page.content }} />
+              )}
+            </div>
           </div>
         </section>
       </div>
