@@ -4,6 +4,7 @@ import PublicationsExplorer from "@/components/publications/PublicationsExplorer
 import { getPublications } from "@/lib/wordpress";
 
 export const metadata: Metadata = { title: "Publications" };
+export const revalidate = 300;
 
 type PublicationsPageProps = {
   searchParams: Promise<{ type?: string }>;

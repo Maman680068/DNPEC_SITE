@@ -4,6 +4,7 @@ import PageTitle from "@/components/ui/PageTitle";
 import { getNews } from "@/lib/wordpress";
 
 export const metadata: Metadata = { title: "Actualités" };
+export const revalidate = 300;
 
 function formatDate(dateIso: string) {
   return new Date(dateIso).toLocaleDateString("fr-FR", {

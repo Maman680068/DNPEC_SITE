@@ -7,6 +7,11 @@ import PartnersSection from "@/components/home/PartnersSection";
 import Newsletter from "@/components/home/Newsletter";
 import { getIndicators, getNews, getPartners, getPublications } from "@/lib/wordpress";
 
+// Revalidation ISR explicite (déjà fixée à 300s au niveau du fetch dans
+// lib/wordpress.ts) — documentée ici pour que la fréquence de rafraîchissement
+// de cette route soit visible sans avoir à remonter jusqu'à la couche d'accès.
+export const revalidate = 300;
+
 export default async function Home() {
   const [indicators, news, publications, partners] = await Promise.all([
     getIndicators(),

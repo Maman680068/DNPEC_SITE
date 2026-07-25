@@ -8,6 +8,8 @@ type PublicationPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export const revalidate = 300;
+
 export async function generateMetadata({ params }: PublicationPageProps): Promise<Metadata> {
   const { slug } = await params;
   const publications = await getPublications();
