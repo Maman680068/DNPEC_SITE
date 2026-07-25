@@ -15,6 +15,10 @@ export default async function Home() {
     getPartners(),
   ]);
 
+  const latestNews = [...news]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 3);
+
   return (
     <>
       <div className="wrap">
@@ -28,7 +32,7 @@ export default async function Home() {
 
         <IndicateursSection indicators={indicators} />
 
-        <ActualitesSection articles={news} />
+        <ActualitesSection articles={latestNews} />
 
         <PublicationsSection publications={publications} />
       </div>
