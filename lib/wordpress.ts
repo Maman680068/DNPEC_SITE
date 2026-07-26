@@ -77,9 +77,13 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-/** Premier lien se terminant par .pdf trouvé dans du contenu WordPress, pour la miniature du carrousel. */
+/**
+ * Premier lien vers un .pdf trouvé dans du contenu WordPress, pour la
+ * miniature du carrousel — tolère un ?query ou #fragment après ".pdf"
+ * (ex. liens de l'ancien site avec un paramètre de téléchargement).
+ */
 function extractFirstPdfUrl(html: string): string | undefined {
-  const match = html.match(/<a[^>]+href="([^"]+\.pdf)"[^>]*>/i);
+  const match = html.match(/<a[^>]+href="([^"]+\.pdf(?:[?#][^"]*)?)"[^>]*>/i);
   return match?.[1];
 }
 
@@ -102,6 +106,7 @@ type WpPage = {
   id: number;
   slug: string;
   date: string;
+  modified: string;
   title: WpRenderedField;
   content: WpRenderedField;
   _embedded?: {
@@ -115,6 +120,7 @@ function mapWpPageToInstitutionalPage(page: WpPage): InstitutionalPage {
     content: decodeHtmlEntities(page.content.rendered),
     coverImage: page._embedded?.["wp:featuredmedia"]?.[0]?.source_url,
     date: page.date,
+    modified: page.modified,
   };
 }
 
@@ -179,12 +185,18 @@ const PUBLICATION_PAGES: { slug: string; href: string; fallbackTitle: string }[]
 ];
 
 /**
- * Publications les plus récentes parmi celles réellement publiées côté
- * WordPress (cf. PUBLICATION_PAGES), triées par date décroissante — pour le
- * carrousel de couvertures de la page d'accueil. Ignore silencieusement les
- * pages pas encore publiées plutôt que de renvoyer un repli mock.
+ * Toutes les publications réellement publiées côté WordPress (cf.
+ * PUBLICATION_PAGES), triées par date de dernière modification décroissante
+ * — pour le carrousel de couvertures de la page d'accueil. Le tri se base
+ * sur `modified` plutôt que `date` (création) : ce sont des pages-listes
+ * éditées au fil du temps (ex. TBMEG, un nouveau mois ajouté chaque mois),
+ * donc `modified` reflète bien mieux "mis à jour récemment" — `date` seule
+ * placerait ces pages dans l'ordre où elles ont été créées la première fois,
+ * ce qui peut sembler arbitraire si plusieurs ont été créées le même jour.
+ * Ignore silencieusement les pages pas encore publiées plutôt que de
+ * renvoyer un repli mock.
  */
-export async function getRecentPublicationCards(limit = 6): Promise<PublicationCard[]> {
+export async function getRecentPublicationCards(): Promise<PublicationCard[]> {
   const results = await Promise.all(
     PUBLICATION_PAGES.map(async (entry) => {
       const page = await getPageBySlug(entry.slug);
@@ -193,7 +205,7 @@ export async function getRecentPublicationCards(limit = 6): Promise<PublicationC
         slug: entry.slug,
         href: entry.href,
         title: page.title || entry.fallbackTitle,
-        date: page.date ?? "",
+        date: page.modified || page.date || "",
         pdfUrl: extractFirstPdfUrl(page.content),
       };
       return card;
@@ -201,8 +213,7 @@ export async function getRecentPublicationCards(limit = 6): Promise<PublicationC
   );
   return results
     .filter((card): card is PublicationCard => card !== null)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, limit);
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export async function getIndicators(): Promise<Indicator[]> {
