@@ -129,7 +129,7 @@ h3,
   color: var(--color-navy);
   text-decoration: underline;
 }
-.article-content a[href$=".pdf" i] {
+.article-content:not(.yearly-doc-content) a[href$=".pdf" i] {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
@@ -137,10 +137,10 @@ h3,
   font-weight: 600;
   transition: color 0.3s ease;
 }
-.article-content a[href$=".pdf" i]:hover {
+.article-content:not(.yearly-doc-content) a[href$=".pdf" i]:hover {
   color: var(--color-green);
 }
-.article-content a[href$=".pdf" i]::after {
+.article-content:not(.yearly-doc-content) a[href$=".pdf" i]::after {
   content: "PDF";
   display: inline-block;
   flex-shrink: 0;
@@ -155,11 +155,11 @@ h3,
   text-decoration: none;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
-.article-content a[href$=".pdf" i]:hover::after {
+.article-content:not(.yearly-doc-content) a[href$=".pdf" i]:hover::after {
   box-shadow: 0 3px 8px rgba(13, 32, 71, 0.25);
   transform: translateY(-1px);
 }
-.article-content li:has(a[href$=".pdf" i]) {
+.article-content:not(.yearly-doc-content) li:has(a[href$=".pdf" i]) {
   margin-bottom: 0.85rem;
 }
 .article-content strong {
@@ -176,6 +176,65 @@ h3,
 .article-content h3:first-child {
   margin-top: 0;
 }
+
+/* Listes de documents groupés par année (ex. TBMEG) : rangée pleine largeur
+   avec icône PDF, texte agrandi, fond coloré au survol de toute la ligne. */
+.article-content.yearly-doc-content ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 0.5rem;
+}
+.article-content.yearly-doc-content li {
+  margin: 0;
+}
+.yearly-doc-content li > a {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.65rem 0.75rem;
+  margin: 0 -0.75rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-navy);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+.yearly-doc-content li > a:hover {
+  background-color: color-mix(in srgb, var(--color-yellow) 20%, white);
+}
+.yearly-doc-content li > a::before,
+.yearly-doc-content li:not(:has(a))::before {
+  content: "PDF";
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.2rem;
+  border-radius: 6px;
+  background: #d32f2f;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+.yearly-doc-content li:not(:has(a)) {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.65rem 0.75rem;
+  margin: 0 -0.75rem;
+  color: var(--color-muted);
+  font-style: italic;
+  font-size: 1.1rem;
+  cursor: default;
+}
+.yearly-doc-content li:not(:has(a))::before {
+  background: #cfcfcf;
+  color: #7a7a7a;
+}
+
 .article-content ul,
 .article-content ol {
   margin: 0 0 1rem;

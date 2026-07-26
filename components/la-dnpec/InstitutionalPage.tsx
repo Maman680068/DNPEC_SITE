@@ -55,7 +55,9 @@ export default async function InstitutionalPage({
                 )}
               </div>
             )}
-            <div className="article-content text-[15px] text-ink leading-relaxed">
+            <div
+              className={`article-content text-[15px] text-ink leading-relaxed${yearlyGrid ? " yearly-doc-content" : ""}`}
+            >
               {yearlyGrid ? (
                 <YearlyContentGrid html={page.content} />
               ) : (
