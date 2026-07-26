@@ -5,7 +5,7 @@ import ActualitesSection from "@/components/home/ActualitesSection";
 import PublicationsSection from "@/components/home/PublicationsSection";
 import PartnersSection from "@/components/home/PartnersSection";
 import Newsletter from "@/components/home/Newsletter";
-import { getIndicators, getNews, getPartners, getPublications } from "@/lib/wordpress";
+import { getIndicators, getNews, getPartners, getPublications, getRecentPublicationCards } from "@/lib/wordpress";
 
 // Revalidation ISR explicite (déjà fixée à 300s au niveau du fetch dans
 // lib/wordpress.ts) — documentée ici pour que la fréquence de rafraîchissement
@@ -13,11 +13,12 @@ import { getIndicators, getNews, getPartners, getPublications } from "@/lib/word
 export const revalidate = 300;
 
 export default async function Home() {
-  const [indicators, news, publications, partners] = await Promise.all([
+  const [indicators, news, publications, partners, recentPublications] = await Promise.all([
     getIndicators(),
     getNews(),
     getPublications(),
     getPartners(),
+    getRecentPublicationCards(),
   ]);
 
   const latestNews = [...news]
@@ -35,7 +36,7 @@ export default async function Home() {
           date="15 juillet 2026 · 10:30"
         />
 
-        <IndicateursSection indicators={indicators} />
+        <IndicateursSection indicators={indicators} publications={recentPublications} />
 
         <ActualitesSection articles={latestNews} />
 
