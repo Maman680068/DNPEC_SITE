@@ -43,4 +43,16 @@ export type InstitutionalPage = {
   /** Contenu HTML complet (paragraphes conservés), entités déjà décodées. */
   content: string;
   coverImage?: string;
+  /** Date de publication/modification WordPress (ISO 8601). */
+  date?: string;
+};
+
+/** Carte de publication récente, pour le carrousel de la page d'accueil. */
+export type PublicationCard = {
+  slug: string;
+  href: string;
+  title: string;
+  date: string;
+  /** URL du premier lien PDF trouvé dans le contenu, pour la miniature. */
+  pdfUrl?: string;
 };

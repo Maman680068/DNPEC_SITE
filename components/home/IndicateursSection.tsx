@@ -1,4 +1,5 @@
-import type { Indicator } from "@/lib/types";
+import type { Indicator, PublicationCard } from "@/lib/types";
+import PublicationsCarousel from "./PublicationsCarousel";
 
 const toneClasses: Record<Indicator["tone"], string> = {
   green: "bg-[#E4F3EA] text-green",
@@ -9,9 +10,10 @@ const toneClasses: Record<Indicator["tone"], string> = {
 
 type IndicateursSectionProps = {
   indicators: Indicator[];
+  publications: PublicationCard[];
 };
 
-export default function IndicateursSection({ indicators }: IndicateursSectionProps) {
+export default function IndicateursSection({ indicators, publications }: IndicateursSectionProps) {
   return (
     <div className="indic-section rounded-[10px] p-8 mb-[52px] grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8">
       <div>
@@ -35,14 +37,7 @@ export default function IndicateursSection({ indicators }: IndicateursSectionPro
           ))}
         </div>
       </div>
-      <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-white/25 text-[#c3cee0] text-[13px] text-center p-5">
-        Emplacement du carrousel de couvertures de publications
-        <br />
-        (TBMEG, TOFE, notes de conjoncture...)
-        <br />
-        <br />
-        <em>chiffres d&apos;exemple — à remplacer par les données réelles</em>
-      </div>
+      <PublicationsCarousel publications={publications} />
     </div>
   );
 }
