@@ -1,26 +1,52 @@
 import { createCanvas } from "@napi-rs/canvas";
 
 const MAX_PDF_BYTES = 20 * 1024 * 1024; // 20 Mo — protège contre un PDF anormalement volumineux.
-const FETCH_TIMEOUT_MS = 15_000;
-const THUMB_WIDTH = 700;
+const FETCH_TIMEOUT_MS = 20_000;
+// Cible ~2x la largeur d'affichage habituelle de la carte (écrans HiDPI) —
+// à 700px (1x), le texte dense d'un vrai rapport (bien plus petit que les
+// gros titres d'un PDF de test) restait illisible une fois compressé.
+const THUMB_WIDTH = 1400;
 
-export type PdfThumbnail = { buffer: Buffer; contentType: "image/jpeg" };
+// Beaucoup de sites institutionnels anciens bloquent les requêtes sans
+// User-Agent "normal" (protection anti-bot basique) — sans ça, le
+// téléchargement d'un PDF hébergé hors WordPress peut échouer silencieusement.
+const FETCH_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (compatible; DNPEC-SitePreview/1.0; +https://dnpec.gov.gn)",
+  Accept: "application/pdf,*/*",
+};
+
+export type PdfThumbnail = { buffer: Buffer; contentType: "image/png" };
+
+function log(reason: string, pdfUrl: string, detail?: unknown) {
+  console.warn(`[pdf-thumbnail] ${reason}: ${pdfUrl}${detail ? ` — ${String(detail)}` : ""}`);
+}
 
 async function fetchPdfBytes(pdfUrl: string): Promise<Uint8Array | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(pdfUrl, { signal: controller.signal });
-    if (!res.ok) return null;
+    const res = await fetch(pdfUrl, { signal: controller.signal, headers: FETCH_HEADERS });
+    if (!res.ok) {
+      log("téléchargement refusé", pdfUrl, `HTTP ${res.status}`);
+      return null;
+    }
 
     const contentLength = Number(res.headers.get("content-length") ?? 0);
-    if (contentLength > MAX_PDF_BYTES) return null;
+    if (contentLength > MAX_PDF_BYTES) {
+      log("fichier trop volumineux (Content-Length)", pdfUrl, `${contentLength} octets`);
+      return null;
+    }
 
     const arrayBuffer = await res.arrayBuffer();
-    if (arrayBuffer.byteLength > MAX_PDF_BYTES) return null;
+    if (arrayBuffer.byteLength > MAX_PDF_BYTES) {
+      log("fichier trop volumineux (téléchargé)", pdfUrl, `${arrayBuffer.byteLength} octets`);
+      return null;
+    }
 
     return new Uint8Array(arrayBuffer);
-  } catch {
+  } catch (error) {
+    const reason = error instanceof Error && error.name === "AbortError" ? "délai dépassé" : "échec réseau";
+    log(reason, pdfUrl, error);
     return null;
   } finally {
     clearTimeout(timeout);
@@ -28,15 +54,21 @@ async function fetchPdfBytes(pdfUrl: string): Promise<Uint8Array | null> {
 }
 
 /**
- * Rend la première page d'un PDF distant en JPEG. Renvoie null si le
+ * Rend la première page d'un PDF distant en PNG. Renvoie null si le
  * téléchargement échoue, si le fichier n'est pas un PDF valide, ou si le
  * rendu échoue pour toute autre raison — l'appelant retombe alors sur la
- * carte stylisée plutôt que d'échouer.
+ * carte stylisée plutôt que d'échouer. Chaque échec est journalisé avec sa
+ * cause précise (cf. `log`) plutôt que de disparaître silencieusement.
+ *
+ * PNG plutôt que JPEG : le texte d'un vrai rapport est fin/dense, et la
+ * compression JPEG avec perte y crée des artefacts qui ressemblent à du
+ * texte flou ou dédoublé — un rendu de texte a besoin d'un encodage sans
+ * perte pour rester net.
  *
  * pdfjs-dist (build "legacy", ciblant Node) sait créer ses propres canvas
  * internes via @napi-rs/canvas dès qu'il détecte un environnement Node —
  * inutile de lui fournir une CanvasFactory maison. Seul le canvas de sortie
- * (celui qu'on récupère en JPEG) est créé explicitement ci-dessous.
+ * (celui qu'on récupère en PNG) est créé explicitement ci-dessous.
  */
 export async function renderPdfFirstPage(pdfUrl: string): Promise<PdfThumbnail | null> {
   const data = await fetchPdfBytes(pdfUrl);
@@ -66,12 +98,13 @@ export async function renderPdfFirstPage(pdfUrl: string): Promise<PdfThumbnail |
         viewport,
       }).promise;
 
-      const buffer = canvas.toBuffer("image/jpeg", 0.82);
-      return { buffer, contentType: "image/jpeg" };
+      const buffer = canvas.toBuffer("image/png");
+      return { buffer, contentType: "image/png" };
     } finally {
       await loadingTask.destroy();
     }
-  } catch {
+  } catch (error) {
+    log("échec du rendu PDF", pdfUrl, error);
     return null;
   }
 }
