@@ -7,7 +7,7 @@ export const revalidate = 300;
 export default function Page() {
   return (
     <InstitutionalPage
-      slug="rapport-cpia"
+      slug="rapport-cpia-comite-devaluation-des-politiques-et-institutions-nationales"
       fallbackTitle="Rapport CPIA"
       eyebrow="Documents d'analyse et d'études économiques"
     />

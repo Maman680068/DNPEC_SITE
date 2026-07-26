@@ -7,7 +7,7 @@ export const revalidate = 300;
 export default function Page() {
   return (
     <InstitutionalPage
-      slug="rapport-economique-financier"
+      slug="rapport-economique-et-financier-ref"
       fallbackTitle="Rapport économique et financier (REF)"
       eyebrow="Documents d'analyse et d'études économiques"
     />
