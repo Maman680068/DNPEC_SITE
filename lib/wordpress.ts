@@ -77,6 +77,12 @@ function stripHtml(html: string): string {
     .trim();
 }
 
+/** Premier lien se terminant par .pdf trouvé dans du contenu WordPress, pour la miniature du carrousel. */
+function extractFirstPdfUrl(html: string): string | undefined {
+  const match = html.match(/<a[^>]+href="([^"]+\.pdf)"[^>]*>/i);
+  return match?.[1];
+}
+
 function mapWpPostToNewsArticle(post: WpPost): NewsArticle {
   return {
     id: String(post.id),
@@ -188,6 +194,7 @@ export async function getRecentPublicationCards(limit = 6): Promise<PublicationC
         href: entry.href,
         title: page.title || entry.fallbackTitle,
         date: page.date ?? "",
+        pdfUrl: extractFirstPdfUrl(page.content),
       };
       return card;
     }),

@@ -53,4 +53,6 @@ export type PublicationCard = {
   href: string;
   title: string;
   date: string;
+  /** URL du premier lien PDF trouvé dans le contenu, pour la miniature. */
+  pdfUrl?: string;
 };

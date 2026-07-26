@@ -20,6 +20,7 @@ type PublicationsCarouselProps = {
 export default function PublicationsCarousel({ publications }: PublicationsCarouselProps) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [failedThumbs, setFailedThumbs] = useState<Set<string>>(new Set());
   const count = publications.length;
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function PublicationsCarousel({ publications }: PublicationsCarou
 
   const current = publications[index];
   const accent = ACCENT_CLASSES[index % ACCENT_CLASSES.length];
+  const showThumbnail = !!current.pdfUrl && !failedThumbs.has(current.slug);
 
   return (
     <div
@@ -45,12 +47,29 @@ export default function PublicationsCarousel({ publications }: PublicationsCarou
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className={`absolute top-0 left-0 right-0 h-1.5 ${accent}`} />
+      {showThumbnail && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={current.slug}
+          src={`/api/pdf-thumbnail?url=${encodeURIComponent(current.pdfUrl!)}`}
+          alt=""
+          className="absolute inset-0 z-0 w-full h-full object-cover object-top"
+          onError={() => setFailedThumbs((prev) => new Set(prev).add(current.slug))}
+        />
+      )}
 
-      {/* Overlay bas, pour la lisibilité du texte, cohérent avec le style des cartes d'actualités */}
-      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/45 to-transparent pointer-events-none" />
+      <div className={`absolute top-0 left-0 right-0 h-1.5 z-20 ${accent}`} />
 
-      <div className="absolute inset-0 flex flex-col px-14 py-5 sm:px-20 sm:py-7">
+      {showThumbnail && (
+        // Voile uniforme : garantit un contraste suffisant pour le texte blanc
+        // quel que soit le contenu (couleurs, clarté) de la première page du PDF.
+        <div className="absolute inset-0 z-10 bg-black/40 pointer-events-none" />
+      )}
+
+      {/* Overlay bas, plus marqué, pour la lisibilité du titre/bouton */}
+      <div className="absolute inset-x-0 bottom-0 z-10 h-2/3 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+
+      <div className="absolute inset-0 z-20 flex flex-col px-14 py-5 sm:px-20 sm:py-7">
         <div className="flex items-center justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logos/logo-dnpec-clean.png" alt="" className="h-8 sm:h-9 w-auto opacity-90" />
@@ -86,7 +105,7 @@ export default function PublicationsCarousel({ publications }: PublicationsCarou
       </div>
 
       {count > 1 && (
-        <div className="absolute top-1/2 left-0 right-0 flex justify-between px-3 -translate-y-1/2">
+        <div className="absolute top-1/2 left-0 right-0 z-30 flex justify-between px-3 -translate-y-1/2">
           <button
             type="button"
             aria-label="Publication précédente"
