@@ -23,6 +23,27 @@ const FETCH_HEADERS = {
 
 export type PdfThumbnail = { buffer: Buffer; contentType: "image/png" };
 
+/**
+ * Domaines dont on sait, par preuve (logs Render), qu'ils bloquent les
+ * requêtes serveur au-delà d'un simple en-tête User-Agent — un vrai
+ * User-Agent de navigateur (PR #35) n'a pas suffi, donc la protection est
+ * probablement basée sur un cookie de session, un challenge JavaScript ou un
+ * blocage de l'IP du datacenter Render, aucun contournable avec un fetch()
+ * simple. Plutôt que de retenter à chaque fois un téléchargement voué à
+ * l'échec (perte de temps avant le repli), on saute directement à la carte
+ * stylisée pour ces domaines.
+ *
+ * À RETIRER quand les documents encore hébergés sur l'ancien site (au moins :
+ * Rapport CPIA, Rapport économique et financier, Code des marchés publics, et
+ * une partie de TBMEG) auront été migrés vers l'hébergement WordPress
+ * définitif — à ce moment-là, ce cas ne se posera plus.
+ */
+const KNOWN_BLOCKED_HOSTS = ["dnpec.gov.gn"];
+
+function isKnownBlockedHost(pdfUrl: string): boolean {
+  return KNOWN_BLOCKED_HOSTS.some((host) => pdfUrl.includes(host));
+}
+
 function log(reason: string, pdfUrl: string, detail?: unknown) {
   console.warn(`[pdf-thumbnail] ${reason}: ${pdfUrl}${detail ? ` — ${String(detail)}` : ""}`);
 }
@@ -77,6 +98,11 @@ async function fetchPdfBytes(pdfUrl: string): Promise<Uint8Array | null> {
  * (celui qu'on récupère en PNG) est créé explicitement ci-dessous.
  */
 export async function renderPdfFirstPage(pdfUrl: string): Promise<PdfThumbnail | null> {
+  if (isKnownBlockedHost(pdfUrl)) {
+    log("domaine connu pour bloquer les requêtes serveur, repli immédiat sans tentative", pdfUrl);
+    return null;
+  }
+
   const data = await fetchPdfBytes(pdfUrl);
   if (!data) return null;
 
