@@ -7,12 +7,18 @@ const FETCH_TIMEOUT_MS = 20_000;
 // gros titres d'un PDF de test) restait illisible une fois compressé.
 const THUMB_WIDTH = 1400;
 
-// Beaucoup de sites institutionnels anciens bloquent les requêtes sans
-// User-Agent "normal" (protection anti-bot basique) — sans ça, le
-// téléchargement d'un PDF hébergé hors WordPress peut échouer silencieusement.
+// Confirmé par les logs Render (2026-07-27) : dnpec.gov.gn (l'ancien site)
+// renvoie HTTP 403 même avec un User-Agent non vide, dès lors qu'il
+// s'identifie comme un outil automatisé — ici la chaîne précédente
+// ("DNPEC-SitePreview/1.0") se signalait elle-même comme non-navigateur.
+// Remplacé par un User-Agent de navigateur de bureau réel, plus le jeu
+// d'en-têtes qu'un vrai navigateur envoie (Accept, Accept-Language), pour
+// ne pas se distinguer sur un autre en-tête si le premier ne suffisait pas.
 const FETCH_HEADERS = {
-  "User-Agent": "Mozilla/5.0 (compatible; DNPEC-SitePreview/1.0; +https://dnpec.gov.gn)",
-  Accept: "application/pdf,*/*",
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
 };
 
 export type PdfThumbnail = { buffer: Buffer; contentType: "image/png" };
