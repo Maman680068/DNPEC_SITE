@@ -121,6 +121,35 @@ export async function renderPdfFirstPage(pdfUrl: string): Promise<PdfThumbnail |
       const canvas = createCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
       const context = canvas.getContext("2d");
 
+      // Diagnostic TEMPORAIRE (à retirer une fois qu'on aura des données
+      // réelles) : les PDF fabriqués localement pour reproduire le flou
+      // signalé sur de vrais documents (CPIA, REF) n'ont jamais réussi à le
+      // reproduire — ni avec du texte dense, ni avec une image tournée, ni
+      // avec une image texturée en PNG ou en JPEG. Plutôt que de continuer à
+      // deviner, on journalise ici la taille source réelle de chaque image
+      // dessinée et la taille à laquelle elle est effectivement rendue, pour
+      // avoir une donnée concrète sur le PDF réel au prochain rendu.
+      const originalDrawImage = context.drawImage.bind(context);
+      context.drawImage = ((...args: Parameters<typeof context.drawImage>) => {
+        try {
+          const image = args[0] as { width?: number; height?: number };
+          const rest = args.slice(1) as number[];
+          let destW: number | undefined;
+          let destH: number | undefined;
+          if (rest.length >= 4) {
+            [destW, destH] = rest.length === 4 ? [rest[2], rest[3]] : [rest[6], rest[7]];
+          }
+          log(
+            "diagnostic image",
+            pdfUrl,
+            `source ${image?.width ?? "?"}x${image?.height ?? "?"}px -> rendue à ${destW ?? "?"}x${destH ?? "?"}px`,
+          );
+        } catch {
+          // Diagnostic uniquement — ne doit jamais faire échouer le rendu.
+        }
+        return originalDrawImage(...args);
+      }) as typeof context.drawImage;
+
       await page.render({
         // @napi-rs/canvas's canvas/2D context implement the subset of the
         // DOM Canvas API pdf.js actually uses, but not the full DOM
