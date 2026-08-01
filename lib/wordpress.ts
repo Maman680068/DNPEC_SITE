@@ -185,6 +185,23 @@ const PUBLICATION_PAGES: { slug: string; href: string; fallbackTitle: string }[]
 ];
 
 /**
+ * Sous-ensemble de PUBLICATION_PAGES affiché dans le mini-carrousel
+ * "Conjoncture" de la page d'accueil (Hero) — les mêmes 5 pages que le
+ * regroupement "Documents conjoncturels" du menu Publications
+ * (lib/nav-data.ts:44-52) et de app/publications/documents-conjoncturels/page.tsx.
+ * Dupliqué ici plutôt que factorisé avec ces deux fichiers : ceux-ci encodent
+ * des hrefs de menu dans une structure imbriquée plus large, pas une liste de
+ * slugs directement réutilisable.
+ */
+export const CONJONCTURE_SLUGS = new Set([
+  "tableau-de-bord-mensuel-de-leconomie-guineenne-tbmeg",
+  "rapport-regional-conjoncture",
+  "note-hebdomadaire-economie-guineenne",
+  "note-conjoncture-economique-guinee",
+  "autres-notes-techniques",
+]);
+
+/**
  * Toutes les publications réellement publiées côté WordPress (cf.
  * PUBLICATION_PAGES), triées par date de dernière modification décroissante
  * — pour le carrousel de couvertures de la page d'accueil. Le tri se base
