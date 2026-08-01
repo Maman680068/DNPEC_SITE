@@ -1,6 +1,7 @@
 import PageTitle from "@/components/ui/PageTitle";
 import Hero from "@/components/home/Hero";
 import IndicateursSection from "@/components/home/IndicateursSection";
+import AboutSection from "@/components/home/AboutSection";
 import ActualitesSection from "@/components/home/ActualitesSection";
 import PublicationsSection from "@/components/home/PublicationsSection";
 import PartnersSection from "@/components/home/PartnersSection";
@@ -37,6 +38,8 @@ export default async function Home() {
         />
 
         <IndicateursSection indicators={indicators} publications={recentPublications} />
+
+        <AboutSection />
 
         <ActualitesSection articles={latestNews} />
 
