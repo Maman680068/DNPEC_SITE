@@ -110,7 +110,7 @@ h3,
 /* Bloc À propos — voile subtil sur la photo, aux couleurs de la charte,
    pour l'intégrer visuellement plutôt que de la laisser brute. */
 .about-overlay {
-  background: linear-gradient(135deg, rgba(19, 43, 94, 0.45), rgba(15, 107, 60, 0.3));
+  background: linear-gradient(135deg, rgba(19, 43, 94, 0.225), rgba(15, 107, 60, 0.15));
 }
 
 .news-overlay {
