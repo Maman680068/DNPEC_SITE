@@ -33,7 +33,7 @@ export default async function ActualitesPage() {
                 <img
                   src={article.coverImage}
                   alt={article.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
                 />
               )}
               <span className="absolute top-3.5 left-3.5 bg-green text-white text-[10.5px] font-bold px-2.5 py-1 rounded uppercase tracking-wide">

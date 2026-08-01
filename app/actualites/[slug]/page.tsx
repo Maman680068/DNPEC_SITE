@@ -46,7 +46,7 @@ export default async function ActualitePage({ params }: ActualitePageProps) {
             <img
               src={article.coverImage}
               alt={article.title}
-              className="w-full aspect-[21/9] object-cover rounded-lg mb-6"
+              className="w-full aspect-[16/9] object-cover object-top rounded-lg mb-6"
             />
           )}
           {article.content ? (
