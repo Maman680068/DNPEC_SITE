@@ -81,7 +81,13 @@ export async function POST(request: NextRequest) {
     return Response.json({ revalidated: false, error: "Corps JSON invalide." }, { status: 400 });
   }
 
-  const { type, slug } = (body ?? {}) as { type?: string; slug?: string };
+  // WP Webhooks (plugin Ironikus) envoie l'objet post WordPress natif —
+  // post_type/post_name — plutôt que le format minimal type/slug utilisé
+  // pour les tests manuels. On accepte les deux, avec priorité au format
+  // minimal s'il est présent (cas des tests manuels avec les deux champs).
+  const payload = (body ?? {}) as { type?: string; slug?: string; post_type?: string; post_name?: string };
+  const type = payload.type ?? payload.post_type;
+  const slug = payload.slug ?? payload.post_name;
 
   if (type === "post") {
     const paths = ["/actualites", "/"];
