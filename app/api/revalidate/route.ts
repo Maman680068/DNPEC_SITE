@@ -81,13 +81,29 @@ export async function POST(request: NextRequest) {
     return Response.json({ revalidated: false, error: "Corps JSON invalide." }, { status: 400 });
   }
 
-  // WP Webhooks (plugin Ironikus) envoie l'objet post WordPress natif —
-  // post_type/post_name — plutôt que le format minimal type/slug utilisé
-  // pour les tests manuels. On accepte les deux, avec priorité au format
-  // minimal s'il est présent (cas des tests manuels avec les deux champs).
-  const payload = (body ?? {}) as { type?: string; slug?: string; post_type?: string; post_name?: string };
-  const type = payload.type ?? payload.post_type;
-  const slug = payload.slug ?? payload.post_name;
+  // WP Webhooks (plugin WordPress Cozmoslabs) envoie l'objet WP_Post complet
+  // sous body.post (post.post_type/post.post_name), pas à la racine — voir
+  // sa doc pour le trigger "Post created"/"Post updated". On accepte aussi
+  // le format minimal type/slug utilisé pour les tests manuels, prioritaire
+  // si présent.
+  const payload = (body ?? {}) as {
+    type?: string;
+    slug?: string;
+    post?: { post_type?: string; post_name?: string };
+  };
+  const type = payload.type || payload.post?.post_type;
+  const slug = payload.slug || payload.post?.post_name;
+
+  if (!type) {
+    return Response.json(
+      {
+        revalidated: false,
+        error:
+          'Aucun format reconnu dans le corps de la requête — ni {type, slug} ni {post: {post_type, post_name}} (format WP Webhooks).',
+      },
+      { status: 400 },
+    );
+  }
 
   if (type === "post") {
     const paths = ["/actualites", "/"];
