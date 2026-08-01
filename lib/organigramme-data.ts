@@ -38,7 +38,7 @@ export const ORG_CHART = {
     },
     {
       code: "DIPE",
-      sections: [{ code: "SI" }, { code: "SP" }, { code: "SSI" }],
+      sections: [{ code: "SIRC" }, { code: "SPEN" }, { code: "SAEVS" }],
     },
   ] as OrgDivision[],
   dnAttachments: ["CTSCM", "CNC"],
@@ -72,7 +72,7 @@ export const ORG_LEGEND: { code: string; label: string }[] = [
   { code: "SAF", label: "Service Administratif et Financier" },
   { code: "CTSCM", label: "Cellule Technique de Suivi de la Conjoncture Macroéconomique" },
   { code: "CNC", label: "Comité National de Coordination des Politiques Macroéconomiques et Monétaires" },
-  { code: "SI", label: "Section Intégration Régionale et Convergence" },
-  { code: "SP", label: "Section Partenariats Économiques et Négociations" },
-  { code: "SSI", label: "Section Analyse, Études et Veille Stratégique" },
+  { code: "SIRC", label: "Section Intégration Régionale et Convergence" },
+  { code: "SPEN", label: "Section Partenariats Économiques et Négociations" },
+  { code: "SAEVS", label: "Section Analyse, Études et Veille Stratégique" },
 ];
