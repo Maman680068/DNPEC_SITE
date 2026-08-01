@@ -107,9 +107,10 @@ h3,
   background: linear-gradient(160deg, #2a4a6b, #0d2047);
 }
 
-/* Bloc À propos */
-.about-visual {
-  background: linear-gradient(135deg, var(--color-navy-dark), var(--color-green-dark));
+/* Bloc À propos — voile subtil sur la photo, aux couleurs de la charte,
+   pour l'intégrer visuellement plutôt que de la laisser brute. */
+.about-overlay {
+  background: linear-gradient(135deg, rgba(19, 43, 94, 0.45), rgba(15, 107, 60, 0.3));
 }
 
 .news-overlay {

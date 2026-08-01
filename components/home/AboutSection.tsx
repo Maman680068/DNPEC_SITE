@@ -2,10 +2,16 @@ export default function AboutSection() {
   return (
     <section className="pb-14">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-        <div className="about-visual relative rounded-[10px] overflow-hidden h-[280px] md:h-[340px] flex items-center justify-center">
-          <div className="flag-strip absolute top-0 left-0 right-0" />
+        <div className="relative rounded-[10px] overflow-hidden h-[280px] md:h-[340px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logos/logo-dnpec-clean.png" alt="" className="h-24 w-auto opacity-90" />
+          <img
+            src="https://solveexample.s2-tastewp.com/wp-content/uploads/2026/08/apropos-illustration-graphique.png"
+            alt="Illustration institutionnelle de la DNPEC"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          {/* Teinte navy/vert semi-transparente : intègre une photo générique aux couleurs de la charte plutôt que de la laisser brute. */}
+          <div className="about-overlay absolute inset-0 pointer-events-none" />
+          <div className="flag-strip absolute top-0 left-0 right-0" />
         </div>
 
         <div>
