@@ -45,7 +45,7 @@ export default async function InstitutionalPage({
                 <img
                   src={page.coverImage}
                   alt={photoCaption?.name ?? page.title ?? fallbackTitle}
-                  className="w-64 sm:w-80 md:w-full min-h-[240px] flex-1 object-cover rounded-lg shadow-md mx-auto md:mx-0"
+                  className="w-64 sm:w-80 md:w-full min-h-[240px] flex-1 object-cover object-top rounded-lg shadow-md mx-auto md:mx-0"
                 />
                 {photoCaption && (
                   <div className="mt-3 text-center md:text-left">
