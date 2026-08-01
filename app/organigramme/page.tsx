@@ -13,10 +13,6 @@ export default function OrganigrammePage() {
       <section className="pb-14">
         <OrgChartDesktop />
         <OrgChartMobile />
-        <p className="text-xs text-muted italic mt-4">
-          Les libellés suivis d&apos;un astérisque (DIPE, SI, SP, SSI) sont une proposition en attente de
-          validation par le Directeur National.
-        </p>
         <OrgLegend />
       </section>
     </div>

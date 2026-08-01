@@ -9,11 +9,12 @@ export type OrgDivision = OrgNode & {
 };
 
 /**
- * Structure de l'organigramme de la DNPEC. Les entrées marquées
- * `provisional: true` (division "DIPE" et ses sections) sont une
- * proposition en attente de validation par le Directeur National —
- * modifier uniquement ici si les sigles changent, pas ailleurs dans le
- * code (voir OrgChartDesktop / OrgChartMobile qui lisent ces données).
+ * Structure de l'organigramme de la DNPEC. Une entrée marquée
+ * `provisional: true` est une proposition en attente de validation par le
+ * Directeur National (affichée avec un astérisque et une bordure pointillée
+ * par NodeBox) — modifier uniquement ici si les sigles changent, pas
+ * ailleurs dans le code (voir OrgChartDesktop / OrgChartMobile qui lisent
+ * ces données).
  */
 export const ORG_CHART = {
   dn: "DN",
@@ -37,12 +38,7 @@ export const ORG_CHART = {
     },
     {
       code: "DIPE",
-      provisional: true,
-      sections: [
-        { code: "SI", provisional: true },
-        { code: "SP", provisional: true },
-        { code: "SSI", provisional: true },
-      ],
+      sections: [{ code: "SI" }, { code: "SP" }, { code: "SSI" }],
     },
   ] as OrgDivision[],
   dnAttachments: ["CTSCM", "CNC"],
@@ -57,7 +53,7 @@ export const ORG_LEGEND: { code: string; label: string }[] = [
   { code: "DEE", label: "Division Études Économiques" },
   { code: "DSPS", label: "Division Suivi de Politiques Économiques" },
   { code: "DAC", label: "Division Analyses Conjoncturelles" },
-  { code: "DIPE", label: "Division Intégration et Partenariats Économiques (proposition)" },
+  { code: "DIPE", label: "Division Intégration et Partenariats Économiques" },
   { code: "SSR", label: "Section Secteur Réel" },
   { code: "SFP", label: "Section Finances Publiques" },
   { code: "SSME", label: "Section Secteurs Monétaires et Extérieur" },
@@ -76,7 +72,7 @@ export const ORG_LEGEND: { code: string; label: string }[] = [
   { code: "SAF", label: "Service Administratif et Financier" },
   { code: "CTSCM", label: "Cellule Technique de Suivi de la Conjoncture Macroéconomique" },
   { code: "CNC", label: "Comité National de Coordination des Politiques Macroéconomiques et Monétaires" },
-  { code: "SI", label: "Section Intégration (proposition)" },
-  { code: "SP", label: "Section Partenariats (proposition)" },
-  { code: "SSI", label: "Section Suivi des Indicateurs (proposition)" },
+  { code: "SI", label: "Section Intégration Régionale et Convergence" },
+  { code: "SP", label: "Section Partenariats Économiques et Négociations" },
+  { code: "SSI", label: "Section Analyse, Études et Veille Stratégique" },
 ];
