@@ -107,6 +107,11 @@ h3,
   background: linear-gradient(160deg, #2a4a6b, #0d2047);
 }
 
+/* Bloc À propos */
+.about-visual {
+  background: linear-gradient(135deg, var(--color-navy-dark), var(--color-green-dark));
+}
+
 .news-overlay {
   background: linear-gradient(
     0deg,
