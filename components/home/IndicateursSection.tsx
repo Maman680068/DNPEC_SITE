@@ -15,7 +15,7 @@ type IndicateursSectionProps = {
 
 export default function IndicateursSection({ indicators, publications }: IndicateursSectionProps) {
   return (
-    <div className="indic-section rounded-[10px] p-8 mb-[52px] grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8">
+    <div className="indic-section rounded-[10px] p-8 mb-[52px] grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8">
       <div>
         <h3 className="text-white text-lg mb-[18px]">Nos indicateurs clés</h3>
         <div className="flex flex-col gap-3">
