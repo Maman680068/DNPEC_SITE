@@ -43,7 +43,7 @@ export default function PublicationsCarousel({ publications }: PublicationsCarou
 
   return (
     <div
-      className="relative rounded-lg overflow-hidden h-full min-h-[280px] bg-gradient-to-br from-navy-dark to-navy"
+      className="relative rounded-lg overflow-hidden h-full min-h-[330px] bg-gradient-to-br from-navy-dark to-navy"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
