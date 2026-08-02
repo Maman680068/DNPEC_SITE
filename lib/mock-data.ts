@@ -91,9 +91,3 @@ export const mockPartners: Partner[] = [
   { id: "pnud", name: "PNUD" },
   { id: "bad", name: "BAD" },
 ];
-
-export const tickerAnnouncements = [
-  "NOTE DE CONJONCTURE DU QUATRIÈME TRIMESTRE 2025",
-  "TBMEG DU MOIS DE JUIN 2026 DISPONIBLE",
-  "RAPPORT ANNUEL SUR L'ENVIRONNEMENT ÉCONOMIQUE",
-];
