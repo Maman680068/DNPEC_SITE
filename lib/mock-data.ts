@@ -86,13 +86,18 @@ export const publicationTypes: { value: string; label: string }[] = [
 ];
 
 export const mockPartners: Partner[] = [
-  { id: "bcrg", name: "BCRG" },
-  { id: "ins", name: "INS Guinée" },
-  { id: "cedeao", name: "CEDEAO" },
-  { id: "bm", name: "Banque mondiale" },
-  { id: "fmi", name: "FMI" },
-  { id: "pnud", name: "PNUD" },
-  { id: "bad", name: "BAD" },
+  { id: "acgp", name: "ACGP", logoUrl: "/partners/acgp.jpg", websiteUrl: "https://acgp.gov.gn/" },
+  { id: "dgpeip", name: "DGPEIP", logoUrl: "/partners/dgpeip.jpg", websiteUrl: "https://dgpeip.gov.gn/" },
+  { id: "dncf", name: "DNCF", logoUrl: "/partners/dncf.jpg", websiteUrl: "https://www.mefb.gov.gn/" },
+  { id: "dndapd", name: "DND-APD", logoUrl: "/partners/dndapd.jpg", websiteUrl: "https://dette.gov.gn/" },
+  { id: "dnip", name: "DNIP", logoUrl: "/partners/dnip.jpg", websiteUrl: "https://dnip.mefp.gov.gn/" },
+  { id: "armp", name: "ARMP Guinée", logoUrl: "/partners/armp.jpg", websiteUrl: "https://armpguinee.org/" },
+  { id: "tresor", name: "DGTCP Trésor Public", logoUrl: "/partners/tresor.jpg", websiteUrl: "https://www.mefb.gov.gn/" },
+  { id: "uppp", name: "UPPP", logoUrl: "/partners/uppp.jpg", websiteUrl: "https://www.mefb.gov.gn/" },
+  { id: "dgcmp", name: "DGCCMP", logoUrl: "/partners/dgcmp.jpg", websiteUrl: "https://dgcmp.gov.gn/" },
+  { id: "ins", name: "INS Guinée", logoUrl: "/partners/ins.png", websiteUrl: "https://www.stat-guinee.org/" },
+  { id: "simandou", name: "Programme Simandou 2040", logoUrl: "/partners/simandou.png", websiteUrl: "https://simandou2040.gov.gn/" },
+  { id: "guinee", name: "République de Guinée", logoUrl: "/partners/branding.png", websiteUrl: "https://gouvernement.gov.gn/" },
 ];
 
 /**

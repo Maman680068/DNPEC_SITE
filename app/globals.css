@@ -86,7 +86,7 @@ h3,
   display: flex;
   gap: 60px;
   padding-left: 24px;
-  animation: ticker-scroll 22s linear infinite;
+  animation: ticker-scroll 48s linear infinite;
 }
 
 @keyframes ticker-scroll {
@@ -342,6 +342,30 @@ h3,
 
 @media (prefers-reduced-motion: reduce) {
   .ticker-track {
+    animation: none;
+  }
+}
+
+/* Bandeau partenaires — défilement horizontal continu */
+.partners-track {
+  animation: partners-scroll 45s linear infinite;
+}
+
+.partners-marquee:hover .partners-track {
+  animation-play-state: paused;
+}
+
+@keyframes partners-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partners-track {
     animation: none;
   }
 }
