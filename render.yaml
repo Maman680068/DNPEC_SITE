@@ -20,3 +20,12 @@ services:
       # d'échouer silencieusement.
       - key: RESEND_API_KEY
         sync: false
+      # Optionnelles : identifiants d'un Application Password WordPress
+      # (utilisateur avec droits upload_files/edit_posts), pour la soumission
+      # d'articles RPAE (app/api/rpae-submission/route.ts). Tant qu'elles ne
+      # sont pas définies, le formulaire affiche une erreur claire plutôt que
+      # d'échouer silencieusement.
+      - key: WORDPRESS_APP_USER
+        sync: false
+      - key: WORDPRESS_APP_PASSWORD
+        sync: false
