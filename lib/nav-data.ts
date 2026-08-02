@@ -105,7 +105,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/contact",
     children: [
       { label: "Contactez-nous", href: "/contact" },
-      { label: "Écrire au Directeur National", href: "/contact#directeur-national" },
+      { label: "Écrire au Directeur National", href: "/ecrire-au-directeur-national" },
     ],
   },
 ];
