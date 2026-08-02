@@ -2,15 +2,38 @@
 
 import { useState } from "react";
 
+type Status = "idle" | "submitting" | "success" | "error";
+
+const GENERIC_ERROR_MESSAGE =
+  "Une erreur est survenue, merci de réessayer plus tard ou de nous contacter directement par téléphone.";
+
 export default function Newsletter() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "submitted">("idle");
+  const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    // TODO: brancher sur l'API d'inscription newsletter (double opt-in) du
-    // WordPress headless une fois disponible — voir README.
-    setStatus("submitted");
+    setStatus("submitting");
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.error || "request failed");
+      }
+      setStatus("success");
+    } catch (error) {
+      setStatus("error");
+      setErrorMessage(
+        error instanceof Error && error.message !== "request failed" ? error.message : GENERIC_ERROR_MESSAGE,
+      );
+    }
   }
 
   return (
@@ -27,10 +50,8 @@ export default function Newsletter() {
           </p>
         </div>
         <div className="bg-navy p-11 md:pl-[110px] md:pr-10 flex flex-col justify-center gap-3.5">
-          {status === "submitted" ? (
-            <p className="text-white text-sm">
-              Merci ! Vérifiez votre boîte mail pour confirmer votre inscription.
-            </p>
+          {status === "success" ? (
+            <p className="text-white text-sm">Merci, vous êtes maintenant inscrit(e).</p>
           ) : (
             <form onSubmit={handleSubmit} className="flex gap-3 flex-col sm:flex-row">
               <input
@@ -43,12 +64,14 @@ export default function Newsletter() {
               />
               <button
                 type="submit"
-                className="bg-red text-white border-none px-7.5 rounded-lg font-bold text-base cursor-pointer h-14 whitespace-nowrap"
+                disabled={status === "submitting"}
+                className="bg-red text-white border-none px-7.5 rounded-lg font-bold text-base cursor-pointer h-14 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Souscrire
+                {status === "submitting" ? "Envoi…" : "Souscrire"}
               </button>
             </form>
           )}
+          {status === "error" && <p className="text-[#ff8a80] text-sm font-medium">{errorMessage}</p>}
         </div>
       </div>
     </div>
