@@ -279,6 +279,26 @@ export async function getRecentPublicationCards(): Promise<PublicationCard[]> {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
+const TICKER_MAX_ITEMS = 10;
+
+/**
+ * Titres pour le bandeau défilant de l'en-tête — fusionne actualités et
+ * publications récentes, tous types confondus, triés par date décroissante.
+ * Liste vide si aucun contenu n'est disponible ; c'est à l'appelant de
+ * prévoir un repli (voir components/layout/Ticker.tsx).
+ */
+export async function getTickerAnnouncements(): Promise<string[]> {
+  const [news, publications] = await Promise.all([getNews(), getRecentPublicationCards()]);
+  const merged = [
+    ...news.map((article) => ({ title: article.title, date: article.date })),
+    ...publications.map((publication) => ({ title: publication.title, date: publication.date })),
+  ];
+  return merged
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, TICKER_MAX_ITEMS)
+    .map((item) => item.title);
+}
+
 export async function getIndicators(): Promise<Indicator[]> {
   const data = await fetchFromWordpress<Indicator[]>("/indicateurs");
   return data ?? mockIndicators;
