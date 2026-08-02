@@ -165,7 +165,8 @@ Workflow comité WordPress, catégories `rpae` / `rpae-interne`, seed d'exemples
 et variables Render : **[`docs/RPAE-WORDPRESS.md`](docs/RPAE-WORDPRESS.md)**.
 
 ```bash
-npm run seed:rpae   # nécessite .env.local avec WORDPRESS_*
+npm run seed:rpae         # catégories + 5 publiés + 2 pending
+npm run seed:rpae-files   # attache un .docx d'exemple à chaque article
 ```
 
 ## Prochaines étapes (hors périmètre de cette itération)

@@ -115,6 +115,8 @@ export const mockRpaeArticles: RpaeArticle[] = [
       "Cette étude examine la dynamique de l'inflation guinéenne et ses effets sur le pouvoir d'achat des ménages entre 2023 et 2025.",
     editionAnnee: "2026",
     gradeAuteur: "Master 2",
+    fichierUrl: "/rpae-exemples/inflation-et-pouvoir-achat-en-guinee-2025.docx",
+    fichierNom: "inflation-et-pouvoir-achat-en-guinee-2025.docx",
   },
   {
     id: "mock-2",
@@ -130,6 +132,8 @@ export const mockRpaeArticles: RpaeArticle[] = [
       "Analyse de la trajectoire d'endettement public et des marges de manœuvre budgétaires à moyen terme.",
     editionAnnee: "2026",
     gradeAuteur: "PhD",
+    fichierUrl: "/rpae-exemples/finances-publiques-et-soutenabilite-de-la-dette.docx",
+    fichierNom: "finances-publiques-et-soutenabilite-de-la-dette.docx",
   },
   {
     id: "mock-3",
@@ -144,6 +148,8 @@ export const mockRpaeArticles: RpaeArticle[] = [
     resume:
       "Contribution sur le lien entre exploitation minière, fiscalité et capacité de financement des politiques publiques.",
     editionAnnee: "2025",
+    fichierUrl: "/rpae-exemples/secteur-minier-et-recettes-fiscales.docx",
+    fichierNom: "secteur-minier-et-recettes-fiscales.docx",
   },
 ];
 
