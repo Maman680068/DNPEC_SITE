@@ -1,5 +1,5 @@
 import type { Indicator, InstitutionalPage, NewsArticle, Partner, Publication, PublicationCard } from "./types";
-import { mockIndicators, mockNews, mockPartners, mockPublications } from "./mock-data";
+import { mockIndicators, mockNews, mockPartners, mockPublicationCards, mockPublications } from "./mock-data";
 import { decodeHtmlEntities } from "./decodeHtml";
 
 /**
@@ -210,8 +210,8 @@ export const CONJONCTURE_SLUGS = new Set([
  * donc `modified` reflète bien mieux "mis à jour récemment" — `date` seule
  * placerait ces pages dans l'ordre où elles ont été créées la première fois,
  * ce qui peut sembler arbitraire si plusieurs ont été créées le même jour.
- * Ignore silencieusement les pages pas encore publiées plutôt que de
- * renvoyer un repli mock.
+ * Si aucune page n'est publiée (API absente ou pages vides), repli sur les
+ * cartes de démonstration pour que le Hero et le carrousel restent visibles.
  */
 export async function getRecentPublicationCards(): Promise<PublicationCard[]> {
   const results = await Promise.all(
@@ -228,9 +228,11 @@ export async function getRecentPublicationCards(): Promise<PublicationCard[]> {
       return card;
     }),
   );
-  return results
+  const cards = results
     .filter((card): card is PublicationCard => card !== null)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return cards.length > 0 ? cards : mockPublicationCards;
 }
 
 const TICKER_MAX_ITEMS = 10;

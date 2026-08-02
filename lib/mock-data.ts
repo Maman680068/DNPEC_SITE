@@ -1,4 +1,4 @@
-import type { Indicator, NewsArticle, Partner, Publication } from "./types";
+import type { Indicator, NewsArticle, Partner, Publication, PublicationCard } from "./types";
 
 /**
  * Contenu de démonstration utilisé tant que le back-office WordPress headless
@@ -93,4 +93,29 @@ export const mockPartners: Partner[] = [
   { id: "fmi", name: "FMI" },
   { id: "pnud", name: "PNUD" },
   { id: "bad", name: "BAD" },
+];
+
+/**
+ * Cartes pour le Hero / carrousel d'accueil — utilisées quand aucune page
+ * publication n'est encore publiée côté WordPress (getRecentPublicationCards).
+ */
+export const mockPublicationCards: PublicationCard[] = [
+  {
+    slug: "tableau-de-bord-mensuel-de-leconomie-guineenne-tbmeg",
+    href: "/tbmeg",
+    title: "Tableau de Bord Mensuel de l'Économie Guinéenne (TBMEG)",
+    date: "2026-08-01",
+  },
+  {
+    slug: "note-conjoncture-economique-guinee",
+    href: "/note-conjoncture-economique-guinee",
+    title: "Note de conjoncture économique de la Guinée",
+    date: "2026-07-15",
+  },
+  {
+    slug: "rapport-regional-conjoncture",
+    href: "/rapport-regional-conjoncture",
+    title: "Rapport régional de conjoncture (RRC)",
+    date: "2026-06-30",
+  },
 ];
