@@ -1,22 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageTitle from "@/components/ui/PageTitle";
-import RevueTabs, { type ArticleYearGroup } from "@/components/revue/RevueTabs";
-import { getPageBySlug } from "@/lib/wordpress";
+import RevueTabs from "@/components/revue/RevueTabs";
+import { getPageBySlug, getPublishedRpaeArticles } from "@/lib/wordpress";
 
 export const metadata: Metadata = { title: "Revue Scientifique" };
 export const revalidate = 300;
 
 export default async function RevueScientifiquePage() {
-  const [presentation, equipe, instructions] = await Promise.all([
+  const [presentation, equipe, instructions, articles] = await Promise.all([
     getPageBySlug("rpae-presentation"),
     getPageBySlug("rpae-equipe-editoriale"),
     getPageBySlug("rpae-instructions-auteurs"),
+    getPublishedRpaeArticles(),
   ]);
-
-  // Phase B (espace de soumission) alimentera cette liste une fois les
-  // articles validés et publiés — vide tant qu'aucun n'existe.
-  const articlesByYear: ArticleYearGroup[] = [];
 
   return (
     <div className="wrap">
@@ -39,7 +36,7 @@ export default async function RevueScientifiquePage() {
             presentation={presentation}
             equipe={equipe}
             instructions={instructions}
-            articlesByYear={articlesByYear}
+            articles={articles}
           />
         </section>
       </div>

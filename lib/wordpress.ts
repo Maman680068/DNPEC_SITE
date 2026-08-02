@@ -1,6 +1,17 @@
 import type { Indicator, InstitutionalPage, NewsArticle, Partner, Publication, PublicationCard } from "./types";
 import { mockIndicators, mockNews, mockPartners, mockPublicationCards, mockPublications } from "./mock-data";
 import { decodeHtmlEntities } from "./decodeHtml";
+import {
+  authorDisplayName,
+  isInternalRpaeUsage,
+  mockRpaeArticles,
+  parseRpaeMetadata,
+  profilLabel,
+  resolveArticleYear,
+  RPAE_CATEGORY_SLUG,
+  type RpaeArticle,
+} from "./rpae";
+
 
 /**
  * Couche d'accès au WordPress headless (back-office CMS).
@@ -265,3 +276,81 @@ export async function getPartners(): Promise<Partner[]> {
   const data = await fetchFromWordpress<Partner[]>("/partenaires");
   return data ?? mockPartners;
 }
+
+function mapWpPostToRpaeArticle(post: WpPost): RpaeArticle | null {
+  const content = decodeHtmlEntities(post.content.rendered);
+  const meta = parseRpaeMetadata(content);
+  // Hors catalogue : usage interne / commande (phase 4).
+  if (isInternalRpaeUsage(meta.usage)) return null;
+
+  // Un article RPAE doit au moins porter les métadonnées de soumission
+  // (ou le préfixe de titre) — évite d'afficher des posts hors revue.
+  const looksLikeRpae =
+    !!meta.titreArticle ||
+    !!meta.profilAuteur ||
+    !!meta.theme ||
+    stripHtml(post.title.rendered).startsWith("[RPAE]");
+  if (!looksLikeRpae) return null;
+
+  const title =
+    meta.titreArticle ||
+    stripHtml(post.title.rendered).replace(/^\[RPAE\]\s*/i, "").trim();
+
+  return {
+    id: String(post.id),
+    slug: post.slug,
+    title,
+    date: post.date,
+    year: resolveArticleYear(meta, post.date),
+    auteur: authorDisplayName(meta),
+    profil: meta.profilAuteur ?? "autre",
+    profilLabel: profilLabel(meta.profilAuteur),
+    theme: meta.theme ?? "Non renseigné",
+    resume: meta.resume ?? stripHtml(post.excerpt.rendered).slice(0, 400),
+    editionAnnee: meta.editionAnnee,
+    gradeAuteur: meta.gradeAuteur,
+    fonctionAuteur: meta.fonctionAuteur,
+    fichierUrl: meta.fichierUrl,
+    fichierNom: meta.fichierNom,
+  };
+}
+
+/**
+ * Articles RPAE publiés (catégorie `rpae`) — pour le catalogue public.
+ * Repli mock si l'API est absente ou qu'aucun article n'est encore publié.
+ */
+export async function getPublishedRpaeArticles(): Promise<RpaeArticle[]> {
+  const cats = await fetchFromWordpress<{ id: number; slug: string }[]>(
+    `/categories?slug=${encodeURIComponent(RPAE_CATEGORY_SLUG)}`,
+  );
+  const categoryId = cats?.[0]?.id;
+
+  let posts: WpPost[] | null = null;
+  if (categoryId) {
+    posts = await fetchFromWordpress<WpPost[]>(
+      `/posts?categories=${categoryId}&per_page=50&_embed`,
+    );
+  }
+  if (!posts || posts.length === 0) {
+    // Repli : recherche par préfixe de titre (cas où la catégorie manque).
+    posts = await fetchFromWordpress<WpPost[]>(`/posts?search=${encodeURIComponent("RPAE")}&per_page=50`);
+  }
+
+  const articles = (posts ?? [])
+    .map(mapWpPostToRpaeArticle)
+    .filter((article): article is RpaeArticle => article !== null)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return articles.length > 0 ? articles : mockRpaeArticles;
+}
+
+export async function getRpaeArticleBySlug(slug: string): Promise<RpaeArticle | null> {
+  const data = await fetchFromWordpress<WpPost[]>(`/posts?slug=${encodeURIComponent(slug)}`);
+  if (data?.[0]) {
+    const mapped = mapWpPostToRpaeArticle(data[0]);
+    if (mapped) return mapped;
+  }
+  return mockRpaeArticles.find((article) => article.slug === slug) ?? null;
+}
+
+export type { RpaeArticle };

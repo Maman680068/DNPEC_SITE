@@ -9,7 +9,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:rpae": "node --env-file=.env.local scripts/seed-rpae-wp.mjs"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.2",

@@ -1,9 +1,9 @@
 import type { NextRequest } from "next/server";
-import { getNews, getRecentPublicationCards } from "@/lib/wordpress";
+import { getNews, getPublishedRpaeArticles, getRecentPublicationCards } from "@/lib/wordpress";
 
 export const runtime = "nodejs";
 
-type SearchResult = { title: string; href: string; type: "Actualité" | "Publication" | "Page" };
+type SearchResult = { title: string; href: string; type: "Actualité" | "Publication" | "Page" | "RPAE" };
 
 // Pages institutionnelles statiques (titre + route) — recherche par titre
 // uniquement, sans appel réseau supplémentaire.
@@ -63,7 +63,11 @@ export async function GET(request: NextRequest) {
     return Response.json({ results: [] });
   }
 
-  const [news, publications] = await Promise.all([getNews(), getRecentPublicationCards()]);
+  const [news, publications, rpaeArticles] = await Promise.all([
+    getNews(),
+    getRecentPublicationCards(),
+    getPublishedRpaeArticles(),
+  ]);
 
   const results: SearchResult[] = [
     ...news
@@ -77,6 +81,19 @@ export async function GET(request: NextRequest) {
     ...publications
       .filter((pub) => matches(pub.title, query))
       .map((pub) => ({ title: pub.title, href: pub.href, type: "Publication" as const })),
+    ...rpaeArticles
+      .filter(
+        (article) =>
+          matches(article.title, query) ||
+          matches(article.auteur, query) ||
+          matches(article.theme, query) ||
+          matches(article.resume, query),
+      )
+      .map((article) => ({
+        title: article.title,
+        href: `/revue-scientifique/${article.slug}`,
+        type: "RPAE" as const,
+      })),
     ...STATIC_PAGES.filter((page) => matches(page.title, query)).map((page) => ({ ...page, type: "Page" as const })),
   ];
 

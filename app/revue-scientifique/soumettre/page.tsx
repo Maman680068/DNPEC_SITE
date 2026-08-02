@@ -11,7 +11,7 @@ export default function SoumettreArticlePage() {
         <PageTitle
           eyebrow="Revue Scientifique"
           title="Soumettre un article"
-          subtitle="Soumettez votre article scientifique pour examen par le comité éditorial de la RPAE. Chaque soumission est reçue en brouillon et fait l'objet d'une validation manuelle avant toute publication."
+          subtitle="Soumettez votre article (Word ou Excel). Il sera placé en file d'attente WordPress pour le comité scientifique de la DNPEC (profil, thème et résumé servent au classement). Après analyse interne, seule une publication validée pourra apparaître dans la revue."
         />
         <section className="pb-14">
           <RpaeSubmissionForm />

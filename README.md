@@ -144,10 +144,12 @@ Le dépôt inclut un `render.yaml` (Blueprint) minimal : Render détecte
 automatiquement le service Node à la racine du dépôt.
 
 - Build : `npm ci && npm run build` — Start : `npm start` (`next start`).
-- Aucune variable d'environnement n'est obligatoire au build ou au démarrage.
-  `WORDPRESS_API_URL` est optionnelle (`sync: false` dans `render.yaml`,
-  laissez-la vide) — le site sert les données de démonstration tant qu'elle
-  n'est pas renseignée.
+- Variables optionnelles (dashboard Render → Environment) : voir
+  [`docs/RPAE-WORDPRESS.md`](docs/RPAE-WORDPRESS.md) —
+  `WORDPRESS_API_URL`, `WORDPRESS_APP_USER`, `WORDPRESS_APP_PASSWORD`,
+  `RESEND_API_KEY`, `RPAE_COMITE_EMAIL`, `CONTACT_FROM_EMAIL`.
+- `WORDPRESS_API_URL` est déclarée `sync: false` dans `render.yaml` —
+  tant qu'elle est vide, le site sert les données de démonstration.
 - Le port d'écoute est géré automatiquement : `next start` lit la variable
   `PORT` fournie par Render (repli sur `3000` en local) — rien à configurer.
 - `NODE_VERSION` est fixée à 22 dans `render.yaml` (Next.js 16 exige Node
@@ -157,15 +159,21 @@ Pour déployer : sur Render, « New + » → « Blueprint », pointer vers ce d�
 et cette branche ; Render lit `render.yaml` et propose le service `dnpec-site`
 prêt à créer.
 
+### Revue scientifique (RPAE)
+
+Workflow comité WordPress, catégories `rpae` / `rpae-interne`, seed d'exemples
+et variables Render : **[`docs/RPAE-WORDPRESS.md`](docs/RPAE-WORDPRESS.md)**.
+
+```bash
+npm run seed:rpae   # nécessite .env.local avec WORDPRESS_*
+```
+
 ## Prochaines étapes (hors périmètre de cette itération)
 
-- Recherche plein texte sur publications et actualités.
-- Formulaire de contact et newsletter : brancher l'envoi d'e-mail réel et le
-  double opt-in (points marqués `TODO` dans `ContactForm.tsx` et
-  `Newsletter.tsx`).
-- Version anglaise (structure i18n à ajouter une fois la traduction du
-  contenu tranchée avec la DNPEC).
+- Custom post types WordPress pour publications / indicateurs / partenaires.
+- Version anglaise (structure i18n une fois la traduction tranchée avec la DNPEC).
 - Portail de données interactives (graphiques dynamiques, export CSV) —
   prévu en phase 2 selon le cahier des charges.
+- Portail comité Next.js (option B) si la DNPEC quitte le workflow WordPress.
 - Bascule de l'environnement de test Render vers l'hébergement définitif du
   ministère, une fois validé par le service informatique.

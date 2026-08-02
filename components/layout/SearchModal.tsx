@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
-type SearchResult = { title: string; href: string; type: "Actualité" | "Publication" | "Page" };
+type SearchResult = { title: string; href: string; type: "Actualité" | "Publication" | "Page" | "RPAE" };
 
 type SearchModalProps = {
   open: boolean;
