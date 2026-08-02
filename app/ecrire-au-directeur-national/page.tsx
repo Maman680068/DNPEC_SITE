@@ -11,7 +11,7 @@ const DIRECTEUR_TITLE = "Directeur National (DNPEC)";
 export default function EcrireAuDirecteurNationalPage() {
   return (
     <div className="wrap">
-      <div className="contact-hero relative rounded-[10px] overflow-hidden p-10 md:p-14 mb-11">
+      <div className="contact-hero relative rounded-[10px] overflow-hidden p-4 md:p-5 mb-11">
         <div className="flag-strip absolute top-0 left-0 right-0" />
         <div className="text-xs font-semibold text-yellow uppercase tracking-wide mb-2">Contact</div>
         <h1 className="text-white text-[32px] font-heading font-semibold">Écrire au Directeur National</h1>
