@@ -1,6 +1,10 @@
+import SectionHead from "@/components/ui/SectionHead";
+
 export default function AboutSection() {
   return (
     <section className="pb-14">
+      <SectionHead title="À propos" />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <div className="relative rounded-[10px] overflow-hidden h-[280px] md:h-[340px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -15,10 +19,9 @@ export default function AboutSection() {
         </div>
 
         <div>
-          <div className="text-xs font-semibold text-green uppercase tracking-wide">A-Propos</div>
-          <h2 className="text-xl sm:text-[26px] text-navy mt-1.5 mb-4 leading-snug">
+          <h3 className="text-xl sm:text-[26px] text-navy mb-4 leading-snug font-heading font-semibold">
             Direction Nationale des Prévisions Économiques et de la Conjoncture
-          </h2>
+          </h3>
           <p className="text-[15px] text-muted leading-relaxed mb-5">
             La DNPEC, sous l&apos;autorité du Ministère de l&apos;Économie et des Finances, est responsable de la
             conception et du suivi de la politique économique à court terme du Gouvernement. Ses missions

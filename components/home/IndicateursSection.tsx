@@ -15,14 +15,14 @@ type IndicateursSectionProps = {
 
 export default function IndicateursSection({ indicators, publications }: IndicateursSectionProps) {
   return (
-    <div className="indic-section rounded-[10px] p-5 md:p-8 mb-[52px] grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
-      <div>
+    <div className="indic-section rounded-[10px] p-5 md:p-8 mb-[52px] grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 lg:items-stretch">
+      <div className="flex flex-col">
         <h3 className="text-white text-lg mb-[18px]">Nos indicateurs clés</h3>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3.5 flex-1 justify-center">
           {indicators.map((indicator) => (
             <div
               key={indicator.id}
-              className="bg-white rounded-lg px-4 py-3.5 flex items-center gap-3.5"
+              className="bg-white rounded-lg px-4 py-4 flex items-center gap-3.5"
             >
               <div
                 className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0 ${toneClasses[indicator.tone]}`}

@@ -31,7 +31,7 @@ export default function PublicationsCarousel({ publications }: PublicationsCarou
 
   if (count === 0) {
     return (
-      <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-white/25 text-[#c3cee0] text-[13px] text-center p-5">
+      <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-white/25 text-[#c3cee0] text-[13px] text-center p-5 h-full min-h-[420px] lg:min-h-[460px]">
         Aucune publication disponible pour le moment.
       </div>
     );
@@ -43,7 +43,7 @@ export default function PublicationsCarousel({ publications }: PublicationsCarou
 
   return (
     <div
-      className="relative rounded-lg overflow-hidden h-full min-h-[330px] bg-gradient-to-br from-navy-dark to-navy"
+      className="relative rounded-lg overflow-hidden h-full min-h-[420px] lg:min-h-[460px] bg-gradient-to-br from-navy-dark to-navy"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
