@@ -134,6 +134,18 @@ h3,
   background: linear-gradient(160deg, #0d2047, #132b5e);
 }
 
+/* Cartes catégories de documents (accueil) — dégradé navy/vert, effet au survol. */
+.doc-category-card {
+  background: linear-gradient(135deg, var(--color-navy-dark) 0%, var(--color-green-dark) 100%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.doc-category-card:hover,
+.doc-category-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(13, 32, 71, 0.28);
+}
+
 /* Contenu d'article (HTML issu de WordPress, injecté via dangerouslySetInnerHTML) */
 .article-content p {
   margin-bottom: 1rem;
