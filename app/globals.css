@@ -98,9 +98,9 @@ h3,
   }
 }
 
-/* Bloc hero */
+/* Bloc hero — cadre navy ; intérieur géré dans le composant */
 .hero-slider {
-  background: linear-gradient(120deg, var(--color-navy-dark), var(--color-navy));
+  background: #d8dde6;
 }
 
 /* Bloc indicateurs clés */

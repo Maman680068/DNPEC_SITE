@@ -224,6 +224,7 @@ export async function getRecentPublicationCards(): Promise<PublicationCard[]> {
         title: page.title || entry.fallbackTitle,
         date: page.modified || page.date || "",
         pdfUrl: extractFirstPdfUrl(page.content),
+        coverImage: page.coverImage,
       };
       return card;
     }),

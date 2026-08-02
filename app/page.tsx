@@ -33,6 +33,7 @@ export default async function Home() {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3);
 
+  // Mêmes documents conjoncturels qu'avant — la 1ʳᵉ page PDF s'affiche dans le Hero.
   const conjonctureCards = recentPublications.filter((card) => CONJONCTURE_SLUGS.has(card.slug));
 
   return (

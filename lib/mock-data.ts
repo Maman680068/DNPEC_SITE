@@ -118,4 +118,16 @@ export const mockPublicationCards: PublicationCard[] = [
     title: "Rapport régional de conjoncture (RRC)",
     date: "2026-06-30",
   },
+  {
+    slug: "note-hebdomadaire-economie-guineenne",
+    href: "/note-hebdomadaire-economie-guineenne",
+    title: "Note hebdomadaire de l'économie guinéenne",
+    date: "2026-06-20",
+  },
+  {
+    slug: "autres-notes-techniques",
+    href: "/autres-notes-techniques",
+    title: "Autres notes techniques",
+    date: "2026-06-10",
+  },
 ];

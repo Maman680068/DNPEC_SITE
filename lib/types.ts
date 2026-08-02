@@ -60,4 +60,6 @@ export type PublicationCard = {
   date: string;
   /** URL du premier lien PDF trouvé dans le contenu, pour la miniature. */
   pdfUrl?: string;
+  /** Image de couverture optionnelle (Hero / carrousel). */
+  coverImage?: string;
 };
