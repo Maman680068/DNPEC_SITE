@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import PageEnConstruction from "@/components/ui/PageEnConstruction";
 import type { InstitutionalPage } from "@/lib/types";
 
@@ -58,7 +59,17 @@ export default function RevueTabs({ presentation, equipe, instructions, articles
 
       {active === "presentation" && <TabContent page={presentation} fallbackTitle="Présentation" />}
       {active === "equipe" && <TabContent page={equipe} fallbackTitle="Équipe Éditoriale" />}
-      {active === "instructions" && <TabContent page={instructions} fallbackTitle="Instructions aux auteurs" />}
+      {active === "instructions" && (
+        <>
+          <TabContent page={instructions} fallbackTitle="Instructions aux auteurs" />
+          <Link
+            href="/revue-scientifique/soumettre"
+            className="inline-flex items-center justify-center bg-yellow text-navy-dark font-bold text-sm px-6 h-11 rounded-lg hover:brightness-95 transition-[filter] mt-6"
+          >
+            Soumettre un article
+          </Link>
+        </>
+      )}
       {active === "numeros" &&
         (articlesByYear.length === 0 ? (
           <p className="text-muted text-sm">Aucun article publié pour le moment.</p>

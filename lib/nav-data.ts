@@ -97,7 +97,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/revue-scientifique",
     children: [
       { label: "Revue scientifique", href: "/revue-scientifique" },
-      { label: "Soumission d'articles", href: "/revue-scientifique#soumission" },
+      { label: "Soumettre un article", href: "/revue-scientifique/soumettre" },
     ],
   },
   {
