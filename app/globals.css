@@ -119,13 +119,6 @@ h3,
   background: linear-gradient(135deg, rgba(19, 43, 94, 0.225), rgba(15, 107, 60, 0.15));
 }
 
-/* Bandeau Événements — dégradé navy/vert de la charte (le visuel de
-   référence utilisait un bleu/vert générique, remplacé ici). */
-.event-section {
-  background: linear-gradient(120deg, var(--color-navy-dark) 0%, var(--color-green-dark) 100%);
-}
-
-
 .news-overlay {
   background: linear-gradient(
     0deg,

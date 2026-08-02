@@ -1,4 +1,4 @@
-import type { EventData, Indicator, InstitutionalPage, NewsArticle, Partner, Publication, PublicationCard } from "./types";
+import type { Indicator, InstitutionalPage, NewsArticle, Partner, Publication, PublicationCard } from "./types";
 import { mockIndicators, mockNews, mockPartners, mockPublications } from "./mock-data";
 import { decodeHtmlEntities } from "./decodeHtml";
 
@@ -87,36 +87,6 @@ function extractFirstPdfUrl(html: string): string | undefined {
   return match?.[1];
 }
 
-/**
- * Un champ "event:<key> <valeur>" encodé dans un commentaire HTML —
- * ex. <!-- event:status Terminé -->. Pas de champ personnalisé WordPress :
- * la cellule éditoriale écrit ces commentaires directement dans l'éditeur de
- * contenu. `undefined` si le champ est absent, jamais d'erreur.
- */
-function extractEventField(html: string, key: string): string | undefined {
-  const match = html.match(new RegExp(`<!--\\s*event:${key}\\s+([\\s\\S]*?)\\s*-->`, "i"));
-  return match?.[1]?.trim() || undefined;
-}
-
-/**
- * Parse les 6 champs d'un événement mis en avant depuis le contenu HTML
- * d'une page WordPress (voir EventData dans lib/types.ts). Renvoie undefined
- * si aucun des 6 champs n'est trouvé — signal pour l'appelant de masquer la
- * section plutôt que d'afficher un bloc vide.
- */
-export function extractEventData(html: string): EventData | undefined {
-  const data: EventData = {
-    status: extractEventField(html, "status"),
-    dates: extractEventField(html, "dates"),
-    theme: extractEventField(html, "theme"),
-    speakerName: extractEventField(html, "speaker-name"),
-    speakerTitle: extractEventField(html, "speaker-title"),
-    speakerPhoto: extractEventField(html, "speaker-photo"),
-  };
-  const hasAnyField = Object.values(data).some((value) => value !== undefined);
-  return hasAnyField ? data : undefined;
-}
-
 function mapWpPostToNewsArticle(post: WpPost): NewsArticle {
   return {
     id: String(post.id),
@@ -178,22 +148,6 @@ export async function getPageBySlug(slug: string): Promise<InstitutionalPage | n
   if (!data || data.length === 0) return null;
   const page = mapWpPageToInstitutionalPage(data[0]);
   return stripHtml(page.content).length > 0 ? page : null;
-}
-
-/**
- * Slug de la page WordPress dédiée à l'événement mis en avant sur la page
- * d'accueil — son contenu n'est que des commentaires HTML structurés (voir
- * extractEventData), donc aucun texte visible une fois les balises retirées.
- * getPageBySlug() la traiterait à tort comme vide (son garde-fou anti-page
- * blanche) : on lit ici le contenu brut directement plutôt que de passer par
- * getPageBySlug().
- */
-const EVENT_PAGE_SLUG = "evenement-a-la-une";
-
-export async function getFeaturedEvent(): Promise<EventData | null> {
-  const data = await fetchFromWordpress<WpPage[]>(`/pages?slug=${encodeURIComponent(EVENT_PAGE_SLUG)}`);
-  if (!data || data.length === 0) return null;
-  return extractEventData(decodeHtmlEntities(data[0].content.rendered)) ?? null;
 }
 
 export async function getPublications(): Promise<Publication[]> {

@@ -1,6 +1,5 @@
 import PageTitle from "@/components/ui/PageTitle";
 import Hero from "@/components/home/Hero";
-import EventSection from "@/components/home/EventSection";
 import IndicateursSection from "@/components/home/IndicateursSection";
 import AboutSection from "@/components/home/AboutSection";
 import ActualitesSection from "@/components/home/ActualitesSection";
@@ -8,7 +7,6 @@ import PublicationsSection from "@/components/home/PublicationsSection";
 import PartnersSection from "@/components/home/PartnersSection";
 import Newsletter from "@/components/home/Newsletter";
 import {
-  getFeaturedEvent,
   getIndicators,
   getNews,
   getPartners,
@@ -23,13 +21,12 @@ import {
 export const revalidate = 300;
 
 export default async function Home() {
-  const [indicators, news, publications, partners, recentPublications, event] = await Promise.all([
+  const [indicators, news, publications, partners, recentPublications] = await Promise.all([
     getIndicators(),
     getNews(),
     getPublications(),
     getPartners(),
     getRecentPublicationCards(),
-    getFeaturedEvent(),
   ]);
 
   const latestNews = [...news]
@@ -44,8 +41,6 @@ export default async function Home() {
         <PageTitle eyebrow="Accueil" title="Actualités & conjoncture" />
 
         <Hero publications={conjonctureCards} />
-
-        {event && <EventSection event={event} />}
 
         <IndicateursSection indicators={indicators} publications={recentPublications} />
 
