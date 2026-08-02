@@ -14,3 +14,9 @@ services:
       # de lib/mock-data.ts (voir README § Connecter le WordPress headless).
       - key: WORDPRESS_API_URL
         sync: false
+      # Optionnelle : clé API Resend pour l'envoi des formulaires de contact
+      # (app/api/contact/route.ts). Tant qu'elle n'est pas définie, le
+      # formulaire affiche une erreur claire à l'utilisateur plutôt que
+      # d'échouer silencieusement.
+      - key: RESEND_API_KEY
+        sync: false
