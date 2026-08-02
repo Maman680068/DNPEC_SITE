@@ -119,11 +119,6 @@ h3,
   background: linear-gradient(120deg, var(--color-navy-dark) 0%, var(--color-green-dark) 100%);
 }
 
-/* Bandeau d'en-tête de la page Contact — même principe que le bloc À propos
-   (dégradé de la charte, pas de photo). */
-.contact-hero {
-  background: linear-gradient(120deg, var(--color-navy-dark) 0%, var(--color-green-dark) 100%);
-}
 
 .news-overlay {
   background: linear-gradient(

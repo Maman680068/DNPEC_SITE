@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PageTitle from "@/components/ui/PageTitle";
 import ContactForm from "@/components/contact/ContactForm";
 
 export const metadata: Metadata = { title: "Contact" };
@@ -6,14 +7,11 @@ export const metadata: Metadata = { title: "Contact" };
 export default function ContactPage() {
   return (
     <div className="wrap">
-      <div className="contact-hero relative rounded-[10px] overflow-hidden p-4 md:p-5 mb-11">
-        <div className="flag-strip absolute top-0 left-0 right-0" />
-        <div className="text-xs font-semibold text-yellow uppercase tracking-wide mb-2">Contact</div>
-        <h1 className="text-white text-[32px] font-heading font-semibold">Contactez-nous</h1>
-        <p className="text-[#c3cee0] text-sm mt-2 max-w-xl">
-          Une question, une suggestion ou besoin d&apos;informations complémentaires ? La DNPEC vous répond.
-        </p>
-      </div>
+      <PageTitle
+        eyebrow="Contact"
+        title="Contactez-nous"
+        subtitle="Une question, une suggestion ou besoin d'informations complémentaires ? La DNPEC vous répond."
+      />
 
       <section className="pb-14 grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-10">
         <div className="flex flex-col gap-6">
