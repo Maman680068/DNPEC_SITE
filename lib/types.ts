@@ -59,3 +59,18 @@ export type PublicationCard = {
   /** URL du premier lien PDF trouvé dans le contenu, pour la miniature. */
   pdfUrl?: string;
 };
+
+/**
+ * Événement mis en avant sur la page d'accueil — encodé dans le contenu
+ * WordPress via des commentaires HTML structurés (pas de champ personnalisé),
+ * voir extractEventData() dans lib/wordpress.ts. Chaque champ est
+ * indépendamment optionnel : la page peut n'en renseigner qu'une partie.
+ */
+export type EventData = {
+  status?: string;
+  dates?: string;
+  theme?: string;
+  speakerName?: string;
+  speakerTitle?: string;
+  speakerPhoto?: string;
+};
