@@ -24,6 +24,16 @@ const STATIC_PAGES: { title: string; href: string }[] = [
   { title: "Conférences & Séminaires", href: "/conferences-seminaires" },
   { title: "Actualités", href: "/actualites" },
   { title: "Publications", href: "/publications" },
+  { title: "Documents prévisionnels", href: "/publications/documents-previsionnels" },
+  { title: "Transition fiscale", href: "/transition-fiscale" },
+  {
+    title: "Rapport de suivi des indicateurs de transition fiscale",
+    href: "/rapport-suivi-indicateurs-transition-fiscale",
+  },
+  {
+    title: "PEF — Perspectives économiques et financières",
+    href: "/perspectives-economiques-financieres",
+  },
   { title: "Loi des finances", href: "/loi-des-finances" },
   { title: "Code des marchés publics", href: "/code-des-marches-publics" },
   { title: "Code des investissements", href: "/code-des-investissements" },

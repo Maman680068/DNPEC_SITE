@@ -173,6 +173,17 @@ export async function getPublications(): Promise<Publication[]> {
  * d'accueil : celles sans contenu réel publié sont simplement ignorées.
  */
 const PUBLICATION_PAGES: { slug: string; href: string; fallbackTitle: string }[] = [
+  { slug: "transition-fiscale", href: "/transition-fiscale", fallbackTitle: "Transition fiscale" },
+  {
+    slug: "rapport-suivi-indicateurs-transition-fiscale",
+    href: "/rapport-suivi-indicateurs-transition-fiscale",
+    fallbackTitle: "Rapport de suivi des indicateurs de transition fiscale",
+  },
+  {
+    slug: "perspectives-economiques-financieres",
+    href: "/perspectives-economiques-financieres",
+    fallbackTitle: "PEF — Perspectives économiques et financières",
+  },
   { slug: "tableau-de-bord-mensuel-de-leconomie-guineenne-tbmeg", href: "/tbmeg", fallbackTitle: "TBMEG" },
   { slug: "tbfp", href: "/tbfp", fallbackTitle: "TBFP" },
   { slug: "tofe", href: "/tofe", fallbackTitle: "TOFE" },

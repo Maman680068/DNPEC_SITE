@@ -43,6 +43,16 @@ export const mockNews: NewsArticle[] = [
 
 export const mockPublications: Publication[] = [
   {
+    id: "0",
+    slug: "documents-previsionnels",
+    title: "Documents prévisionnels",
+    description:
+      "Transition fiscale, suivi des indicateurs et perspectives économiques et financières (PEF).",
+    type: "previsionnels",
+    year: 2026,
+    href: "/publications/documents-previsionnels",
+  },
+  {
     id: "1",
     slug: "documents-conjoncturels",
     title: "Documents conjoncturels",
@@ -76,6 +86,7 @@ export const mockPublications: Publication[] = [
 
 /** Catégories de publications reprises du menu Publications (lib/nav-data.ts), pour les filtres. */
 export const publicationTypes: { value: string; label: string }[] = [
+  { value: "previsionnels", label: "Documents prévisionnels" },
   { value: "budgetaires", label: "Documents budgétaires" },
   { value: "conjoncturels", label: "Documents conjoncturels" },
   { value: "integration-regionale", label: "Documents de suivi de l'intégration économique régionale" },
