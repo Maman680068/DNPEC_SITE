@@ -3,7 +3,10 @@ import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
-const RECIPIENT = "infos@dnpec.gov.gn";
+// TODO: remplacer par infos@dnpec.gov.gn une fois le domaine vérifié sur Resend.
+// Compte Resend non vérifié : ne peut envoyer qu'à l'adresse du titulaire du
+// compte tant qu'aucun domaine d'envoi n'est vérifié.
+const RECIPIENT = "soumah6868@gmail.com";
 // Adresse d'envoi Resend — le domaine sandbox par défaut fonctionne sans
 // vérification de domaine ; à surcharger avec CONTACT_FROM_EMAIL une fois un
 // domaine DNPEC vérifié sur Resend.
