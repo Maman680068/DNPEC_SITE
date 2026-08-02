@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/nav-data";
 import DropdownMenu from "./nav/DropdownMenu";
+import SearchModal from "./SearchModal";
 
 function isItemActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -14,6 +15,7 @@ export default function MainNav() {
   const pathname = usePathname();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [prevPathname, setPrevPathname] = useState(pathname);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Referme tous les menus après une navigation (y compris vers une simple
   // ancre/query string, que usePathname ne distingue pas toujours).
@@ -45,12 +47,14 @@ export default function MainNav() {
           <button
             type="button"
             aria-label="Rechercher"
+            onClick={() => setSearchOpen(true)}
             className="inline-flex items-center justify-center w-9 h-9 rounded-full text-lg text-[#dbe2f0] cursor-pointer transition-colors hover:text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2"
           >
             ⌕
           </button>
         </li>
       </ul>
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
     </nav>
   );
 }
