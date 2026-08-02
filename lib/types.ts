@@ -19,6 +19,8 @@ export type Publication = {
   year: number;
   fileUrl?: string;
   fileSizeKb?: number;
+  /** Route de la catégorie correspondante — toutes ne vivent pas sous /publications/. */
+  href?: string;
 };
 
 export type Indicator = {

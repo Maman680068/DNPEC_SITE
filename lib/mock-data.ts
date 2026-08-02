@@ -50,6 +50,7 @@ export const mockPublications: Publication[] = [
       "Tableaux de bord mensuels, notes hebdomadaires et rapports régionaux de conjoncture sur l'économie guinéenne.",
     type: "conjoncturels",
     year: 2026,
+    href: "/publications/documents-conjoncturels",
   },
   {
     id: "2",
@@ -59,6 +60,7 @@ export const mockPublications: Publication[] = [
       "Analyses, recommandations et orientations pour guider les décisions de politique économique du Gouvernement.",
     type: "politique-economique",
     year: 2026,
+    href: "/documents-politique-economique",
   },
   {
     id: "3",
@@ -68,6 +70,7 @@ export const mockPublications: Publication[] = [
       "Séries de données macroéconomiques, finances publiques, balance des paiements et situation monétaire.",
     type: "statistiques",
     year: 2026,
+    href: "/documents-statistiques",
   },
 ];
 

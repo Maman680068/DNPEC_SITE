@@ -16,12 +16,13 @@ export default function PublicationsSection({ publications }: PublicationsSectio
         {publications.map((publication) => (
           <Link
             key={publication.id}
-            href={`/publications/${publication.slug}`}
-            className="bg-white rounded-[10px] p-6.5 shadow-[0_8px_24px_rgba(13,32,71,0.12)] block"
+            href={publication.href ?? `/publications/${publication.slug}`}
+            className="doc-category-card rounded-[14px] p-7 block focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2"
           >
-            <div className="w-[34px] h-1.5 bg-green rounded-[3px] mb-4" />
-            <h3 className="text-[17px] text-navy mb-2.5">{publication.title}</h3>
-            <p className="text-[13px] text-muted leading-relaxed">{publication.description}</p>
+            <div className="w-[34px] h-1.5 bg-yellow rounded-[3px] mb-4" />
+            <h3 className="text-[17px] text-white font-semibold mb-2.5">{publication.title}</h3>
+            <p className="text-[13px] text-[#c7d0e3] leading-relaxed mb-5">{publication.description}</p>
+            <span className="text-yellow text-[13px] font-bold">Consulter →</span>
           </Link>
         ))}
       </div>
