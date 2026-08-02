@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
 import ContactForm from "@/components/contact/ContactForm";
-import DirecteurNationalCard from "@/components/contact/DirecteurNationalCard";
 
 export const metadata: Metadata = { title: "Contact" };
-
-const DIRECTEUR_PHOTO = "https://solveexample.s2-tastewp.com/wp-content/uploads/2026/08/directeur-national-dnpec.jpg";
-const DIRECTEUR_NAME = "Abdoulaye Ibrahima Diallo";
-const DIRECTEUR_TITLE = "Directeur National (DNPEC)";
 
 export default function ContactPage() {
   return (
@@ -48,16 +43,6 @@ export default function ContactPage() {
         </div>
 
         <ContactForm heading="Avez-vous des préoccupations ?" submitLabel="Envoyer" />
-      </section>
-
-      <section id="directeur-national" className="pb-14 scroll-mt-24">
-        <h2 className="text-2xl text-navy relative pb-2.5 mb-5 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-11 after:h-[3px] after:bg-yellow">
-          Écrire au Directeur National
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-10">
-          <ContactForm context="directeur-national" submitLabel="Envoyer" />
-          <DirecteurNationalCard photo={DIRECTEUR_PHOTO} name={DIRECTEUR_NAME} title={DIRECTEUR_TITLE} />
-        </div>
       </section>
     </div>
   );
