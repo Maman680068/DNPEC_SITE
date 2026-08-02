@@ -16,9 +16,9 @@ export default async function RevueScientifiquePage() {
   ]);
 
   return (
-    <div className="wrap">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="wrap overflow-x-clip">
+      <div className="max-w-6xl mx-auto min-w-0">
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-2">
           <PageTitle
             eyebrow="Publications"
             title="Revue Scientifique"
@@ -31,7 +31,7 @@ export default async function RevueScientifiquePage() {
             Soumettre un article
           </Link>
         </div>
-        <section className="pb-14">
+        <section className="pb-14 min-w-0">
           <RevueTabs
             presentation={presentation}
             equipe={equipe}
