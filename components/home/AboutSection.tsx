@@ -16,7 +16,7 @@ export default function AboutSection() {
 
         <div>
           <div className="text-xs font-semibold text-green uppercase tracking-wide">A-Propos</div>
-          <h2 className="text-[26px] text-navy mt-1.5 mb-4 leading-snug">
+          <h2 className="text-xl sm:text-[26px] text-navy mt-1.5 mb-4 leading-snug">
             Direction Nationale des Prévisions Économiques et de la Conjoncture
           </h2>
           <p className="text-[15px] text-muted leading-relaxed mb-5">

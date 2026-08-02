@@ -69,7 +69,7 @@ export default function PublicationsCarousel({ publications }: PublicationsCarou
       {/* Overlay bas, plus marqué, pour la lisibilité du titre/bouton */}
       <div className="absolute inset-x-0 bottom-0 z-10 h-2/3 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 
-      <div className="absolute inset-0 z-20 flex flex-col px-14 py-5 sm:px-20 sm:py-7">
+      <div className="absolute inset-0 z-20 flex flex-col px-6 py-5 sm:px-14 sm:py-7 lg:px-20">
         <div className="flex items-center justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logos/logo-dnpec-clean.png" alt="" className="h-8 sm:h-9 w-auto opacity-90" />

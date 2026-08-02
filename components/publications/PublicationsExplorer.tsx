@@ -38,12 +38,12 @@ export default function PublicationsExplorer({
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Rechercher une publication..."
-          className="flex-1 h-11 px-4 rounded-md border border-line bg-paper text-sm"
+          className="flex-1 min-w-0 w-full h-11 px-4 rounded-md border border-line bg-paper text-sm"
         />
         <select
           value={type}
           onChange={(event) => setType(event.target.value)}
-          className="h-11 px-3 rounded-md border border-line bg-paper text-sm"
+          className="h-11 px-3 rounded-md border border-line bg-paper text-sm w-full sm:w-auto min-w-0 sm:min-w-[10rem]"
         >
           <option value="">Tous les types</option>
           {publicationTypes.map((option) => (
@@ -55,7 +55,7 @@ export default function PublicationsExplorer({
         <select
           value={year}
           onChange={(event) => setYear(event.target.value)}
-          className="h-11 px-3 rounded-md border border-line bg-paper text-sm"
+          className="h-11 px-3 rounded-md border border-line bg-paper text-sm w-full sm:w-auto min-w-0 sm:min-w-[8rem]"
         >
           <option value="">Toutes les années</option>
           {years.map((y) => (

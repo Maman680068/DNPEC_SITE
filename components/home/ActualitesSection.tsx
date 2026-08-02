@@ -18,7 +18,7 @@ export default function ActualitesSection({ articles }: ActualitesSectionProps) 
   return (
     <section className="pb-14">
       <SectionHead title="Nos actualités" seeAllHref="/actualites" seeAllLabel="TOUTES LES ACTUALITÉS" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-[22px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[22px]">
         {articles.map((article) => (
           <Link
             key={article.id}
@@ -37,10 +37,10 @@ export default function ActualitesSection({ articles }: ActualitesSectionProps) 
               {article.category}
             </span>
             <div className="news-overlay absolute left-0 right-0 bottom-0 px-4.5 pt-[60px] pb-4.5">
-              <h3 className="text-white text-[15.5px] leading-snug mb-3 font-semibold">
+              <h3 className="text-white text-[15.5px] leading-snug mb-3 font-semibold line-clamp-3">
                 {article.title}
               </h3>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="bg-yellow text-navy-dark text-xs font-bold px-3.5 py-1.5 rounded-md">
                   Lire l&apos;article
                 </span>

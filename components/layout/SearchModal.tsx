@@ -54,11 +54,11 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-navy-dark/70"
+      className="fixed inset-0 z-[60] flex items-start justify-center pt-16 sm:pt-24 px-4 bg-navy-dark/70"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-[10px] shadow-2xl w-full max-w-xl p-8 relative"
+        className="bg-white rounded-[10px] shadow-2xl w-full max-w-xl p-5 sm:p-8 relative max-h-[calc(100dvh-4rem)] overflow-y-auto"
         onClick={(event) => event.stopPropagation()}
       >
         <button
@@ -70,22 +70,22 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
           ✕
         </button>
 
-        <h2 className="text-navy text-2xl font-heading font-semibold mb-1.5">Faire une recherche</h2>
+        <h2 className="text-navy text-xl sm:text-2xl font-heading font-semibold mb-1.5 pr-10">Faire une recherche</h2>
         <p className="text-muted text-sm mb-6">Actualités, Documents, Publications, Articles RPAE, etc.</p>
 
-        <form onSubmit={handleSubmit} className="flex gap-3">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
           <input
             autoFocus
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Rechercher sur le site..."
-            className="flex-1 h-12 px-4 rounded-md border border-line bg-paper text-sm text-ink"
+            className="flex-1 min-w-0 h-12 px-4 rounded-md border border-line bg-paper text-sm text-ink"
           />
           <button
             type="submit"
             disabled={loading}
-            className="bg-red text-white font-bold text-sm px-6 rounded-lg cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            className="bg-red text-white font-bold text-sm px-6 h-12 rounded-lg cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
           >
             {loading ? "…" : "Rechercher"}
           </button>
@@ -101,9 +101,9 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
                   key={`${result.type}-${result.href}`}
                   href={result.href}
                   onClick={onClose}
-                  className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-md hover:bg-paper transition-colors"
+                  className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-md hover:bg-paper transition-colors min-w-0"
                 >
-                  <span className="text-navy text-sm font-medium">{result.title}</span>
+                  <span className="text-navy text-sm font-medium truncate min-w-0">{result.title}</span>
                   <span className="shrink-0 text-[11px] font-semibold text-green uppercase tracking-wide">
                     {result.type}
                   </span>

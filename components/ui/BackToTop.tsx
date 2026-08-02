@@ -48,7 +48,7 @@ export default function BackToTop() {
       tabIndex={visible ? 0 : -1}
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       style={{ bottom: `${bottomOffset}px` }}
-      className={`fixed right-6 w-11 h-11 rounded-full bg-green text-white flex items-center justify-center text-lg shadow-[0_4px_14px_rgba(0,0,0,0.25)] cursor-pointer z-50 transition-opacity duration-300 ${
+      className={`fixed right-4 sm:right-6 w-11 h-11 rounded-full bg-green text-white flex items-center justify-center text-lg shadow-[0_4px_14px_rgba(0,0,0,0.25)] cursor-pointer z-50 transition-opacity duration-300 ${
         visible ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
     >

@@ -51,6 +51,12 @@ h3,
   padding: 0 28px;
 }
 
+@media (max-width: 639px) {
+  .wrap {
+    padding: 0 16px;
+  }
+}
+
 /* Liseré tricolore (drapeau guinéen) */
 .flag-strip {
   height: 5px;
@@ -147,6 +153,20 @@ h3,
 }
 
 /* Contenu d'article (HTML issu de WordPress, injecté via dangerouslySetInnerHTML) */
+.article-content img,
+.article-content video {
+  max-width: 100%;
+  height: auto;
+}
+.article-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.article-content pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
 .article-content p {
   margin-bottom: 1rem;
 }
@@ -224,6 +244,8 @@ h3,
   color: var(--color-navy);
   text-decoration: none;
   transition: background-color 0.2s ease;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .yearly-doc-content li > a:hover {
   background-color: color-mix(in srgb, var(--color-yellow) 20%, white);
@@ -298,10 +320,17 @@ h3,
   margin-right: -90px;
 }
 
-@media (max-width: 900px) {
+/* Aligné sur le breakpoint Tailwind `md` (768px) de Newsletter.tsx */
+@media (max-width: 767px) {
   .nl-left {
     border-radius: 16px;
     margin-right: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
   }
 }
 

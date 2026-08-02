@@ -39,8 +39,8 @@ export default function Newsletter() {
   return (
     <div className="wrap">
       <div className="newsletter relative grid grid-cols-1 md:grid-cols-[56%_44%] rounded-[10px] overflow-hidden my-14 bg-navy">
-        <div className="nl-left bg-green text-white p-11 md:pl-10 md:pr-[120px] relative z-10">
-          <h2 className="text-white text-[26px] mb-3 max-w-[290px]">
+        <div className="nl-left bg-green text-white p-6 md:p-11 md:pl-10 md:pr-[120px] relative z-10">
+          <h2 className="text-white text-xl md:text-[26px] mb-3 max-w-[290px]">
             Restez à l&apos;affût
             <br />
             de l&apos;information
@@ -49,7 +49,7 @@ export default function Newsletter() {
             Entrez votre adresse e-mail pour être informé des dernières publications de la DNPEC.
           </p>
         </div>
-        <div className="bg-navy p-11 md:pl-[110px] md:pr-10 flex flex-col justify-center gap-3.5">
+        <div className="bg-navy p-6 md:p-11 md:pl-[110px] md:pr-10 flex flex-col justify-center gap-3.5">
           {status === "success" ? (
             <p className="text-white text-sm">Merci, vous êtes maintenant inscrit(e).</p>
           ) : (

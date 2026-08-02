@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/nav-data";
 import DropdownMenu from "./nav/DropdownMenu";
+import MobileNav from "./MobileNav";
 import SearchModal from "./SearchModal";
 
 function isItemActive(pathname: string, href: string) {
@@ -25,10 +26,12 @@ export default function MainNav() {
   }
 
   return (
-    <nav className="bg-navy sticky top-0 z-40 shadow-md">
+    <nav className="bg-navy sticky top-0 z-40 shadow-md relative">
+      <MobileNav onSearchOpen={() => setSearchOpen(true)} />
+
       <ul
         role="menubar"
-        className="wrap flex flex-wrap xl:flex-nowrap items-center gap-x-5 gap-y-2 min-h-[58px] py-2.5 text-[14.5px] font-medium"
+        className="wrap hidden lg:flex flex-nowrap items-center gap-x-5 gap-y-2 min-h-[58px] py-2.5 text-[14.5px] font-medium"
       >
         {NAV_ITEMS.map((item, index) => (
           <DropdownMenu

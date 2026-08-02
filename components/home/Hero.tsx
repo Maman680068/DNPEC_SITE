@@ -46,15 +46,17 @@ export default function Hero({ publications }: HeroProps) {
   return (
     <Link
       href={current.href}
-      className="hero-slider relative rounded-[10px] overflow-hidden h-[340px] mb-11 block"
+      className="hero-slider relative rounded-[10px] overflow-hidden min-h-[280px] sm:min-h-[340px] h-auto mb-11 block"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="absolute left-9 bottom-8 right-9 text-white">
+      <div className="relative z-10 px-5 pt-8 pb-16 sm:absolute sm:left-9 sm:bottom-8 sm:right-9 sm:p-0 text-white">
         <span className="inline-block bg-yellow text-navy-dark text-[11.5px] font-bold px-3 py-1.5 rounded mb-3.5">
           CONJONCTURE
         </span>
-        <h2 className="text-[26px] max-w-[640px] leading-snug text-white font-semibold">{current.title}</h2>
+        <h2 className="text-xl sm:text-[26px] max-w-[640px] leading-snug text-white font-semibold line-clamp-4 sm:line-clamp-3">
+          {current.title}
+        </h2>
         <div className="text-[12.5px] text-[#c3cee0] mt-2.5">{formatDate(current.date)}</div>
 
         {count > 1 && (
@@ -74,12 +76,12 @@ export default function Hero({ publications }: HeroProps) {
       </div>
 
       {count > 1 && (
-        <div className="absolute top-1/2 left-0 right-0 flex justify-between px-[18px] -translate-y-1/2">
+        <div className="absolute bottom-4 right-4 sm:top-1/2 sm:left-0 sm:right-0 sm:bottom-auto sm:flex sm:justify-between sm:px-[18px] sm:-translate-y-1/2 z-20 flex gap-2 sm:gap-0">
           <button
             type="button"
             aria-label="Publication précédente"
             onClick={(event) => goTo((index - 1 + count) % count, event)}
-            className="w-[38px] h-[38px] rounded-full bg-white/15 border border-white/30 text-white flex items-center justify-center text-base cursor-pointer hover:bg-white/25 transition-colors"
+            className="w-8 h-8 sm:w-[38px] sm:h-[38px] rounded-full bg-white/15 border border-white/30 text-white flex items-center justify-center text-base cursor-pointer hover:bg-white/25 transition-colors"
           >
             ‹
           </button>
@@ -87,7 +89,7 @@ export default function Hero({ publications }: HeroProps) {
             type="button"
             aria-label="Publication suivante"
             onClick={(event) => goTo((index + 1) % count, event)}
-            className="w-[38px] h-[38px] rounded-full bg-white/15 border border-white/30 text-white flex items-center justify-center text-base cursor-pointer hover:bg-white/25 transition-colors"
+            className="w-8 h-8 sm:w-[38px] sm:h-[38px] rounded-full bg-white/15 border border-white/30 text-white flex items-center justify-center text-base cursor-pointer hover:bg-white/25 transition-colors"
           >
             ›
           </button>

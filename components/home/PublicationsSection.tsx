@@ -8,11 +8,11 @@ type PublicationsSectionProps = {
 export default function PublicationsSection({ publications }: PublicationsSectionProps) {
   return (
     <section className="pb-14">
-      <div className="pub-hero relative rounded-[10px] overflow-hidden pt-[60px] px-10 pb-[210px]">
+      <div className="pub-hero relative rounded-[10px] overflow-hidden pt-10 sm:pt-[60px] px-5 sm:px-10 pb-[140px] sm:pb-[210px]">
         <div className="text-yellow text-xs font-bold tracking-wide uppercase">Publications</div>
-        <h2 className="text-white text-[30px] mt-2.5">Retrouvez l&apos;information économique</h2>
+        <h2 className="text-white text-2xl sm:text-[30px] mt-2.5">Retrouvez l&apos;information économique</h2>
       </div>
-      <div className="relative -mt-[170px] px-0 md:px-10 grid grid-cols-1 md:grid-cols-3 gap-[22px]">
+      <div className="relative -mt-[100px] sm:-mt-[170px] px-0 md:px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[22px]">
         {publications.map((publication) => (
           <Link
             key={publication.id}
