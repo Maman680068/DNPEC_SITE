@@ -21,6 +21,16 @@ npm run dev
 
 Ouvrir [http://localhost:3000](http://localhost:3000).
 
+### Assistant DNPEC (chat)
+
+Bulle verte en bas à droite. Sans clé : **mode démo** (réponses institutionnelles). Avec Claude :
+
+```
+ANTHROPIC_API_KEY=sk-ant-…
+# optionnel :
+ANTHROPIC_MODEL=claude-sonnet-4-5-20250929
+```
+
 Autres commandes utiles :
 
 ```bash

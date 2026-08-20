@@ -5,6 +5,7 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import MainNav from "@/components/layout/MainNav";
 import Footer from "@/components/layout/Footer";
 import BackToTop from "@/components/ui/BackToTop";
+import ChatWidget from "@/components/chat/ChatWidget";
 import { getLocale, getMessages } from "@/lib/i18n/locale";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +48,7 @@ export default async function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <BackToTop />
+        <ChatWidget />
       </body>
     </html>
   );

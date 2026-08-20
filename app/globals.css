@@ -656,3 +656,40 @@ h3,
     animation: none;
   }
 }
+
+/* Assistant DNPEC — bulle flottante */
+@keyframes chat-fab-pulse {
+  0%,
+  100% {
+    box-shadow: 0 6px 24px rgba(15, 107, 60, 0.45);
+  }
+  50% {
+    box-shadow: 0 6px 28px rgba(15, 107, 60, 0.65), 0 0 0 10px rgba(15, 107, 60, 0.12);
+  }
+}
+
+.chat-fab-pulse {
+  animation: chat-fab-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes chat-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-chat-panel {
+  animation: chat-panel-in 0.22s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-fab-pulse,
+  .animate-chat-panel {
+    animation: none;
+  }
+}

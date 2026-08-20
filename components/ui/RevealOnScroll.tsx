@@ -30,20 +30,26 @@ export default function RevealOnScroll({ children, className = "", delayMs = 0 }
 
     const show = () => setPhase("done");
 
+    const revealSoon = (delay: number) => {
+      // Double rAF : laisse le paint `pending` (opacity 0) s’appliquer avant `done`.
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          window.setTimeout(show, Math.max(delay, 40));
+        });
+      });
+    };
+
     const rect = node.getBoundingClientRect();
     const vh = window.innerHeight || document.documentElement.clientHeight;
     if (rect.top < vh && rect.bottom > 0) {
-      // Laisse un frame pour appliquer opacity:0, puis révèle.
-      const id = window.requestAnimationFrame(() => {
-        window.setTimeout(show, delayMs);
-      });
-      return () => window.cancelAnimationFrame(id);
+      revealSoon(delayMs);
+      return;
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          window.setTimeout(show, delayMs);
+          revealSoon(delayMs);
           observer.disconnect();
         }
       },
@@ -51,7 +57,7 @@ export default function RevealOnScroll({ children, className = "", delayMs = 0 }
     );
     observer.observe(node);
 
-    const fallback = window.setTimeout(show, 800);
+    const fallback = window.setTimeout(show, 2500);
 
     return () => {
       observer.disconnect();
