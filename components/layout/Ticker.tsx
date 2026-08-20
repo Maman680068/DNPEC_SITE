@@ -1,10 +1,11 @@
 import { getTickerAnnouncements } from "@/lib/wordpress";
-
-const FALLBACK_ANNOUNCEMENTS = ["Bienvenue sur le site de la DNPEC — actualités et publications à venir."];
+import { getLocale, getMessages } from "@/lib/i18n/locale";
 
 export default async function Ticker() {
-  const announcements = await getTickerAnnouncements();
-  const baseItems = announcements.length > 0 ? announcements : FALLBACK_ANNOUNCEMENTS;
+  const locale = await getLocale();
+  const t = await getMessages();
+  const announcements = await getTickerAnnouncements(locale);
+  const baseItems = announcements.length > 0 ? announcements : [t.header.tickerFallback];
   // La piste est dupliquée pour permettre un défilement continu (translateX -50%).
   const items = [...baseItems, ...baseItems];
 

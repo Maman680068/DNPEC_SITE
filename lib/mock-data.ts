@@ -7,10 +7,46 @@ import type { Indicator, NewsArticle, Partner, Publication, PublicationCard } fr
  */
 
 export const mockIndicators: Indicator[] = [
-  { id: "croissance", label: "Taux de croissance — 2025", value: "6,2 %", icon: "📈", tone: "green", period: "2025" },
-  { id: "inflation", label: "Taux d'inflation — 2025", value: "7,8 %", icon: "🛒", tone: "yellow", period: "2025" },
-  { id: "deficit", label: "Déficit budgétaire (% PIB)", value: "3,1 %", icon: "📊", tone: "red", period: "2025" },
-  { id: "endettement", label: "Taux d'endettement (% PIB)", value: "38,4 %", icon: "💳", tone: "navy", period: "2025" },
+  {
+    id: "croissance",
+    label: "Taux de croissance réel",
+    value: "7,2 %",
+    icon: "📈",
+    tone: "green",
+    period: "nov-2025",
+  },
+  {
+    id: "inflation",
+    label: "Taux d'inflation (GA) à fin",
+    value: "3,3 %",
+    icon: "📉",
+    tone: "yellow",
+    period: "nov-2025 en prévision",
+  },
+  {
+    id: "deficit",
+    label: "Déficit budgétaire en % PIB",
+    value: "4,08 %",
+    icon: "⚖️",
+    tone: "red",
+    period: "nov-2025 en prévision",
+  },
+  {
+    id: "endettement",
+    label: "Taux d'endettement % PIB",
+    value: "45,3 %",
+    icon: "📊",
+    tone: "navy",
+    period: "nov-2025",
+  },
+  {
+    id: "courant",
+    label: "Compte courant en % PIB au",
+    value: "-1,21 %",
+    icon: "🥧",
+    tone: "navy",
+    period: "3T 2025",
+  },
 ];
 
 export const mockNews: NewsArticle[] = [
@@ -22,6 +58,7 @@ export const mockNews: NewsArticle[] = [
     excerpt:
       "La DNPEC renforce ses dispositifs de suivi conjoncturel pour mieux éclairer la décision publique.",
     date: "2026-06-16",
+    coverImage: "/actualites/banner-1.png",
   },
   {
     id: "2",
@@ -30,6 +67,7 @@ export const mockNews: NewsArticle[] = [
     category: "Finances publiques",
     excerpt: "Éclairage sur les mécanismes de la liquidité fiduciaire et ses effets sur l'économie réelle.",
     date: "2026-06-16",
+    coverImage: "/hero/mine-aerial.jpg",
   },
   {
     id: "3",
@@ -38,6 +76,7 @@ export const mockNews: NewsArticle[] = [
     category: "International",
     excerpt: "Retour sur l'amélioration de la notation souveraine de la Guinée et ses implications.",
     date: "2026-03-16",
+    coverImage: "/actualites/banner-1.png",
   },
 ];
 
@@ -47,7 +86,7 @@ export const mockPublications: Publication[] = [
     slug: "documents-previsionnels",
     title: "Documents prévisionnels",
     description:
-      "Transition fiscale, suivi des indicateurs et perspectives économiques et financières (PEF).",
+      "Transition fiscale et perspectives économiques et financières (PEF).",
     type: "previsionnels",
     year: 2026,
     href: "/publications/documents-previsionnels",

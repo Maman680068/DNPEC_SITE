@@ -1,9 +1,12 @@
 import type { NextRequest } from "next/server";
 import { getNews, getPublishedRpaeArticles, getRecentPublicationCards } from "@/lib/wordpress";
+import { localizeHref } from "@/lib/i18n/href";
+import { messages } from "@/lib/i18n/messages";
+import type { Locale } from "@/lib/i18n/config";
 
 export const runtime = "nodejs";
 
-type SearchResult = { title: string; href: string; type: "Actualité" | "Publication" | "Page" | "RPAE" };
+type SearchResult = { title: string; href: string; type: string };
 
 // Pages institutionnelles statiques (titre + route) — recherche par titre
 // uniquement, sans appel réseau supplémentaire.
@@ -26,10 +29,6 @@ const STATIC_PAGES: { title: string; href: string }[] = [
   { title: "Publications", href: "/publications" },
   { title: "Documents prévisionnels", href: "/publications/documents-previsionnels" },
   { title: "Transition fiscale", href: "/transition-fiscale" },
-  {
-    title: "Rapport de suivi des indicateurs de transition fiscale",
-    href: "/rapport-suivi-indicateurs-transition-fiscale",
-  },
   {
     title: "PEF — Perspectives économiques et financières",
     href: "/perspectives-economiques-financieres",
@@ -72,12 +71,19 @@ export async function GET(request: NextRequest) {
   if (!query) {
     return Response.json({ results: [] });
   }
+  const locale: Locale = request.nextUrl.searchParams.get("lang") === "en" ? "en" : "fr";
+  const t = messages[locale];
 
   const [news, publications, rpaeArticles] = await Promise.all([
-    getNews(),
-    getRecentPublicationCards(),
+    getNews(locale),
+    getRecentPublicationCards(locale),
     getPublishedRpaeArticles(),
   ]);
+
+  const staticPages = STATIC_PAGES.map((page) => ({
+    ...page,
+    title: t.nav[page.href] ?? page.title,
+  }));
 
   const results: SearchResult[] = [
     ...news
@@ -87,10 +93,18 @@ export async function GET(request: NextRequest) {
           matches(article.excerpt, query) ||
           (article.content && matches(stripHtml(article.content), query)),
       )
-      .map((article) => ({ title: article.title, href: `/actualites/${article.slug}`, type: "Actualité" as const })),
+      .map((article) => ({
+        title: article.title,
+        href: localizeHref(locale, `/actualites/${article.slug}`),
+        type: t.search.typeNews as SearchResult["type"],
+      })),
     ...publications
       .filter((pub) => matches(pub.title, query))
-      .map((pub) => ({ title: pub.title, href: pub.href, type: "Publication" as const })),
+      .map((pub) => ({
+        title: pub.title,
+        href: localizeHref(locale, pub.href),
+        type: t.search.typePublication as SearchResult["type"],
+      })),
     ...rpaeArticles
       .filter(
         (article) =>
@@ -101,10 +115,16 @@ export async function GET(request: NextRequest) {
       )
       .map((article) => ({
         title: article.title,
-        href: `/revue-scientifique/${article.slug}`,
-        type: "RPAE" as const,
+        href: localizeHref(locale, `/revue-scientifique/${article.slug}`),
+        type: t.search.typeRpae as SearchResult["type"],
       })),
-    ...STATIC_PAGES.filter((page) => matches(page.title, query)).map((page) => ({ ...page, type: "Page" as const })),
+    ...staticPages
+      .filter((page) => matches(page.title, query) || matches(t.nav[page.href] ?? "", query))
+      .map((page) => ({
+        title: page.title,
+        href: localizeHref(locale, page.href),
+        type: t.search.typePage as SearchResult["type"],
+      })),
   ];
 
   return Response.json({ results: results.slice(0, 30) });

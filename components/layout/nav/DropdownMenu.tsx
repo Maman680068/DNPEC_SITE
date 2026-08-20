@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { NavItem } from "@/lib/nav-data";
+import { useMessages } from "@/lib/i18n/use-locale";
 
 const OPEN_DELAY = 150;
 const CLOSE_DELAY = 250;
@@ -30,6 +31,7 @@ export default function DropdownMenu({
   isActive = false,
   onNavigate,
 }: DropdownMenuProps) {
+  const t = useMessages();
   const [openChildIndex, setOpenChildIndex] = useState<number | null>(null);
   const wrapperRef = useRef<HTMLLIElement>(null);
   const chevronRef = useRef<HTMLButtonElement>(null);
@@ -135,13 +137,13 @@ export default function DropdownMenu({
             : "text-[#dbe2f0] border-transparent hover:text-white hover:border-yellow"
         }`
       : `block px-4 py-2 text-sm rounded-md transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2 ${
-          isOpen ? "bg-white/10 text-white" : "text-[#dbe2f0] hover:bg-white/10 hover:text-white"
+          isOpen ? "bg-navy/8 text-navy font-semibold" : "text-navy hover:bg-navy/8"
         }`;
 
   const chevronButtonClasses =
     level === 1
       ? "p-1 text-[#dbe2f0] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2 rounded"
-      : "px-2 py-2 text-[#dbe2f0] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2 rounded";
+      : "px-2 py-2 text-navy/45 hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2 rounded";
 
   const chevronIconClasses = `inline-block ${level === 1 ? "text-[11px]" : "text-[10px]"} transition-transform ${
     level === 1 ? (isOpen ? "-rotate-180" : "") : isOpen ? "rotate-90" : ""
@@ -149,8 +151,8 @@ export default function DropdownMenu({
 
   const panelClasses =
     level === 1
-      ? "absolute top-full left-0 mt-0 min-w-[280px] bg-navy-dark rounded-b-lg rounded-tr-lg shadow-lg py-2 z-50"
-      : "absolute left-full top-0 ml-1 min-w-[300px] bg-navy-dark rounded-lg shadow-lg py-2 z-50";
+      ? "absolute top-full left-0 mt-0 min-w-[280px] bg-white border border-line rounded-b-lg rounded-tr-lg shadow-lg py-2 z-50"
+      : "absolute left-full top-0 ml-1 min-w-[300px] bg-white border border-line rounded-lg shadow-lg py-2 z-50";
 
   return (
     <li
@@ -170,7 +172,7 @@ export default function DropdownMenu({
             type="button"
             aria-haspopup="true"
             aria-expanded={isOpen}
-            aria-label={`Afficher le sous-menu ${item.label}`}
+            aria-label={`${t.common.showSubmenu} ${item.label}`}
             onClick={() => onOpenChange(!isOpen)}
             onKeyDown={handleChevronKeyDown}
             className={chevronButtonClasses}
@@ -202,7 +204,7 @@ export default function DropdownMenu({
                   href={child.href}
                   role="menuitem"
                   onClick={onNavigate}
-                  className="block px-4 py-2 text-sm text-[#dbe2f0] rounded-md hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2"
+                  className="block px-4 py-2 text-sm text-navy rounded-md hover:bg-navy/8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2"
                 >
                   {child.label}
                 </Link>

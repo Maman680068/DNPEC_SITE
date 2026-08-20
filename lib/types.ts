@@ -6,8 +6,13 @@ export type NewsArticle = {
   excerpt: string;
   date: string;
   coverImage?: string;
+  /** Dimensions de la couverture WordPress, pour filtrer le bandeau. */
+  coverWidth?: number;
+  coverHeight?: number;
   /** Contenu HTML complet (paragraphes conservés) — absent pour les données mock. */
   content?: string;
+  /** true si la version anglaise n'existe pas encore et que le français est affiché. */
+  isLocaleFallback?: boolean;
 };
 
 export type Publication = {
@@ -49,6 +54,8 @@ export type InstitutionalPage = {
   date?: string;
   /** Date de dernière modification WordPress (ISO 8601) — reflète mieux "récemment mis à jour" pour une page-liste éditée au fil du temps. */
   modified?: string;
+  /** true si la version anglaise n'existe pas encore et que le français est affiché. */
+  isLocaleFallback?: boolean;
 };
 
 /** Carte de publication récente, pour le carrousel de la page d'accueil. */

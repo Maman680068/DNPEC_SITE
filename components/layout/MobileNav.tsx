@@ -3,12 +3,13 @@
 import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV_ITEMS, type NavItem } from "@/lib/nav-data";
+import { getLocalizedNavItems } from "@/lib/i18n/nav";
+import { isActivePath } from "@/lib/i18n/active-path";
+import { useLocale, useMessages } from "@/lib/i18n/use-locale";
+import type { NavItem } from "@/lib/nav-data";
 
 function isItemActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  const pathOnly = href.split("#")[0];
-  return pathname === pathOnly || pathname.startsWith(`${pathOnly}/`);
+  return isActivePath(pathname, href);
 }
 
 type AccordionItemProps = {
@@ -19,6 +20,7 @@ type AccordionItemProps = {
 };
 
 function AccordionItem({ item, pathname, depth, onNavigate }: AccordionItemProps) {
+  const t = useMessages();
   const hasChildren = !!item.children?.length;
   const active = isItemActive(pathname, item.href);
   const [open, setOpen] = useState(active && hasChildren);
@@ -58,7 +60,7 @@ function AccordionItem({ item, pathname, depth, onNavigate }: AccordionItemProps
           type="button"
           aria-expanded={open}
           aria-controls={panelId}
-          aria-label={`${open ? "Masquer" : "Afficher"} le sous-menu ${item.label}`}
+          aria-label={`${open ? t.common.hideSubmenu : t.common.showSubmenu} ${item.label}`}
           onClick={() => setOpen((v) => !v)}
           className="shrink-0 px-4 text-[#dbe2f0] hover:text-white"
         >
@@ -90,6 +92,9 @@ type MobileNavProps = {
 
 export default function MobileNav({ onSearchOpen }: MobileNavProps) {
   const pathname = usePathname();
+  const locale = useLocale();
+  const t = useMessages();
+  const items = getLocalizedNavItems(locale);
   const [menuOpen, setMenuOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
   const panelId = useId();
@@ -128,7 +133,7 @@ export default function MobileNav({ onSearchOpen }: MobileNavProps) {
           type="button"
           aria-expanded={menuOpen}
           aria-controls={panelId}
-          aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+          aria-label={menuOpen ? t.common.closeMenu : t.common.openMenu}
           onClick={() => setMenuOpen((v) => !v)}
           className="inline-flex items-center justify-center w-10 h-10 rounded-md text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow focus-visible:outline-offset-2"
         >
@@ -141,7 +146,7 @@ export default function MobileNav({ onSearchOpen }: MobileNavProps) {
 
         <button
           type="button"
-          aria-label="Rechercher"
+          aria-label={t.header.search}
           onClick={() => {
             setMenuOpen(false);
             onSearchOpen();
@@ -156,7 +161,7 @@ export default function MobileNav({ onSearchOpen }: MobileNavProps) {
         <>
           <button
             type="button"
-            aria-label="Fermer le menu"
+            aria-label={t.common.closeMenu}
             className="fixed inset-0 z-30 bg-navy-dark/50"
             onClick={closeMenu}
           />
@@ -165,7 +170,7 @@ export default function MobileNav({ onSearchOpen }: MobileNavProps) {
             className="absolute left-0 right-0 z-50 max-h-[min(80vh,calc(100dvh-8rem))] overflow-y-auto bg-navy shadow-lg border-t border-white/10"
           >
             <ul className="py-1">
-              {NAV_ITEMS.map((item) => (
+              {items.map((item) => (
                 <AccordionItem
                   key={`${item.href}-${item.label}`}
                   item={item}

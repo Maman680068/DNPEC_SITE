@@ -5,6 +5,9 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import MainNav from "@/components/layout/MainNav";
 import Footer from "@/components/layout/Footer";
 import BackToTop from "@/components/ui/BackToTop";
+import { getLocale, getMessages } from "@/lib/i18n/locale";
+
+export const dynamic = "force-dynamic";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -18,22 +21,26 @@ const plexSans = IBM_Plex_Sans({
   weight: ["400", "500", "600"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "DNPEC — Direction Nationale des Prévisions Économiques et de la Conjoncture",
-    template: "%s — DNPEC",
-  },
-  description:
-    "Site institutionnel de la Direction Nationale des Prévisions Économiques et de la Conjoncture (DNPEC), République de Guinée : publications, indicateurs macroéconomiques, actualités et données de conjoncture.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getMessages();
+  return {
+    title: {
+      default: t.meta.titleDefault,
+      template: t.meta.titleTemplate,
+    },
+    description: t.meta.description,
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="fr" className={`${poppins.variable} ${plexSans.variable} h-full antialiased`}>
+    <html lang={locale} className={`${poppins.variable} ${plexSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <SiteHeader />
         <MainNav />

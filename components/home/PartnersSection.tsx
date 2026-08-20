@@ -1,4 +1,5 @@
 import type { Partner } from "@/lib/types";
+import { getMessages } from "@/lib/i18n/locale";
 
 type PartnersSectionProps = {
   partners: Partner[];
@@ -47,7 +48,8 @@ function PartnerItem({
   );
 }
 
-export default function PartnersSection({ partners }: PartnersSectionProps) {
+export default async function PartnersSection({ partners }: PartnersSectionProps) {
+  const t = await getMessages();
   if (partners.length === 0) return null;
 
   const scrolling = partners.filter((p) => !BOTTOM_IDS.has(p.id));
@@ -58,9 +60,9 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
     <div className="bg-white border-t border-b border-line py-12 md:py-14">
       <div className="wrap">
         <div className="mb-8 md:mb-10">
-          <div className="text-xs font-semibold text-green uppercase tracking-wide">Nos partenaires</div>
+          <div className="text-xs font-semibold text-green uppercase tracking-wide">{t.home.partners}</div>
           <h2 className="text-2xl md:text-[28px] text-navy mt-2 font-heading font-semibold relative pb-2.5 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-11 after:h-[3px] after:bg-yellow">
-            Ils nous font confiance
+            {t.home.partnersTrust}
           </h2>
         </div>
       </div>

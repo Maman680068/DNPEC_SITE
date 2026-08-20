@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
-import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+﻿import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "Note trimestrielle d'analyse économique" };
+export const generateMetadata = () => navTitleMetadata("/note-trimestrielle-analyse-economique");
 export const revalidate = 300;
 
-export default function Page() {
+export default async function Page() {
+  const t = await getMessages();
   return (
     <InstitutionalPage
       slug="note-trimestrielle-analyse-economique"
-      fallbackTitle="Note trimestrielle d'analyse économique"
+      fallbackTitle={t.nav["/note-trimestrielle-analyse-economique"]}
       eyebrow="Documents d'analyse et d'études économiques"
     />
   );

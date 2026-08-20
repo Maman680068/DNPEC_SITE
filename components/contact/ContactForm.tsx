@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useMessages } from "@/lib/i18n/use-locale";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -11,9 +12,11 @@ type ContactFormProps = {
   submitLabel?: string;
 };
 
-export default function ContactForm({ context = "contact", heading, submitLabel = "Envoyer" }: ContactFormProps) {
+export default function ContactForm({ context = "contact", heading, submitLabel }: ContactFormProps) {
+  const t = useMessages();
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const sendLabel = submitLabel ?? t.form.send;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -47,18 +50,14 @@ export default function ContactForm({ context = "contact", heading, submitLabel 
     } catch (error) {
       setStatus("error");
       setErrorMessage(
-        error instanceof Error && error.message !== "request failed"
-          ? error.message
-          : "Une erreur est survenue, merci de réessayer plus tard ou de nous contacter directement par téléphone.",
+        error instanceof Error && error.message !== "request failed" ? error.message : t.form.error,
       );
     }
   }
 
   if (status === "success") {
     return (
-      <p className="bg-white rounded-lg border border-line p-6 text-sm text-navy">
-        Merci, votre message a bien été envoyé. La DNPEC vous répondra dans les meilleurs délais.
-      </p>
+      <p className="bg-white rounded-lg border border-line p-6 text-sm text-navy">{t.form.success}</p>
     );
   }
 
@@ -68,7 +67,7 @@ export default function ContactForm({ context = "contact", heading, submitLabel 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="flex flex-col gap-1.5 text-sm text-navy font-medium">
-          Nom &amp; Prénom
+          {t.form.name}
           <input
             required
             name="name"
@@ -77,7 +76,7 @@ export default function ContactForm({ context = "contact", heading, submitLabel 
           />
         </label>
         <label className="flex flex-col gap-1.5 text-sm text-navy font-medium">
-          Adresse e-mail
+          {t.form.email}
           <input
             required
             name="email"
@@ -89,7 +88,7 @@ export default function ContactForm({ context = "contact", heading, submitLabel 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="flex flex-col gap-1.5 text-sm text-navy font-medium">
-          Téléphone
+          {t.form.phone}
           <input
             name="phone"
             type="tel"
@@ -97,7 +96,7 @@ export default function ContactForm({ context = "contact", heading, submitLabel 
           />
         </label>
         <label className="flex flex-col gap-1.5 text-sm text-navy font-medium">
-          Sujet
+          {t.form.subject}
           <input
             required
             name="subject"
@@ -108,7 +107,7 @@ export default function ContactForm({ context = "contact", heading, submitLabel 
       </div>
 
       <label className="flex flex-col gap-1.5 text-sm text-navy font-medium">
-        Message
+        {t.form.message}
         <textarea
           required
           name="message"
@@ -124,7 +123,7 @@ export default function ContactForm({ context = "contact", heading, submitLabel 
         disabled={status === "submitting"}
         className="self-start bg-red text-white font-bold text-sm px-7 h-12 rounded-lg cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {status === "submitting" ? "Envoi en cours…" : submitLabel}
+        {status === "submitting" ? t.form.sending : sendLabel}
       </button>
     </form>
   );

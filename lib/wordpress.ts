@@ -1,6 +1,13 @@
 import type { Indicator, InstitutionalPage, NewsArticle, Partner, Publication, PublicationCard } from "./types";
 import { mockIndicators, mockNews, mockPartners, mockPublicationCards, mockPublications } from "./mock-data";
 import { decodeHtmlEntities } from "./decodeHtml";
+import { extractImages } from "./extractImages";
+import type { Locale } from "./i18n/config";
+import {
+  needsAutoTranslation,
+  translateHtmlFrToEn,
+  translateTextFrToEn,
+} from "./i18n/auto-translate";
 import {
   authorDisplayName,
   isInternalRpaeUsage,
@@ -41,12 +48,25 @@ import {
 
 const WORDPRESS_API_URL = process.env.WORDPRESS_API_URL;
 
-async function fetchFromWordpress<T>(path: string): Promise<T | null> {
+type WpFetchOptions = {
+  /**
+   * true = pas de Data Cache (obligatoire pour les lookups `?slug=` :
+   * un `[]` mis en cache avant la création de `mission-en` bloquait l'anglais).
+   */
+  fresh?: boolean;
+};
+
+async function fetchFromWordpress<T>(path: string, options: WpFetchOptions = {}): Promise<T | null> {
   if (!WORDPRESS_API_URL) return null;
 
   const url = `${WORDPRESS_API_URL}${path}`;
   try {
-    const res = await fetch(url, { next: { revalidate: 300 } });
+    const res = await fetch(
+      url,
+      options.fresh
+        ? { cache: "no-store" }
+        : { next: { revalidate: 300, tags: ["wordpress"] } },
+    );
     if (!res.ok) {
       console.warn(`[wordpress] ${url} -> HTTP ${res.status}, repli sur les données mock`);
       return null;
@@ -65,7 +85,14 @@ type WpRenderedField = { rendered: string };
 
 type WpTerm = { id: number; name: string; slug: string };
 
-type WpMedia = { source_url: string };
+type WpMedia = {
+  source_url: string;
+  media_details?: {
+    width?: number;
+    height?: number;
+    sizes?: Record<string, { source_url?: string; width?: number; height?: number }>;
+  };
+};
 
 type WpPost = {
   id: number;
@@ -98,16 +125,60 @@ function extractFirstPdfUrl(html: string): string | undefined {
   return match?.[1];
 }
 
-function mapWpPostToNewsArticle(post: WpPost): NewsArticle {
+/** Préfère l’URL originale WP (évite les miniatures floues dans le bandeau). */
+function bestImageUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  return url.replace(/-\d{2,4}x\d{2,4}(?=\.(?:jpe?g|png|webp|gif)(?:\?|$))/i, "");
+}
+
+function featuredCover(media?: WpMedia): { url: string; width?: number; height?: number } | undefined {
+  if (!media) return undefined;
+  const full = media.media_details?.sizes?.full;
+  const large = media.media_details?.sizes?.large;
+  const url = bestImageUrl(full?.source_url || large?.source_url || media.source_url);
+  if (!url) return undefined;
+  return {
+    url,
+    width: full?.width ?? media.media_details?.width,
+    height: full?.height ?? media.media_details?.height,
+  };
+}
+
+/** Slug public : `mission-en` → `mission` (l’URL EN reste `/en/mission`). */
+function publicSlug(slug: string): string {
+  return slug.replace(/-en$/i, "");
+}
+
+function categoryForLocale(name: string, locale: Locale): string {
+  if (locale !== "en") return name;
+  const labels: Record<string, string> = {
+    Actualité: "News",
+    Actualites: "News",
+    Actualités: "News",
+    Conjoncture: "Business cycle",
+    "Finances publiques": "Public finances",
+    International: "International",
+  };
+  return labels[name] ?? name;
+}
+
+function mapWpPostToNewsArticle(post: WpPost, locale: Locale = "fr", isLocaleFallback = false): NewsArticle {
+  const content = decodeHtmlEntities(post.content.rendered);
+  const featured = featuredCover(post._embedded?.["wp:featuredmedia"]?.[0]);
+  const fromContent = bestImageUrl(extractImages(content).images[0]?.src);
+  const categoryName = decodeHtmlEntities(post._embedded?.["wp:term"]?.[0]?.[0]?.name ?? "Actualité");
   return {
     id: String(post.id),
-    slug: post.slug,
+    slug: publicSlug(post.slug),
     title: stripHtml(post.title.rendered),
-    category: decodeHtmlEntities(post._embedded?.["wp:term"]?.[0]?.[0]?.name ?? "Actualité"),
+    category: categoryForLocale(categoryName, locale),
     excerpt: stripHtml(post.excerpt.rendered),
     date: post.date,
-    coverImage: post._embedded?.["wp:featuredmedia"]?.[0]?.source_url,
-    content: decodeHtmlEntities(post.content.rendered),
+    coverImage: featured?.url || fromContent,
+    coverWidth: featured?.width,
+    coverHeight: featured?.height,
+    content,
+    isLocaleFallback,
   };
 }
 
@@ -137,15 +208,143 @@ function mapWpPageToInstitutionalPage(page: WpPage): InstitutionalPage {
 
 // --- API publique ----------------------------------------------------------
 
-export async function getNews(): Promise<NewsArticle[]> {
-  const data = await fetchFromWordpress<WpPost[]>("/posts?_embed&per_page=20");
-  return data ? data.map(mapWpPostToNewsArticle) : mockNews;
+export async function getNews(locale: Locale = "fr"): Promise<NewsArticle[]> {
+  const data = await fetchFromWordpress<WpPost[]>("/posts?_embed&per_page=50");
+  if (!data) return mockNews.map((article) => ({ ...article, isLocaleFallback: locale === "en" }));
+  const englishPosts = data.filter(postIsEnglish);
+  const frenchPosts = data.filter((post) => !postIsEnglish(post));
+  if (locale === "en" && englishPosts.length > 0) {
+    const mapped = englishPosts.map((post) => mapWpPostToNewsArticle(post, locale, false));
+    return Promise.all(
+      mapped.map(async (article) =>
+        article.content && needsAutoTranslation(article.content)
+          ? autoTranslateArticleTeaser(article)
+          : article,
+      ),
+    );
+  }
+  const source = frenchPosts.length > 0 ? frenchPosts : data;
+  const mapped = source.map((post) => mapWpPostToNewsArticle(post, locale, locale === "en"));
+  if (locale !== "en") return mapped;
+  return Promise.all(mapped.map((article) => autoTranslateArticleTeaser(article)));
 }
 
-export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
-  const data = await fetchFromWordpress<WpPost[]>(`/posts?slug=${encodeURIComponent(slug)}&_embed`);
-  if (data && data.length > 0) return mapWpPostToNewsArticle(data[0]);
-  return mockNews.find((article) => article.slug === slug) ?? null;
+function postIsEnglish(post: WpPost): boolean {
+  const terms = post._embedded?.["wp:term"]?.flat() ?? [];
+  if (terms.some((term) => /^(en|english|news)$/i.test(term.slug))) return true;
+  return /-en$/i.test(post.slug);
+}
+
+/**
+ * Convention éditeurs WordPress (versions anglaises) :
+ * - Pages : slug `{slug-fr}-en` (ex. `mission` → `mission-en`).
+ * - Actualités : même suffixe `-en`, et/ou catégorie dont le slug est `en`, `english` ou `news`.
+ * Si la version EN éditoriale manque (ou n’est qu’une copie FR non traduite),
+ * le site traduit automatiquement le français à l’affichage — pas de textes EN en dur dans Next.js.
+ */
+async function autoTranslatePage(page: InstitutionalPage): Promise<InstitutionalPage> {
+  const [title, content] = await Promise.all([
+    translateTextFrToEn(page.title),
+    translateHtmlFrToEn(page.content),
+  ]);
+  return { ...page, title, content, isLocaleFallback: false };
+}
+
+async function autoTranslateArticle(article: NewsArticle): Promise<NewsArticle> {
+  const [title, excerpt, content] = await Promise.all([
+    translateTextFrToEn(article.title),
+    translateTextFrToEn(article.excerpt),
+    article.content ? translateHtmlFrToEn(article.content) : Promise.resolve(article.content),
+  ]);
+  return { ...article, title, excerpt, content, isLocaleFallback: false };
+}
+
+/** Liste d’actus : titres/extraits seulement (évite de saturer l’API de traduction). */
+async function autoTranslateArticleTeaser(article: NewsArticle): Promise<NewsArticle> {
+  const [title, excerpt] = await Promise.all([
+    translateTextFrToEn(article.title),
+    translateTextFrToEn(article.excerpt),
+  ]);
+  return { ...article, title, excerpt, isLocaleFallback: false };
+}
+
+const MIN_BANNER_WIDTH = 800;
+
+/** Couvertures d’actualités assez grandes pour le bandeau (pas les galeries). */
+export function buildNewsBannerSlides(articles: NewsArticle[], limit = 8): NewsArticle[] {
+  const seen = new Set<string>();
+  const slides: NewsArticle[] = [];
+  const sorted = [...articles]
+    .filter((article) => !/rpae/i.test(article.category))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  for (const article of sorted) {
+    if (!isBannerCover(article) || !article.coverImage) continue;
+    const key = imageKey(article.coverImage);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    slides.push({ ...article, id: `${article.id}-banner` });
+    if (slides.length >= limit) break;
+  }
+
+  return slides;
+}
+
+function isBannerCover(article: NewsArticle): boolean {
+  if (!article.coverImage || !isBannerWorthyImage(article.coverImage)) return false;
+  if (article.coverWidth == null) return article.coverImage.startsWith("/");
+  if (article.coverWidth < MIN_BANNER_WIDTH) return false;
+  if (article.coverHeight != null && article.coverHeight > article.coverWidth) return false;
+  return true;
+}
+
+function imageKey(url: string): string {
+  return (bestImageUrl(url) ?? url)
+    .replace(/-\d{2,4}x\d{2,4}(?=(?:-\d+)?\.(?:jpe?g|png|webp|gif)(?:\?|$))/i, "")
+    .toLowerCase();
+}
+
+function isBannerWorthyImage(url: string): boolean {
+  if (/\.svg(?:\?|$)/i.test(url)) return false;
+  if (/\/(?:logo|icon|emoji|smiley|avatar|gravatar)/i.test(url)) return false;
+  return true;
+}
+
+export async function getNewsBySlug(slug: string, locale: Locale = "fr"): Promise<NewsArticle | null> {
+  const bare = publicSlug(slug);
+  if (locale !== "en") {
+    const data = await fetchFromWordpress<WpPost[]>(
+      `/posts?slug=${encodeURIComponent(bare)}&_embed`,
+      { fresh: true },
+    );
+    if (data?.[0]) return mapWpPostToNewsArticle(data[0], locale, false);
+    const mock = mockNews.find((article) => article.slug === bare || article.slug === slug);
+    return mock ?? null;
+  }
+
+  const enData = await fetchFromWordpress<WpPost[]>(
+    `/posts?slug=${encodeURIComponent(`${bare}-en`)}&_embed`,
+    { fresh: true },
+  );
+  const frData = await fetchFromWordpress<WpPost[]>(
+    `/posts?slug=${encodeURIComponent(bare)}&_embed`,
+    { fresh: true },
+  );
+
+  if (enData?.[0]) {
+    const article = mapWpPostToNewsArticle(enData[0], locale, false);
+    if (article.content && !needsAutoTranslation(article.content)) {
+      return article;
+    }
+  }
+
+  const frSource =
+    (frData?.[0] && mapWpPostToNewsArticle(frData[0], "fr", false)) ||
+    (enData?.[0] && mapWpPostToNewsArticle(enData[0], locale, false)) ||
+    mockNews.find((article) => article.slug === bare || article.slug === slug);
+
+  if (!frSource) return null;
+  return autoTranslateArticle({ ...frSource, slug: bare });
 }
 
 /**
@@ -154,11 +353,47 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
  * contenu réel (une fois les balises retirées) est vide, pour que
  * l'appelant retombe sur PageEnConstruction dans les deux cas.
  */
-export async function getPageBySlug(slug: string): Promise<InstitutionalPage | null> {
-  const data = await fetchFromWordpress<WpPage[]>(`/pages?slug=${encodeURIComponent(slug)}&_embed`);
-  if (!data || data.length === 0) return null;
-  const page = mapWpPageToInstitutionalPage(data[0]);
-  return stripHtml(page.content).length > 0 ? page : null;
+export async function getPageBySlug(slug: string, locale: Locale = "fr"): Promise<InstitutionalPage | null> {
+  const bare = publicSlug(slug);
+  if (locale !== "en") {
+    const data = await fetchFromWordpress<WpPage[]>(
+      `/pages?slug=${encodeURIComponent(bare)}&_embed`,
+      { fresh: true },
+    );
+    if (!data?.[0]) return null;
+    const page = mapWpPageToInstitutionalPage(data[0]);
+    return stripHtml(page.content).length > 0 ? page : null;
+  }
+
+  const enData = await fetchFromWordpress<WpPage[]>(
+    `/pages?slug=${encodeURIComponent(`${bare}-en`)}&_embed`,
+    { fresh: true },
+  );
+  const frData = await fetchFromWordpress<WpPage[]>(
+    `/pages?slug=${encodeURIComponent(bare)}&_embed`,
+    { fresh: true },
+  );
+
+  if (enData?.[0]) {
+    const enPage = mapWpPageToInstitutionalPage(enData[0]);
+    if (stripHtml(enPage.content).length > 0 && !needsAutoTranslation(enPage.content)) {
+      return { ...enPage, isLocaleFallback: false };
+    }
+  }
+
+  const frPage = frData?.[0] ? mapWpPageToInstitutionalPage(frData[0]) : null;
+  if (frPage && stripHtml(frPage.content).length > 0) {
+    return autoTranslatePage(frPage);
+  }
+
+  if (enData?.[0]) {
+    const enPage = mapWpPageToInstitutionalPage(enData[0]);
+    if (stripHtml(enPage.content).length > 0) {
+      return autoTranslatePage(enPage);
+    }
+  }
+
+  return null;
 }
 
 export async function getPublications(): Promise<Publication[]> {
@@ -174,11 +409,6 @@ export async function getPublications(): Promise<Publication[]> {
  */
 const PUBLICATION_PAGES: { slug: string; href: string; fallbackTitle: string }[] = [
   { slug: "transition-fiscale", href: "/transition-fiscale", fallbackTitle: "Transition fiscale" },
-  {
-    slug: "rapport-suivi-indicateurs-transition-fiscale",
-    href: "/rapport-suivi-indicateurs-transition-fiscale",
-    fallbackTitle: "Rapport de suivi des indicateurs de transition fiscale",
-  },
   {
     slug: "perspectives-economiques-financieres",
     href: "/perspectives-economiques-financieres",
@@ -235,10 +465,10 @@ export const CONJONCTURE_SLUGS = new Set([
  * Si aucune page n'est publiée (API absente ou pages vides), repli sur les
  * cartes de démonstration pour que le Hero et le carrousel restent visibles.
  */
-export async function getRecentPublicationCards(): Promise<PublicationCard[]> {
+export async function getRecentPublicationCards(locale: Locale = "fr"): Promise<PublicationCard[]> {
   const results = await Promise.all(
     PUBLICATION_PAGES.map(async (entry) => {
-      const page = await getPageBySlug(entry.slug);
+      const page = await getPageBySlug(entry.slug, locale);
       if (!page) return null;
       const card: PublicationCard = {
         slug: entry.slug,
@@ -266,8 +496,8 @@ const TICKER_MAX_ITEMS = 10;
  * Liste vide si aucun contenu n'est disponible ; c'est à l'appelant de
  * prévoir un repli (voir components/layout/Ticker.tsx).
  */
-export async function getTickerAnnouncements(): Promise<string[]> {
-  const [news, publications] = await Promise.all([getNews(), getRecentPublicationCards()]);
+export async function getTickerAnnouncements(locale: Locale = "fr"): Promise<string[]> {
+  const [news, publications] = await Promise.all([getNews(locale), getRecentPublicationCards(locale)]);
   const merged = [
     ...news.map((article) => ({ title: article.title, date: article.date })),
     ...publications.map((publication) => ({ title: publication.title, date: publication.date })),

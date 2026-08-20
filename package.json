@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed:rpae": "node --env-file=.env.local scripts/seed-rpae-wp.mjs",
-    "seed:rpae-files": "node --env-file=.env.local scripts/attach-rpae-files.mjs"
+    "seed:rpae-files": "node --env-file=.env.local scripts/attach-rpae-files.mjs",
+    "seed:en": "node scripts/seed-wp-en.mjs"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.2",

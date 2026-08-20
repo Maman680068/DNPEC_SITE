@@ -1,15 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { getLocale, getMessages } from "@/lib/i18n/locale";
+import { localizeHref } from "@/lib/i18n/href";
 
-export default function Topbar() {
+export default async function Topbar() {
+  const [locale, t] = await Promise.all([getLocale(), getMessages()]);
+  const homeHref = localizeHref(locale, "/");
+
   return (
     <div className="bg-white border-b border-line">
       <div className="wrap grid grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-6 min-h-[64px] sm:min-h-[84px] py-2.5 sm:py-0 sm:h-[84px]">
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+        <Link href={homeHref} className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
           <div className="w-10 h-10 sm:w-[52px] sm:h-[52px] rounded-full overflow-hidden relative shrink-0 bg-white">
             <Image
               src="/logos/logo-dnpec-clean.png"
-              alt="Logo de la Direction Nationale des Prévisions Économiques et de la Conjoncture (DNPEC)"
+              alt={t.header.logoDnpec}
               fill
               sizes="52px"
               className="object-contain"
@@ -18,12 +24,12 @@ export default function Topbar() {
           <div className="min-w-0">
             <div className="sm:hidden text-sm font-bold text-navy leading-tight">DNPEC</div>
             <div className="hidden sm:block text-[16.5px] font-bold text-navy leading-tight">
-              DIRECTION NATIONALE DES PRÉVISIONS
+              {t.header.dnpecLine1}
               <br />
-              ÉCONOMIQUES ET DE LA CONJONCTURE
+              {t.header.dnpecLine2}
             </div>
             <div className="mini-flag max-w-[120px] sm:max-w-[220px]" />
-            <div className="text-[10px] sm:text-[11.5px] text-muted tracking-wide">RÉPUBLIQUE DE GUINÉE</div>
+            <div className="text-[10px] sm:text-[11.5px] text-muted tracking-wide">{t.header.republic}</div>
           </div>
         </Link>
 
@@ -34,10 +40,11 @@ export default function Topbar() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
+          <LanguageSwitcher />
           <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden relative shrink-0 bg-white">
             <Image
               src="/logos/logo-mefb-clean.png"
-              alt="Logo du Ministère de l'Économie, des Finances et du Budget (MEFB)"
+              alt={t.header.logoMefb}
               fill
               sizes="48px"
               className="object-contain"
@@ -45,12 +52,12 @@ export default function Topbar() {
           </div>
           <div className="hidden md:block">
             <div className="text-[11.5px] font-bold text-navy">
-              MINISTÈRE DE L&apos;ÉCONOMIE,
+              {t.header.mefbLine1}
               <br />
-              DES FINANCES ET DU BUDGET
+              {t.header.mefbLine2}
             </div>
             <div className="mini-flag" />
-            <div className="text-[10px] text-muted">RÉPUBLIQUE DE GUINÉE</div>
+            <div className="text-[10px] text-muted">{t.header.republic}</div>
           </div>
         </div>
       </div>

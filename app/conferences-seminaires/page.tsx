@@ -1,8 +1,7 @@
-import type { Metadata } from "next";
 import PageEnConstruction from "@/components/ui/PageEnConstruction";
+import { getMessages } from "@/lib/i18n/locale";
 
-export const metadata: Metadata = { title: "Conférences & Séminaires" };
-
-export default function ConferencesSeminairesPage() {
-  return <PageEnConstruction title="Conférences & Séminaires" />;
+export default async function ConferencesSeminairesPage() {
+  const t = await getMessages();
+  return <PageEnConstruction title={t.nav["/conferences-seminaires"]} />;
 }

@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
 import PageTitle from "@/components/ui/PageTitle";
 import PublicationsExplorer from "@/components/publications/PublicationsExplorer";
 import { getPublications } from "@/lib/wordpress";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "Publications" };
+export const generateMetadata = () => navTitleMetadata("/publications");
 export const revalidate = 300;
 
 type PublicationsPageProps = {
@@ -11,11 +12,11 @@ type PublicationsPageProps = {
 };
 
 export default async function PublicationsPage({ searchParams }: PublicationsPageProps) {
-  const [publications, params] = await Promise.all([getPublications(), searchParams]);
+  const [publications, params, t] = await Promise.all([getPublications(), searchParams, getMessages()]);
 
   return (
     <div className="wrap">
-      <PageTitle eyebrow="Publications" title="Retrouvez l'information économique" />
+      <PageTitle eyebrow={t.home.publicationsEyebrow} title={t.home.publicationsTitle} />
       <section className="pb-14">
         <PublicationsExplorer publications={publications} initialType={params.type ?? ""} />
       </section>

@@ -1,7 +1,9 @@
 import PageTitle from "@/components/ui/PageTitle";
 import PageEnConstruction from "@/components/ui/PageEnConstruction";
 import YearlyContentGrid from "@/components/la-dnpec/YearlyContentGrid";
+import LocaleFallbackNotice from "@/components/i18n/LocaleFallbackNotice";
 import { getPageBySlug } from "@/lib/wordpress";
+import { getLocale, getMessages } from "@/lib/i18n/locale";
 
 type PhotoCaption = {
   name: string;
@@ -27,16 +29,36 @@ export default async function InstitutionalPage({
   photoCaption,
   yearlyGrid = false,
 }: InstitutionalPageProps) {
-  const page = await getPageBySlug(slug);
+  const locale = await getLocale();
+  const t = await getMessages();
+  const page = await getPageBySlug(slug, locale);
+  const displayEyebrow =
+    eyebrow === "La DNPEC"
+      ? t.nav["/la-dnpec"]
+      : eyebrow === "Publications"
+        ? t.nav["/publications"]
+        : eyebrow === "Documents budgétaires"
+          ? t.nav["/publications/documents-budgetaires"]
+          : eyebrow === "Documents conjoncturels"
+            ? t.nav["/publications/documents-conjoncturels"]
+            : eyebrow === "Textes réglementaires"
+              ? t.nav["/la-dnpec/textes-reglementaires"]
+              : eyebrow === "Documents d'analyse et d'études économiques"
+                ? t.nav["/publications/documents-analyses-etudes"]
+                : t.nav[`/${slug}`] ??
+                  Object.entries(t.nav).find(([, label]) => label === eyebrow)?.[1] ??
+                  eyebrow;
+  const translatedFallback =
+    Object.entries(t.nav).find(([href]) => href === `/${slug}` || href.endsWith(`/${slug}`))?.[1] ?? fallbackTitle;
 
   if (!page) {
-    return <PageEnConstruction title={fallbackTitle} />;
+    return <PageEnConstruction title={translatedFallback} />;
   }
 
   return (
     <div className="wrap">
       <div className="max-w-5xl mx-auto">
-        <PageTitle eyebrow={eyebrow} title={page.title || fallbackTitle} />
+        <PageTitle eyebrow={displayEyebrow} title={page.title || translatedFallback} />
         <section className="pb-14">
           <div className={page.coverImage ? "grid md:grid-cols-[340px_1fr] gap-8" : undefined}>
             {page.coverImage && (
@@ -58,6 +80,7 @@ export default async function InstitutionalPage({
             <div
               className={`article-content text-[15px] text-ink leading-relaxed${yearlyGrid ? " yearly-doc-content" : ""}`}
             >
+              <LocaleFallbackNotice show={!!page.isLocaleFallback} />
               {yearlyGrid ? (
                 <YearlyContentGrid html={page.content} />
               ) : (

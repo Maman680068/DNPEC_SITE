@@ -1,8 +1,7 @@
-import type { Metadata } from "next";
 import PageEnConstruction from "@/components/ui/PageEnConstruction";
+import { getMessages } from "@/lib/i18n/locale";
 
-export const metadata: Metadata = { title: "Données" };
-
-export default function DonneesPage() {
-  return <PageEnConstruction title="Données" />;
+export default async function DonneesPage() {
+  const t = await getMessages();
+  return <PageEnConstruction title={t.nav["/donnees"]} />;
 }

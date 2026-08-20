@@ -1,19 +1,20 @@
-import type { Metadata } from "next";
 import PageTitle from "@/components/ui/PageTitle";
 import IndicateursSection from "@/components/home/IndicateursSection";
-import { getIndicators, getRecentPublicationCards } from "@/lib/wordpress";
+import { getIndicators } from "@/lib/wordpress";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "Quelques chiffres" };
+export const generateMetadata = () => navTitleMetadata("/quelques-chiffres");
 export const revalidate = 300;
 
 export default async function QuelquesChiffresPage() {
-  const [indicators, publications] = await Promise.all([getIndicators(), getRecentPublicationCards()]);
+  const [indicators, t] = await Promise.all([getIndicators(), getMessages()]);
 
   return (
     <div className="wrap">
-      <PageTitle eyebrow="Données" title="Quelques chiffres" />
+      <PageTitle eyebrow={t.nav["/donnees"]} title={t.nav["/quelques-chiffres"]} />
       <section className="pb-14">
-        <IndicateursSection indicators={indicators} publications={publications} />
+        <IndicateursSection indicators={indicators} />
       </section>
     </div>
   );

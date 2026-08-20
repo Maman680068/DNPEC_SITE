@@ -1,43 +1,26 @@
-import type { Metadata } from "next";
 import PageTitle from "@/components/ui/PageTitle";
 import LinkCardGrid from "@/components/ui/LinkCardGrid";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
+import { navCards } from "@/lib/i18n/nav-cards";
 
-export const metadata: Metadata = { title: "Documents d'analyse et d'études économiques" };
+export const generateMetadata = () => navTitleMetadata("/publications/documents-analyses-etudes");
 
-const cards = [
-  {
-    title: "Rapports",
-    description: "Rapports d'analyse économique de la DNPEC.",
-    href: "/rapports-analyses-etudes",
-  },
-  {
-    title: "Rapport CPIA",
-    description: "Évaluation des politiques et institutions pour l'Afrique (CPIA).",
-    href: "/rapport-cpia",
-  },
-  {
-    title: "Rapport économique et financier (REF)",
-    description: "Bilan économique et financier annuel.",
-    href: "/rapport-economique-financier",
-  },
-  {
-    title: "Note trimestrielle d'analyse économique",
-    description: "Analyse trimestrielle de la conjoncture et des perspectives économiques.",
-    href: "/note-trimestrielle-analyse-economique",
-  },
-  {
-    title: "Autres études",
-    description: "Autres études et analyses économiques de la DNPEC.",
-    href: "/autres-etudes-economiques",
-  },
+const HREFS = [
+  "/rapports-analyses-etudes",
+  "/rapport-cpia",
+  "/rapport-economique-financier",
+  "/note-trimestrielle-analyse-economique",
+  "/autres-etudes-economiques",
 ];
 
-export default function DocumentsAnalysesEtudesPage() {
+export default async function DocumentsAnalysesEtudesPage() {
+  const t = await getMessages();
   return (
     <div className="wrap">
-      <PageTitle eyebrow="Publications" title="Documents d'analyse et d'études économiques" />
+      <PageTitle eyebrow={t.nav["/publications"]} title={t.nav["/publications/documents-analyses-etudes"]} />
       <section className="pb-14">
-        <LinkCardGrid cards={cards} />
+        <LinkCardGrid cards={navCards(t, HREFS)} />
       </section>
     </div>
   );

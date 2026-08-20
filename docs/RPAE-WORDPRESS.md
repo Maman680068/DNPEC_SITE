@@ -39,6 +39,7 @@ Puis **redeploy** le service.
 |------|--------|
 | `rpae` | File comité + catalogue public après **Publier** |
 | `rpae-interne` | Usage interne / commande — **jamais** dans `/revue-scientifique` |
+| `en` | Actualités en anglais pour le site `/en` |
 
 Création auto à la première soumission, ou via :
 
@@ -47,6 +48,41 @@ node --env-file=.env.local scripts/seed-rpae-wp.mjs
 ```
 
 Le script crée aussi **5 articles publiés** et **2 en attente de relecture**.
+
+## Site bilingue FR / EN (contenu WordPress)
+
+L’interface Next.js bascule avec le sélecteur **FR | EN** (`/` vs `/en`).
+Les **titres et textes WordPress** ne sont anglais que s’ils existent côté CMS.
+
+### Convention éditeurs
+
+| Type | Version FR | Version EN |
+|------|------------|------------|
+| Page | slug `mission` | slug `mission-en` (même contenu traduit) |
+| Actualité | article FR | même article en slug `…-en` **et/ou** catégorie `en` |
+
+Si la version EN éditoriale manque, le site **traduit automatiquement** le français (plus de bandeau « French version » dans ce cas).
+
+### Comportement automatique du site
+
+En mode **EN** (`/en/...`) :
+
+1. Si une page/article `{slug}-en` existe avec un vrai texte anglais → il est affiché
+2. Sinon (ou si `-en` est encore une copie française) → **traduction automatique** du contenu FR à l’affichage
+
+Aucun texte WordPress n’est écrit en dur dans le code Next.js. Les rédacteurs peuvent ensuite remplacer la version auto par une traduction éditoriale dans WordPress (`…-en`).
+
+### Mettre une page en anglais (édition manuelle, optionnel)
+
+1. WordPress → **Pages** → ouvrir ou créer `{slug}-en`
+2. Remplacer le contenu par la traduction validée, **Publier**
+3. Recharger `/en/...` (Ctrl+F5)
+
+Script d’amorçage (crée les `…-en` manquants) :
+
+```bash
+npm run seed:en
+```
 
 ## Comptes comité
 

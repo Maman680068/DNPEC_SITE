@@ -1,39 +1,76 @@
 import Link from "next/link";
 import { FacebookIcon, LinkedinIcon, TwitterIcon, YoutubeIcon } from "./SocialIcons";
+import { getLocale, getMessages } from "@/lib/i18n/locale";
+import { localizeHref } from "@/lib/i18n/href";
 
-const usefulLinks = [
-  { label: "Présidence République", href: "http://www.presidence.gov.gn/" },
-  { label: "Primature", href: "https://primature.gov.gn/" },
-  { label: "Portail Gouvernement", href: "http://www.gouvernement.gov.gn/" },
-  { label: "Ministère de l'Economie et des Finances", href: "https://www.mefb.gov.gn/" },
-  { label: "Ministère du Budget", href: "https://mbudget.gov.gn/" },
-  { label: "Ministère du Plan et de la Coopération Internationale", href: "https://mpci.gov.gn/" },
-  { label: "Secrétariat Général du Gouvernement", href: "https://sgg.gov.gn/" },
-  { label: "Ministère des Mines et de la Géologie", href: "https://mines.gov.gn/" },
-  { label: "Banque Centrale de la République de Guinée", href: "https://www.bcrg-guinee.org/" },
-  { label: "L'Institut National de la Statistique (INS)", href: "https://www.stat-guinee.org/" },
+const usefulHrefs = [
+  { key: "presidency" as const, href: "http://www.presidence.gov.gn/" },
+  { key: "primature" as const, href: "https://primature.gov.gn/" },
+  { key: "government" as const, href: "http://www.gouvernement.gov.gn/" },
+  { key: "mef" as const, href: "https://www.mefb.gov.gn/" },
+  { key: "budget" as const, href: "https://mbudget.gov.gn/" },
+  { key: "plan" as const, href: "https://mpci.gov.gn/" },
+  { key: "sgg" as const, href: "https://sgg.gov.gn/" },
+  { key: "mines" as const, href: "https://mines.gov.gn/" },
+  { key: "bcrg" as const, href: "https://www.bcrg-guinee.org/" },
+  { key: "ins" as const, href: "https://www.stat-guinee.org/" },
 ];
 
-const partnerLinks = [
-  { label: "BAD", href: "https://www.afdb.org/fr/pays-afrique-de-louest/guinee" },
-  { label: "PNUD", href: "http://www.gn.undp.org/" },
-  { label: "BANQUE MONDIALE", href: "https://www.banquemondiale.org/fr/country/guinea" },
-  { label: "BID", href: "https://www.isdb.org/fr" },
-  { label: "BADEA", href: "https://badea.org/index_fr.htm" },
-];
+export default async function Footer() {
+  const [locale, t] = await Promise.all([getLocale(), getMessages()]);
+  const partners =
+    locale === "en"
+      ? [
+          { label: "AfDB", href: "https://www.afdb.org/en/countries/west-africa/guinea" },
+          { label: "UNDP", href: "http://www.gn.undp.org/" },
+          { label: "World Bank", href: "https://www.worldbank.org/en/country/guinea" },
+          { label: "IsDB", href: "https://www.isdb.org/" },
+          { label: "BADEA", href: "https://badea.org/" },
+        ]
+      : [
+          { label: "BAD", href: "https://www.afdb.org/fr/pays-afrique-de-louest/guinee" },
+          { label: "PNUD", href: "http://www.gn.undp.org/" },
+          { label: "BANQUE MONDIALE", href: "https://www.banquemondiale.org/fr/country/guinea" },
+          { label: "BID", href: "https://www.isdb.org/fr" },
+          { label: "BADEA", href: "https://badea.org/index_fr.htm" },
+        ];
 
-export default function Footer() {
   return (
     <footer className="bg-paper text-navy border-t border-line">
       <div className="wrap">
         <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1.1fr] gap-8 pt-[52px] pb-9 md:pb-11">
           <div>
             <h4 className="text-navy text-base tracking-wide mb-5 pb-3 border-b-2 border-yellow font-bold font-heading">
-              Liens utiles
+              {t.footer.usefulLinks}
             </h4>
             <ul className="list-none">
-              {usefulLinks.map((link) => (
-                <li key={link.href} className="relative pl-4 mb-3.5 text-[14.5px] before:content-[''] before:absolute before:left-0 before:top-2 before:w-[5px] before:h-[5px] before:rounded-full before:bg-green">
+              {usefulHrefs.map((link) => (
+                <li
+                  key={link.href}
+                  className="relative pl-4 mb-3.5 text-[14.5px] before:content-[''] before:absolute before:left-0 before:top-2 before:w-[5px] before:h-[5px] before:rounded-full before:bg-green"
+                >
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-navy opacity-75 hover:opacity-100 hover:text-green"
+                  >
+                    {t.footer[link.key]}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-navy text-base tracking-wide mb-5 pb-3 border-b-2 border-yellow font-bold font-heading">
+              {t.footer.partners}
+            </h4>
+            <ul className="list-none">
+              {partners.map((link) => (
+                <li
+                  key={link.href}
+                  className="relative pl-4 mb-3.5 text-[14.5px] before:content-[''] before:absolute before:left-0 before:top-2 before:w-[5px] before:h-[5px] before:rounded-full before:bg-green"
+                >
                   <a
                     href={link.href}
                     target="_blank"
@@ -48,36 +85,13 @@ export default function Footer() {
           </div>
           <div>
             <h4 className="text-navy text-base tracking-wide mb-5 pb-3 border-b-2 border-yellow font-bold font-heading">
-              Nos partenaires
+              {t.footer.contact}
             </h4>
-            <ul className="list-none">
-              {partnerLinks.map((link) => (
-                <li key={link.href} className="relative pl-4 mb-3.5 text-[14.5px] before:content-[''] before:absolute before:left-0 before:top-2 before:w-[5px] before:h-[5px] before:rounded-full before:bg-green">
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-navy opacity-75 hover:opacity-100 hover:text-green"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-navy text-base tracking-wide mb-5 pb-3 border-b-2 border-yellow font-bold font-heading">
-              Contact
-            </h4>
-            <p className="text-[14.5px] leading-loose mb-3.5 text-muted">
-              Direction Nationale des Prévisions Économiques et
-              <br />
-              de la Conjoncture
-              <br />
-              Kaloum, Conakry – République de Guinée
-              <br />
+            <p className="text-[14.5px] leading-loose mb-3.5 text-muted whitespace-pre-line">
+              {t.footer.address}
+              {"\n"}
               infos@dnpec.gov.gn
-              <br />
+              {"\n"}
               +224 662 46 45 67
             </p>
             <div className="flex gap-2.5">
@@ -101,9 +115,9 @@ export default function Footer() {
       <div className="bg-white border-t border-line">
         <div className="wrap flex flex-col sm:flex-row gap-3 justify-between items-center py-4.5 text-[12.5px] text-navy font-semibold">
           <span>
-            COPYRIGHT © 2026 DNPEC — TOUS DROITS RÉSERVÉS ·{" "}
-            <Link href="/mentions-legales" className="underline opacity-80 hover:opacity-100">
-              Mentions légales
+            {t.footer.copyright} ·{" "}
+            <Link href={localizeHref(locale, "/mentions-legales")} className="underline opacity-80 hover:opacity-100">
+              {t.footer.legal}
             </Link>
           </span>
           <div className="flex gap-3">

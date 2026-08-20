@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import LocalizedLink from "@/components/i18n/LocalizedLink";
 import type { Publication } from "@/lib/types";
 import { publicationTypes } from "@/lib/mock-data";
+import { useMessages } from "@/lib/i18n/use-locale";
 
 type PublicationsExplorerProps = {
   publications: Publication[];
@@ -14,6 +15,7 @@ export default function PublicationsExplorer({
   publications,
   initialType = "",
 }: PublicationsExplorerProps) {
+  const t = useMessages();
   const [search, setSearch] = useState("");
   const [type, setType] = useState(initialType);
   const [year, setYear] = useState("");
@@ -37,7 +39,7 @@ export default function PublicationsExplorer({
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Rechercher une publication..."
+          placeholder={t.ui.searchPublication}
           className="flex-1 min-w-0 w-full h-11 px-4 rounded-md border border-line bg-paper text-sm"
         />
         <select
@@ -45,10 +47,10 @@ export default function PublicationsExplorer({
           onChange={(event) => setType(event.target.value)}
           className="h-11 px-3 rounded-md border border-line bg-paper text-sm w-full sm:w-auto min-w-0 sm:min-w-[10rem]"
         >
-          <option value="">Tous les types</option>
+          <option value="">{t.ui.allTypes}</option>
           {publicationTypes.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {t.pubTypes[option.value] ?? option.label}
             </option>
           ))}
         </select>
@@ -57,7 +59,7 @@ export default function PublicationsExplorer({
           onChange={(event) => setYear(event.target.value)}
           className="h-11 px-3 rounded-md border border-line bg-paper text-sm w-full sm:w-auto min-w-0 sm:min-w-[8rem]"
         >
-          <option value="">Toutes les années</option>
+          <option value="">{t.ui.allYears}</option>
           {years.map((y) => (
             <option key={y} value={y}>
               {y}
@@ -67,11 +69,11 @@ export default function PublicationsExplorer({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-muted text-sm">Aucune publication ne correspond à ces critères.</p>
+        <p className="text-muted text-sm">{t.ui.noMatchingPublications}</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[22px]">
           {filtered.map((publication) => (
-            <Link
+            <LocalizedLink
               key={publication.id}
               href={`/publications/${publication.slug}`}
               className="bg-white rounded-[10px] p-6.5 shadow-[0_8px_24px_rgba(13,32,71,0.08)] block"
@@ -80,7 +82,7 @@ export default function PublicationsExplorer({
               <h3 className="text-[17px] text-navy mb-2.5">{publication.title}</h3>
               <p className="text-[13px] text-muted leading-relaxed mb-3">{publication.description}</p>
               <span className="text-xs text-muted">{publication.year}</span>
-            </Link>
+            </LocalizedLink>
           ))}
         </div>
       )}

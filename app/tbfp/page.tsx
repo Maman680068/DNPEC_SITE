@@ -1,15 +1,18 @@
-import type { Metadata } from "next";
-import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+﻿import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "TBFP (Tableau de Bord Finances Publique)" };
+export const generateMetadata = () => navTitleMetadata("/tbfp");
 export const revalidate = 300;
 
-export default function Page() {
+export default async function TbfpPage() {
+  const t = await getMessages();
   return (
     <InstitutionalPage
       slug="tbfp"
-      fallbackTitle="TBFP (Tableau de Bord Finances Publique)"
+      fallbackTitle={t.nav["/tbfp"]}
       eyebrow="Documents budgétaires"
+      yearlyGrid
     />
   );
 }

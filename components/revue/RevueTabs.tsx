@@ -1,19 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import PageEnConstruction from "@/components/ui/PageEnConstruction";
+import LocalizedLink from "@/components/i18n/LocalizedLink";
 import type { InstitutionalPage } from "@/lib/types";
 import type { RpaeArticle } from "@/lib/rpae";
+import { useLocale, useMessages } from "@/lib/i18n/use-locale";
 
-const TABS = [
-  { key: "presentation", label: "Présentation" },
-  { key: "equipe", label: "Équipe Éditoriale" },
-  { key: "instructions", label: "Instructions aux auteurs" },
-  { key: "numeros", label: "Articles publiés" },
-] as const;
-
-type TabKey = (typeof TABS)[number]["key"];
+type TabKey = "presentation" | "equipe" | "instructions" | "numeros";
 
 type RevueTabsProps = {
   presentation: InstitutionalPage | null;
@@ -21,13 +14,6 @@ type RevueTabsProps = {
   instructions: InstitutionalPage | null;
   articles: RpaeArticle[];
 };
-
-const DEFAULT_PRESENTATION_TITLE = "Revue de Prévision et d'Analyse Économique";
-
-const DEFAULT_PRESENTATION_HTML = `
-<p>La Revue de Prévision et d'Analyse Économique (RPAE) est une revue scientifique de la Direction Nationale des Prévisions Économiques et de la Conjoncture (DNPEC). Elle publie, en français, des contributions d'étudiants, d'experts, de docteurs et de professeurs du domaine économique.</p>
-<p>La revue accueille des travaux portant sur l'analyse microéconomique et macroéconomique, les études sectorielles, les finances publiques, la conjoncture, ainsi que les enjeux méthodologiques et empiriques utiles à la compréhension de l'économie guinéenne et de son environnement régional.</p>
-`;
 
 /** Années uniques, numériques, triées décroissant. */
 function uniqueYears(articles: RpaeArticle[]): number[] {
@@ -45,7 +31,15 @@ function stripLeadingHeading(html: string): string {
 }
 
 function TabContent({ page, fallbackTitle }: { page: InstitutionalPage | null; fallbackTitle: string }) {
-  if (!page) return <PageEnConstruction title={fallbackTitle} />;
+  const t = useMessages();
+  if (!page) {
+    return (
+      <div className="py-10 text-center">
+        <h2 className="text-navy text-xl font-heading font-semibold mb-3">{fallbackTitle}</h2>
+        <p className="text-muted text-sm">{t.common.underConstruction}</p>
+      </div>
+    );
+  }
   return (
     <div
       className="article-content min-w-0 overflow-x-auto text-[15px] text-ink leading-relaxed"
@@ -63,6 +57,7 @@ function PresentationPanel({
   articles: RpaeArticle[];
   onSelectYear: (year: number) => void;
 }) {
+  const t = useMessages();
   const years = useMemo(() => {
     const fromArticles = uniqueYears(articles);
     if (fromArticles.length > 0) return fromArticles;
@@ -71,18 +66,15 @@ function PresentationPanel({
   }, [articles]);
 
   const rawTitle = presentation?.title?.trim() || "";
-  // Évite un titre WP générique / hors sujet qui casserait la présentation.
   const title =
-    rawTitle && !/^rpae/i.test(rawTitle) && rawTitle.length > 8
-      ? rawTitle
-      : DEFAULT_PRESENTATION_TITLE;
+    rawTitle && !/^rpae/i.test(rawTitle) && rawTitle.length > 8 ? rawTitle : t.revueUi.defaultTitle;
 
   const bodyHtml = useMemo(() => {
     const raw = presentation?.content ?? "";
     const plain = raw.replace(/<[^>]*>/g, "").trim();
-    if (!plain) return DEFAULT_PRESENTATION_HTML;
-    return stripLeadingHeading(raw) || DEFAULT_PRESENTATION_HTML;
-  }, [presentation?.content]);
+    if (!plain) return t.revueUi.defaultHtml;
+    return stripLeadingHeading(raw) || t.revueUi.defaultHtml;
+  }, [presentation?.content, t.revueUi.defaultHtml]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(200px,240px)] gap-8 lg:gap-12 items-start w-full min-w-0">
@@ -97,8 +89,8 @@ function PresentationPanel({
       </div>
 
       <aside className="min-w-0 w-full lg:sticky lg:top-24">
-        <h3 className="text-navy font-bold text-lg sm:text-xl mb-2">Sommaire</h3>
-        <nav aria-label="Sommaire des éditions">
+        <h3 className="text-navy font-bold text-lg sm:text-xl mb-2">{t.revueUi.sommaire}</h3>
+        <nav aria-label={t.revueUi.sommaireEditions}>
           <ul className="border-t border-line">
             {years.map((year) => (
               <li key={`edition-${year}`} className="border-b border-line">
@@ -107,7 +99,7 @@ function PresentationPanel({
                   onClick={() => onSelectYear(year)}
                   className="w-full text-left py-3 pr-2 text-navy font-bold text-[14px] sm:text-[15px] hover:bg-navy/[0.04] transition-colors cursor-pointer"
                 >
-                  RPAE Édition — {year}
+                  {t.revueUi.edition.replace("{year}", String(year))}
                 </button>
               </li>
             ))}
@@ -125,6 +117,8 @@ function ArticlesCatalog({
   articles: RpaeArticle[];
   initialYear?: string;
 }) {
+  const t = useMessages();
+  const locale = useLocale();
   const [yearFilter, setYearFilter] = useState<string>(initialYear ?? "all");
   const [profilFilter, setProfilFilter] = useState<string>("all");
   const [themeFilter, setThemeFilter] = useState<string>("all");
@@ -137,12 +131,18 @@ function ArticlesCatalog({
   const years = useMemo(() => uniqueYears(articles), [articles]);
   const profils = useMemo(() => {
     const map = new Map<string, string>();
-    for (const a of articles) map.set(a.profil, a.profilLabel);
-    return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1], "fr"));
-  }, [articles]);
+    for (const a of articles) {
+      const label = t.rpae.profils[a.profil as keyof typeof t.rpae.profils] ?? a.profilLabel;
+      map.set(a.profil, label);
+    }
+    return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1], locale === "en" ? "en" : "fr"));
+  }, [articles, locale, t.rpae.profils]);
   const themes = useMemo(
-    () => [...new Set(articles.map((a) => a.theme))].sort((a, b) => a.localeCompare(b, "fr")),
-    [articles],
+    () =>
+      [...new Set(articles.map((a) => a.theme))].sort((a, b) =>
+        a.localeCompare(b, locale === "en" ? "en" : "fr"),
+      ),
+    [articles, locale],
   );
 
   const filtered = useMemo(() => {
@@ -178,7 +178,7 @@ function ArticlesCatalog({
   }, [filtered]);
 
   if (articles.length === 0) {
-    return <p className="text-muted text-sm">Aucun article publié pour le moment.</p>;
+    return <p className="text-muted text-sm">{t.revueUi.noArticles}</p>;
   }
 
   const selectClass =
@@ -188,24 +188,24 @@ function ArticlesCatalog({
     <div className="min-w-0">
       <div className="flex flex-col gap-3 mb-6">
         <label className="sr-only" htmlFor="rpae-search">
-          Rechercher un article
+          {t.revueUi.searchArticle}
         </label>
         <input
           id="rpae-search"
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher par titre, auteur, thème…"
+          placeholder={t.revueUi.searchPlaceholder}
           className="h-11 w-full rounded-lg border border-line bg-white px-4 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-navy"
         />
         <div className="flex flex-wrap gap-2">
           <select
-            aria-label="Filtrer par année"
+            aria-label={t.revueUi.filterYear}
             value={yearFilter}
             onChange={(e) => setYearFilter(e.target.value)}
             className={selectClass}
           >
-            <option value="all">Toutes les années</option>
+            <option value="all">{t.revueUi.allYears}</option>
             {years.map((year) => (
               <option key={year} value={String(year)}>
                 {year}
@@ -213,12 +213,12 @@ function ArticlesCatalog({
             ))}
           </select>
           <select
-            aria-label="Filtrer par profil"
+            aria-label={t.revueUi.filterProfil}
             value={profilFilter}
             onChange={(e) => setProfilFilter(e.target.value)}
             className={selectClass}
           >
-            <option value="all">Tous les profils</option>
+            <option value="all">{t.revueUi.allProfiles}</option>
             {profils.map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -226,12 +226,12 @@ function ArticlesCatalog({
             ))}
           </select>
           <select
-            aria-label="Filtrer par thème"
+            aria-label={t.revueUi.filterTheme}
             value={themeFilter}
             onChange={(e) => setThemeFilter(e.target.value)}
             className={selectClass}
           >
-            <option value="all">Tous les thèmes</option>
+            <option value="all">{t.revueUi.allThemes}</option>
             {themes.map((theme) => (
               <option key={theme} value={theme}>
                 {theme}
@@ -242,18 +242,18 @@ function ArticlesCatalog({
       </div>
 
       {byYear.length === 0 ? (
-        <p className="text-muted text-sm">Aucun article ne correspond à ces critères.</p>
+        <p className="text-muted text-sm">{t.revueUi.noMatch}</p>
       ) : (
         <div className="flex flex-col gap-10">
           {byYear.map((group) => (
             <div key={group.year} id={`edition-${group.year}`}>
               <h3 className="text-navy font-bold text-lg mb-4 border-b border-line pb-2">
-                RPAE Édition — {group.year}
+                {t.revueUi.edition.replace("{year}", String(group.year))}
               </h3>
               <ul className="flex flex-col gap-4">
                 {group.articles.map((article) => (
                   <li key={article.id}>
-                    <Link
+                    <LocalizedLink
                       href={`/revue-scientifique/${article.slug}`}
                       className="block group -mx-2 px-2 py-3 rounded-lg hover:bg-navy/[0.03] transition-colors"
                     >
@@ -264,14 +264,14 @@ function ArticlesCatalog({
                         {article.auteur}
                         {article.gradeAuteur ? ` · ${article.gradeAuteur}` : ""}
                         {" · "}
-                        {article.profilLabel}
+                        {t.rpae.profils[article.profil as keyof typeof t.rpae.profils] ?? article.profilLabel}
                         {" · "}
                         {article.theme}
                       </p>
                       {article.resume ? (
                         <p className="text-sm text-ink/80 mt-2 leading-relaxed line-clamp-2">{article.resume}</p>
                       ) : null}
-                    </Link>
+                    </LocalizedLink>
                   </li>
                 ))}
               </ul>
@@ -284,8 +284,16 @@ function ArticlesCatalog({
 }
 
 export default function RevueTabs({ presentation, equipe, instructions, articles }: RevueTabsProps) {
+  const t = useMessages();
   const [active, setActive] = useState<TabKey>("presentation");
   const [catalogYear, setCatalogYear] = useState<string | undefined>(undefined);
+
+  const tabs = [
+    { key: "presentation" as const, label: t.revueUi.tabPresentation },
+    { key: "equipe" as const, label: t.revueUi.tabEquipe },
+    { key: "instructions" as const, label: t.revueUi.tabInstructions },
+    { key: "numeros" as const, label: t.revueUi.tabArticles },
+  ];
 
   function openEdition(year: number) {
     setCatalogYear(String(year));
@@ -294,11 +302,8 @@ export default function RevueTabs({ presentation, equipe, instructions, articles
 
   return (
     <div className="min-w-0 w-full">
-      <div
-        role="tablist"
-        className="flex flex-wrap gap-1 mb-8 border-b border-line pb-0"
-      >
-        {TABS.map((tab) => {
+      <div role="tablist" className="flex flex-wrap gap-1 mb-8 border-b border-line pb-0">
+        {tabs.map((tab) => {
           const isActive = active === tab.key;
           return (
             <button
@@ -326,16 +331,16 @@ export default function RevueTabs({ presentation, equipe, instructions, articles
         {active === "presentation" && (
           <PresentationPanel presentation={presentation} articles={articles} onSelectYear={openEdition} />
         )}
-        {active === "equipe" && <TabContent page={equipe} fallbackTitle="Équipe Éditoriale" />}
+        {active === "equipe" && <TabContent page={equipe} fallbackTitle={t.revueUi.tabEquipe} />}
         {active === "instructions" && (
           <>
-            <TabContent page={instructions} fallbackTitle="Instructions aux auteurs" />
-            <Link
+            <TabContent page={instructions} fallbackTitle={t.revueUi.tabInstructions} />
+            <LocalizedLink
               href="/revue-scientifique/soumettre"
               className="inline-flex items-center justify-center bg-yellow text-navy-dark font-bold text-sm px-6 h-11 rounded-lg hover:brightness-95 transition-[filter] mt-6"
             >
-              Soumettre un article
-            </Link>
+              {t.common.submitArticle}
+            </LocalizedLink>
           </>
         )}
         {active === "numeros" && <ArticlesCatalog articles={articles} initialYear={catalogYear} />}

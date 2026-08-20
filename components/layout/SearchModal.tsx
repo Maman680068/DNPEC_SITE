@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useLocale, useMessages } from "@/lib/i18n/use-locale";
 
-type SearchResult = { title: string; href: string; type: "Actualité" | "Publication" | "Page" | "RPAE" };
+type SearchResult = { title: string; href: string; type: string };
 
 type SearchModalProps = {
   open: boolean;
@@ -14,6 +15,8 @@ const SUGGEST_MIN_CHARS = 2;
 const DEBOUNCE_MS = 280;
 
 export default function SearchModal({ open, onClose }: SearchModalProps) {
+  const locale = useLocale();
+  const t = useMessages();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -61,7 +64,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
       const requestId = ++requestIdRef.current;
 
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}&lang=${locale}`, {
           signal: controller.signal,
         });
         const data = await res.json();
@@ -81,7 +84,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
       clearTimeout(timer);
       abortRef.current?.abort();
     };
-  }, [query, open]);
+  }, [query, open, locale]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -97,7 +100,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}&lang=${locale}`);
       const data = await res.json();
       setResults(data.results ?? []);
       setActiveIndex(-1);
@@ -134,15 +137,15 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
       >
         <button
           type="button"
-          aria-label="Fermer la recherche"
+          aria-label={t.search.close}
           onClick={onClose}
           className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center text-navy hover:bg-paper transition-colors cursor-pointer"
         >
           ✕
         </button>
 
-        <h2 className="text-navy text-xl sm:text-2xl font-heading font-semibold mb-1.5 pr-10">Faire une recherche</h2>
-        <p className="text-muted text-sm mb-6">Actualités, Documents, Publications, Articles RPAE, etc.</p>
+        <h2 className="text-navy text-xl sm:text-2xl font-heading font-semibold mb-1.5 pr-10">{t.search.heading}</h2>
+        <p className="text-muted text-sm mb-6">{t.search.intro}</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
           <input
@@ -151,7 +154,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleInputKeyDown}
-            placeholder="Rechercher sur le site..."
+            placeholder={t.search.sitePlaceholder}
             autoComplete="off"
             role="combobox"
             aria-autocomplete="list"
@@ -164,26 +167,26 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             disabled={loading && results === null}
             className="bg-red text-white font-bold text-sm px-6 h-12 rounded-lg cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
           >
-            {loading && results === null ? "…" : "Rechercher"}
+            {loading && results === null ? "…" : t.search.submit}
           </button>
         </form>
 
         {showHint && (
-          <p className="mt-3 text-muted text-xs">Tapez au moins {SUGGEST_MIN_CHARS} caractères pour voir des suggestions.</p>
+          <p className="mt-3 text-muted text-xs">{t.search.hint.replace("{n}", String(SUGGEST_MIN_CHARS))}</p>
         )}
 
         {loading && results === null && query.trim().length >= SUGGEST_MIN_CHARS && (
-          <p className="mt-4 text-muted text-sm">Recherche en cours…</p>
+          <p className="mt-4 text-muted text-sm">{t.search.inProgress}</p>
         )}
 
         {results !== null && (
           <div id="search-suggestions" role="listbox" className="mt-4 max-h-[360px] overflow-y-auto flex flex-col gap-1">
             {results.length === 0 ? (
-              <p className="text-muted text-sm text-center py-6">Aucun résultat trouvé.</p>
+              <p className="text-muted text-sm text-center py-6">{t.search.none}</p>
             ) : (
               <>
                 <p className="text-xs text-muted px-1 mb-1">
-                  {results.length} suggestion{results.length > 1 ? "s" : ""}
+                  {results.length} {results.length > 1 ? t.search.suggestionsPlural : t.search.suggestions}
                 </p>
                 {results.map((result, index) => (
                   <Link

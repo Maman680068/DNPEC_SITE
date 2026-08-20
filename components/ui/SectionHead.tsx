@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LocalizedLink from "@/components/i18n/LocalizedLink";
 
 type SectionHeadProps = {
   title: string;
@@ -13,12 +13,12 @@ export default function SectionHead({ title, seeAllHref, seeAllLabel }: SectionH
         {title}
       </h2>
       {seeAllHref && (
-        <Link
+        <LocalizedLink
           href={seeAllHref}
           className="text-[13px] font-semibold text-navy flex items-center gap-1.5 shrink-0"
         >
           {seeAllLabel} →
-        </Link>
+        </LocalizedLink>
       )}
     </div>
   );

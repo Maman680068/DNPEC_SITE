@@ -38,10 +38,6 @@ export const NAV_ITEMS: NavItem[] = [
         children: [
           { label: "Transition fiscale", href: "/transition-fiscale" },
           {
-            label: "Rapport de suivi des indicateurs de transition fiscale",
-            href: "/rapport-suivi-indicateurs-transition-fiscale",
-          },
-          {
             label: "PEF (Perspectives économiques et financières)",
             href: "/perspectives-economiques-financieres",
           },

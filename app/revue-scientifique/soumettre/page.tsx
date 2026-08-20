@@ -1,18 +1,13 @@
-import type { Metadata } from "next";
 import PageTitle from "@/components/ui/PageTitle";
 import RpaeSubmissionForm from "@/components/revue/RpaeSubmissionForm";
+import { getMessages } from "@/lib/i18n/locale";
 
-export const metadata: Metadata = { title: "Soumettre un article — Revue Scientifique" };
-
-export default function SoumettreArticlePage() {
+export default async function SoumettreArticlePage() {
+  const t = await getMessages();
   return (
     <div className="wrap">
-      <div className="max-w-3xl mx-auto">
-        <PageTitle
-          eyebrow="Revue Scientifique"
-          title="Soumettre un article"
-          subtitle="Soumettez votre article (Word ou Excel). Il sera placé en file d'attente WordPress pour le comité scientifique de la DNPEC (profil, thème et résumé servent au classement). Après analyse interne, seule une publication validée pourra apparaître dans la revue."
-        />
+      <div className="max-w-4xl mx-auto">
+        <PageTitle eyebrow={t.revue.title} title={t.revue.submitTitle} subtitle={t.revue.submitSubtitle} />
         <section className="pb-14">
           <RpaeSubmissionForm />
         </section>

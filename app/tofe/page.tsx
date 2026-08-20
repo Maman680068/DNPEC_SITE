@@ -1,15 +1,18 @@
-import type { Metadata } from "next";
-import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+﻿import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "TOFE (Tableau des Opérations Financières de l'État)" };
+export const generateMetadata = () => navTitleMetadata("/tofe");
 export const revalidate = 300;
 
-export default function Page() {
+export default async function TofePage() {
+  const t = await getMessages();
   return (
     <InstitutionalPage
       slug="tofe"
-      fallbackTitle="TOFE (Tableau des Opérations Financières de l'État)"
+      fallbackTitle={t.nav["/tofe"]}
       eyebrow="Documents budgétaires"
+      yearlyGrid
     />
   );
 }

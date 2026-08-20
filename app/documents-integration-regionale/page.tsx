@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
-import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+﻿import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "Documents de suivi de l'intégration économique régionale" };
+export const generateMetadata = () => navTitleMetadata("/documents-integration-regionale");
 export const revalidate = 300;
 
-export default function Page() {
+export default async function Page() {
+  const t = await getMessages();
   return (
     <InstitutionalPage
       slug="documents-integration-regionale"
-      fallbackTitle="Documents de suivi de l'intégration économique régionale"
+      fallbackTitle={t.nav["/documents-integration-regionale"]}
       eyebrow="Publications"
     />
   );

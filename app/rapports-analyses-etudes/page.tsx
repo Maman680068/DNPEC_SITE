@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
-import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+﻿import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "Rapports" };
+export const generateMetadata = () => navTitleMetadata("/rapports-analyses-etudes");
 export const revalidate = 300;
 
-export default function Page() {
+export default async function Page() {
+  const t = await getMessages();
   return (
     <InstitutionalPage
       slug="rapports-analyses-etudes"
-      fallbackTitle="Rapports"
+      fallbackTitle={t.nav["/rapports-analyses-etudes"]}
       eyebrow="Documents d'analyse et d'études économiques"
     />
   );

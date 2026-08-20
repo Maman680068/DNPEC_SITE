@@ -1,9 +1,16 @@
-import type { Metadata } from "next";
-import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+﻿import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "Cabinet" };
+export const generateMetadata = () => navTitleMetadata("/la-dnpec/cabinet");
 export const revalidate = 300;
 
-export default function CabinetPage() {
-  return <InstitutionalPage slug="cabinet" fallbackTitle="Cabinet" />;
+export default async function Page() {
+  const t = await getMessages();
+  return (
+    <InstitutionalPage
+      slug="cabinet"
+      fallbackTitle={t.nav["/la-dnpec/cabinet"]}
+    />
+  );
 }

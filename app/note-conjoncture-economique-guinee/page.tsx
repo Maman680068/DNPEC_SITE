@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
-import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+﻿import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "Note de conjoncture économique de la Guinée" };
+export const generateMetadata = () => navTitleMetadata("/note-conjoncture-economique-guinee");
 export const revalidate = 300;
 
-export default function Page() {
+export default async function Page() {
+  const t = await getMessages();
   return (
     <InstitutionalPage
       slug="note-conjoncture-economique-guinee"
-      fallbackTitle="Note de conjoncture économique de la Guinée"
+      fallbackTitle={t.nav["/note-conjoncture-economique-guinee"]}
       eyebrow="Documents conjoncturels"
     />
   );

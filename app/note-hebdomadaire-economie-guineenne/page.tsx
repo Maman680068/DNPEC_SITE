@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
-import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+﻿import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = { title: "Note hebdomadaire de l'économie guinéenne" };
+export const generateMetadata = () => navTitleMetadata("/note-hebdomadaire-economie-guineenne");
 export const revalidate = 300;
 
-export default function Page() {
+export default async function Page() {
+  const t = await getMessages();
   return (
     <InstitutionalPage
       slug="note-hebdomadaire-economie-guineenne"
-      fallbackTitle="Note hebdomadaire de l'économie guinéenne"
+      fallbackTitle={t.nav["/note-hebdomadaire-economie-guineenne"]}
       eyebrow="Documents conjoncturels"
     />
   );

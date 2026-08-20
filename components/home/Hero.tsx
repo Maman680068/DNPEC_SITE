@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import type { PublicationCard } from "@/lib/types";
+import LocalizedLink from "@/components/i18n/LocalizedLink";
+import { useLocale, useMessages } from "@/lib/i18n/use-locale";
+import { dateLocale } from "@/lib/i18n/config";
 
 const AUTOPLAY_MS = 5000;
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, locale: "fr" | "en"): string {
   const d = new Date(iso);
   if (!iso || Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+  return d.toLocaleDateString(dateLocale(locale), { day: "2-digit", month: "long", year: "numeric" });
 }
 
 /** Texte filigrane dérivé du titre (majuscules, sans accents). */
@@ -27,6 +29,8 @@ type HeroProps = {
 };
 
 export default function Hero({ publications }: HeroProps) {
+  const t = useMessages();
+  const locale = useLocale();
   const [index, setIndex] = useState(0);
   const [failedThumbs, setFailedThumbs] = useState<Set<string>>(new Set());
   const count = publications.length;
@@ -57,7 +61,7 @@ export default function Hero({ publications }: HeroProps) {
     if (!previewSrc) {
       return (
         <div className={`flex items-center justify-center bg-[#e8ecf2] text-muted text-sm p-6 text-center ${className ?? ""}`}>
-          Aperçu du document indisponible
+          {t.ui.previewUnavailable}
         </div>
       );
     }
@@ -66,7 +70,7 @@ export default function Hero({ publications }: HeroProps) {
       <img
         key={current.slug}
         src={previewSrc}
-        alt={`Première page — ${current.title}`}
+        alt={t.ui.firstPage.replace("{title}", current.title)}
         className={className}
         onError={() => {
           if (usePdfThumb) setFailedThumbs((prev) => new Set(prev).add(current.slug));
@@ -93,13 +97,13 @@ export default function Hero({ publications }: HeroProps) {
               <img src="/logos/logo-dnpec-clean.png" alt="" className="w-full h-full object-contain p-0.5" />
             </div>
             <div className="text-[12px] sm:text-[13px] text-[#5b6270] font-medium pt-1">
-              {formatDate(current.date)}
+              {formatDate(current.date, locale)}
             </div>
           </div>
 
           <div className="relative z-10 mt-8 sm:mt-12 max-w-[440px]">
             <div className="text-[13px] sm:text-[15px] font-bold text-ink leading-snug">
-              Ministère de l&apos;Économie et des Finances
+              {t.ui.ministry}
             </div>
             <div className="mt-2 h-[5px] w-[120px] rounded-sm overflow-hidden flex">
               <span className="flex-1 bg-red" />
@@ -119,21 +123,21 @@ export default function Hero({ publications }: HeroProps) {
               </h2>
             </div>
 
-            <Link
+            <LocalizedLink
               href={current.href}
               className="inline-flex items-center justify-center mt-5 sm:mt-6 bg-yellow text-navy-dark font-bold text-sm px-6 h-11 rounded-lg hover:brightness-95 transition-[filter]"
             >
-              Lire la suite
-            </Link>
+              {t.home.readMore}
+            </LocalizedLink>
 
             {count > 1 && (
-              <div className="flex gap-2 mt-5" role="tablist" aria-label="Diapositives du carrousel">
+              <div className="flex gap-2 mt-5" role="tablist" aria-label={t.ui.carouselSlides}>
                 {publications.map((p, i) => (
                   <button
                     key={p.slug}
                     type="button"
                     role="tab"
-                    aria-label={`Aller à la publication ${i + 1}`}
+                    aria-label={t.ui.goToPublication.replace("{n}", String(i + 1))}
                     aria-selected={i === index}
                     onClick={(event) => goTo(i, event)}
                     className={`h-1.5 rounded-full transition-all ${
@@ -169,7 +173,7 @@ export default function Hero({ publications }: HeroProps) {
           <>
             <button
               type="button"
-              aria-label="Publication précédente"
+              aria-label={t.ui.prevPublication}
               onClick={() => goTo((index - 1 + count) % count)}
               className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-[38px] sm:h-[38px] rounded-full bg-navy-dark/55 border border-white/40 text-white flex items-center justify-center text-base cursor-pointer hover:bg-navy-dark/75 transition-colors"
             >
@@ -177,7 +181,7 @@ export default function Hero({ publications }: HeroProps) {
             </button>
             <button
               type="button"
-              aria-label="Publication suivante"
+              aria-label={t.ui.nextPublication}
               onClick={() => goTo((index + 1) % count)}
               className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-[38px] sm:h-[38px] rounded-full bg-navy-dark/55 border border-white/40 text-white flex items-center justify-center text-base cursor-pointer hover:bg-navy-dark/75 transition-colors"
             >

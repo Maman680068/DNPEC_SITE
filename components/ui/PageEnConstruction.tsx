@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { getLocale, getMessages } from "@/lib/i18n/locale";
+import { localizeHref } from "@/lib/i18n/href";
 
 type PageEnConstructionProps = {
   title: string;
@@ -22,7 +24,8 @@ const FLAG_BANDS: { x: number; color: string; delay: string; amp: string }[] = [
   { x: 2.5, color: "#009460", delay: "0.6s", amp: "3.2deg" },
 ];
 
-export default function PageEnConstruction({ title, backHref = "/" }: PageEnConstructionProps) {
+export default async function PageEnConstruction({ title, backHref = "/" }: PageEnConstructionProps) {
+  const [locale, t] = await Promise.all([getLocale(), getMessages()]);
   return (
     <div className="wrap flex items-center justify-center min-h-[60vh] py-20">
       <div className="max-w-lg w-full flex flex-col items-center text-center gap-5">
@@ -50,7 +53,7 @@ export default function PageEnConstruction({ title, backHref = "/" }: PageEnCons
             viewBox="0 0 3 2"
             xmlns="http://www.w3.org/2000/svg"
             role="img"
-            aria-label="Drapeau de la République de Guinée"
+            aria-label={t.common.flagAlt}
           >
             {FLAG_BANDS.map((band, index) => (
               <rect
@@ -74,19 +77,15 @@ export default function PageEnConstruction({ title, backHref = "/" }: PageEnCons
 
         <h1 className="font-heading text-2xl md:text-[28px] text-navy font-semibold">{title}</h1>
 
-        <p className="text-[15px] text-muted leading-relaxed">
-          Cette page est en cours de construction.
-        </p>
+        <p className="text-[15px] text-muted leading-relaxed">{t.common.underConstruction}</p>
 
-        <p className="text-xs text-muted uppercase tracking-wide">
-          Direction Nationale des Prévisions Économiques et de la Conjoncture
-        </p>
+        <p className="text-xs text-muted uppercase tracking-wide">{t.header.dnpecFull}</p>
 
         <Link
-          href={backHref}
+          href={localizeHref(locale, backHref)}
           className="mt-2 inline-flex items-center justify-center bg-yellow text-navy-dark font-bold text-sm px-7 h-12 rounded-lg hover:brightness-95 transition-[filter]"
         >
-          Retour à l&apos;accueil
+          {t.common.backHome}
         </Link>
       </div>
     </div>

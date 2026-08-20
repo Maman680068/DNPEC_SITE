@@ -1,43 +1,26 @@
-import type { Metadata } from "next";
 import PageTitle from "@/components/ui/PageTitle";
 import LinkCardGrid from "@/components/ui/LinkCardGrid";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
+import { navCards } from "@/lib/i18n/nav-cards";
 
-export const metadata: Metadata = { title: "Textes réglementaires" };
+export const generateMetadata = () => navTitleMetadata("/la-dnpec/textes-reglementaires");
 
-const cards = [
-  {
-    title: "Loi des finances",
-    description: "Texte de la loi de finances en vigueur et ses annexes.",
-    href: "/loi-des-finances",
-  },
-  {
-    title: "Code des investissements",
-    description: "Cadre juridique applicable aux investissements en Guinée.",
-    href: "/code-des-investissements",
-  },
-  {
-    title: "Code général des impôts",
-    description: "Régime fiscal applicable aux personnes physiques et morales.",
-    href: "/code-general-des-impots",
-  },
-  {
-    title: "Code des marchés publics",
-    description: "Règles de passation et d'exécution des marchés publics.",
-    href: "/code-des-marches-publics",
-  },
-  {
-    title: "Code minier",
-    description: "Cadre juridique applicable au secteur minier guinéen.",
-    href: "/code-minier",
-  },
+const HREFS = [
+  "/loi-des-finances",
+  "/code-des-investissements",
+  "/code-general-des-impots",
+  "/code-des-marches-publics",
+  "/code-minier",
 ];
 
-export default function TextesReglementairesPage() {
+export default async function TextesReglementairesPage() {
+  const t = await getMessages();
   return (
     <div className="wrap">
-      <PageTitle eyebrow="La DNPEC" title="Textes réglementaires" />
+      <PageTitle eyebrow={t.nav["/la-dnpec"]} title={t.nav["/la-dnpec/textes-reglementaires"]} />
       <section className="pb-14">
-        <LinkCardGrid cards={cards} />
+        <LinkCardGrid cards={navCards(t, HREFS)} />
       </section>
     </div>
   );

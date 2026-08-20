@@ -1,9 +1,11 @@
-import Link from "next/link";
+import LocalizedLink from "@/components/i18n/LocalizedLink";
 import type { NewsArticle } from "@/lib/types";
 import SectionHead from "@/components/ui/SectionHead";
+import { getLocale, getMessages } from "@/lib/i18n/locale";
+import { dateLocale } from "@/lib/i18n/config";
 
-function formatDate(dateIso: string) {
-  return new Date(dateIso).toLocaleDateString("fr-FR", {
+function formatDate(dateIso: string, locale: "fr" | "en") {
+  return new Date(dateIso).toLocaleDateString(dateLocale(locale), {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -14,16 +16,17 @@ type ActualitesSectionProps = {
   articles: NewsArticle[];
 };
 
-export default function ActualitesSection({ articles }: ActualitesSectionProps) {
+export default async function ActualitesSection({ articles }: ActualitesSectionProps) {
+  const [locale, t] = await Promise.all([getLocale(), getMessages()]);
   return (
     <section className="pb-14">
-      <SectionHead title="Nos actualités" seeAllHref="/actualites" seeAllLabel="TOUTES LES ACTUALITÉS" />
+      <SectionHead title={t.home.ourNews} seeAllHref="/actualites" seeAllLabel={t.common.allNews} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[22px]">
         {articles.map((article) => (
-          <Link
+          <LocalizedLink
             key={article.id}
             href={`/actualites/${article.slug}`}
-            className="news-card group rounded-[10px] overflow-hidden relative h-[300px] block shadow-md hover:shadow-xl transition-shadow duration-300"
+            className="reveal-item news-card group rounded-[10px] overflow-hidden relative h-[300px] block shadow-md hover:shadow-xl transition-shadow duration-300"
           >
             {article.coverImage && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -42,12 +45,12 @@ export default function ActualitesSection({ articles }: ActualitesSectionProps) 
               </h3>
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="bg-yellow text-navy-dark text-xs font-bold px-3.5 py-1.5 rounded-md">
-                  Lire l&apos;article
+                  {t.common.readArticle}
                 </span>
-                <span className="text-[11px] text-[#c3cee0]">{formatDate(article.date)}</span>
+                <span className="text-[11px] text-[#c3cee0]">{formatDate(article.date, locale)}</span>
               </div>
             </div>
-          </Link>
+          </LocalizedLink>
         ))}
       </div>
     </section>

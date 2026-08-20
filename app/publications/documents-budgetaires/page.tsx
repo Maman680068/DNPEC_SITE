@@ -1,28 +1,20 @@
-import type { Metadata } from "next";
 import PageTitle from "@/components/ui/PageTitle";
 import LinkCardGrid from "@/components/ui/LinkCardGrid";
+import { getMessages } from "@/lib/i18n/locale";
+import { navTitleMetadata } from "@/lib/i18n/metadata";
+import { navCards } from "@/lib/i18n/nav-cards";
 
-export const metadata: Metadata = { title: "Documents budgétaires" };
+export const generateMetadata = () => navTitleMetadata("/publications/documents-budgetaires");
 
-const cards = [
-  {
-    title: "TBFP",
-    description: "Tableau de Bord Finances Publique.",
-    href: "/tbfp",
-  },
-  {
-    title: "TOFE",
-    description: "Tableau des Opérations Financières de l'État.",
-    href: "/tofe",
-  },
-];
+const HREFS = ["/tbfp", "/tofe"];
 
-export default function DocumentsBudgetairesPage() {
+export default async function DocumentsBudgetairesPage() {
+  const t = await getMessages();
   return (
     <div className="wrap">
-      <PageTitle eyebrow="Publications" title="Documents budgétaires" />
+      <PageTitle eyebrow={t.nav["/publications"]} title={t.nav["/publications/documents-budgetaires"]} />
       <section className="pb-14">
-        <LinkCardGrid cards={cards} />
+        <LinkCardGrid cards={navCards(t, HREFS)} />
       </section>
     </div>
   );
