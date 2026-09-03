@@ -1,16 +1,9 @@
-﻿import InstitutionalPage from "@/components/la-dnpec/InstitutionalPage";
-import { getMessages } from "@/lib/i18n/locale";
+import LeadershipTeam from "@/components/la-dnpec/LeadershipTeam";
 import { navTitleMetadata } from "@/lib/i18n/metadata";
 
 export const generateMetadata = () => navTitleMetadata("/la-dnpec/cabinet");
 export const revalidate = 300;
 
-export default async function Page() {
-  const t = await getMessages();
-  return (
-    <InstitutionalPage
-      slug="cabinet"
-      fallbackTitle={t.nav["/la-dnpec/cabinet"]}
-    />
-  );
+export default function Page() {
+  return <LeadershipTeam />;
 }

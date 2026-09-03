@@ -13,7 +13,7 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "Mot du Directeur National", href: "/la-dnpec/mot-du-directeur" },
       { label: "Historique", href: "/la-dnpec/historique" },
       { label: "Mission", href: "/la-dnpec/mission" },
-      { label: "Cabinet", href: "/la-dnpec/cabinet" },
+      { label: "Équipe dirigeante", href: "/la-dnpec/cabinet" },
       {
         label: "Textes réglementaires",
         href: "/la-dnpec/textes-reglementaires",

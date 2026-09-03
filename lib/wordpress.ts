@@ -18,6 +18,7 @@ import {
   RPAE_CATEGORY_SLUG,
   type RpaeArticle,
 } from "./rpae";
+import { institutionalPageFallback } from "./institutional-fallbacks";
 
 
 /**
@@ -360,9 +361,9 @@ export async function getPageBySlug(slug: string, locale: Locale = "fr"): Promis
       `/pages?slug=${encodeURIComponent(bare)}&_embed`,
       { fresh: true },
     );
-    if (!data?.[0]) return null;
+    if (!data?.[0]) return institutionalPageFallback(bare);
     const page = mapWpPageToInstitutionalPage(data[0]);
-    return stripHtml(page.content).length > 0 ? page : null;
+    return stripHtml(page.content).length > 0 ? page : institutionalPageFallback(bare);
   }
 
   const enData = await fetchFromWordpress<WpPage[]>(
@@ -393,7 +394,7 @@ export async function getPageBySlug(slug: string, locale: Locale = "fr"): Promis
     }
   }
 
-  return null;
+  return institutionalPageFallback(bare);
 }
 
 export async function getPublications(): Promise<Publication[]> {

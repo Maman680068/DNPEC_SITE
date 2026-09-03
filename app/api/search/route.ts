@@ -15,7 +15,7 @@ const STATIC_PAGES: { title: string; href: string }[] = [
   { title: "Mot du Directeur National", href: "/la-dnpec/mot-du-directeur" },
   { title: "Historique", href: "/la-dnpec/historique" },
   { title: "Mission", href: "/la-dnpec/mission" },
-  { title: "Cabinet", href: "/la-dnpec/cabinet" },
+  { title: "Équipe dirigeante", href: "/la-dnpec/cabinet" },
   { title: "Textes réglementaires", href: "/la-dnpec/textes-reglementaires" },
   { title: "Organigramme", href: "/organigramme" },
   { title: "Contact", href: "/contact" },

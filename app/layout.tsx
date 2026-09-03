@@ -30,6 +30,11 @@ export async function generateMetadata(): Promise<Metadata> {
       template: t.meta.titleTemplate,
     },
     description: t.meta.description,
+    icons: {
+      icon: [{ url: "/logos/favicon-dnpec.png", type: "image/png" }],
+      apple: [{ url: "/logos/favicon-dnpec.png", type: "image/png" }],
+      shortcut: "/logos/favicon-dnpec.png",
+    },
   };
 }
 

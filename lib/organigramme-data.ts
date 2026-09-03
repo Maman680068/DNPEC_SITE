@@ -42,7 +42,7 @@ export const ORG_CHART = {
     },
   ] as OrgDivision[],
   dnAttachments: ["CTSCM", "CNC"],
-  dnaAttachments: ["SAF"],
+  dnaAttachments: ["SAF", "RH", "CSID"],
   bottomBand: "CHARGÉS D'ÉTUDES (C.E.)",
 };
 
@@ -70,6 +70,8 @@ export const ORG_LEGEND: { code: string; label: string }[] = [
   { code: "SEC", label: "Section Enquête Conjoncturelle" },
   { code: "SGBD", label: "Section Gestion de la Base des Données" },
   { code: "SAF", label: "Service Administratif et Financier" },
+  { code: "RH", label: "Ressource humaine" },
+  { code: "CSID", label: "Cellule des Systèmes d'Informations et de la Digitalisation" },
   { code: "CTSCM", label: "Cellule Technique de Suivi de la Conjoncture Macroéconomique" },
   { code: "CNC", label: "Comité National de Coordination des Politiques Macroéconomiques et Monétaires" },
   { code: "SIRC", label: "Section Intégration Régionale et Convergence" },

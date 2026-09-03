@@ -44,7 +44,7 @@ npm run lint    # ESLint
 ```
 app/                        Routes (App Router)
   page.tsx                  Accueil
-  la-dnpec/                 Mot du DN, Historique, Mission, Cabinet,
+  la-dnpec/                 Mot du DN, Historique, Mission, Équipe dirigeante,
                              Textes réglementaires, Organigramme
   publications/              Liste avec filtres/recherche + fiche détail
   donnees/                   Secteur réel, TOFE, Balance des paiements, SMI

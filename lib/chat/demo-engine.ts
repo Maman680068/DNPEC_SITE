@@ -137,15 +137,15 @@ You can also write to him directly: [Write to the National Director](/ecrire-au-
   },
   {
     weight: 7,
-    keys: ["organigramme", "organisation", "structure", "cabinet", "équipe", "equipe"],
-    fr: `La DNPEC dispose d’un **organigramme** et d’une page **Cabinet**.
+    keys: ["organigramme", "organisation", "structure", "cabinet", "équipe dirigeante", "equipe dirigeante", "équipe", "equipe"],
+    fr: `La DNPEC dispose d’un **organigramme** et d’une page **Équipe dirigeante**.
 
 → [Organigramme](/organigramme)  
-→ [Cabinet](/la-dnpec/cabinet)`,
-    en: `DNPEC provides an **organisation chart** and a **Cabinet** page.
+→ [Équipe dirigeante](/la-dnpec/cabinet)`,
+    en: `DNPEC provides an **organisation chart** and a **Leadership team** page.
 
 → [Organisation chart](/organigramme)  
-→ [Cabinet](/la-dnpec/cabinet)`,
+→ [Leadership team](/la-dnpec/cabinet)`,
   },
   {
     weight: 7,
