@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { NavItem } from "@/lib/nav-data";
 import { useMessages } from "@/lib/i18n/use-locale";
@@ -41,6 +41,25 @@ export default function DropdownMenu({
   const focusFirstOnOpen = useRef(false);
 
   const hasChildren = !!item.children?.length;
+
+  // Niveau 2 : le panneau s'ouvre normalement à droite (left-full). Si ça le
+  // pousserait hors du viewport (item proche du bord droit de l'écran), on
+  // bascule à gauche (right-full) une fois sa largeur réelle mesurée.
+  const [openToLeft, setOpenToLeft] = useState(false);
+
+  useLayoutEffect(() => {
+    if (level !== 2) return;
+    if (!isOpen) {
+      setOpenToLeft(false);
+      return;
+    }
+    const panel = panelRef.current;
+    if (!panel) return;
+    const rect = panel.getBoundingClientRect();
+    if (rect.right > window.innerWidth) {
+      setOpenToLeft(true);
+    }
+  }, [isOpen, level]);
 
   function clearTimers() {
     if (openTimer.current) clearTimeout(openTimer.current);
@@ -152,7 +171,9 @@ export default function DropdownMenu({
   const panelClasses =
     level === 1
       ? "absolute top-full left-0 mt-0 min-w-[280px] bg-white border border-line rounded-b-lg rounded-tr-lg shadow-lg py-2 z-50"
-      : "absolute left-full top-0 ml-1 min-w-[300px] bg-white border border-line rounded-lg shadow-lg py-2 z-50";
+      : `absolute top-0 min-w-[300px] bg-white border border-line rounded-lg shadow-lg py-2 z-50 ${
+          openToLeft ? "right-full mr-1" : "left-full ml-1"
+        }`;
 
   return (
     <li
