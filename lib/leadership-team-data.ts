@@ -29,7 +29,12 @@ export const LEADERSHIP_DIRECTION: Array<LeadershipMember & { role: LeadershipRo
 
 /** Ordre d'affichage : DPE, DIPE, puis les autres divisions. */
 export const LEADERSHIP_DIVISION_CHIEFS: LeadershipMember[] = [
-  { id: "dpe", unitCode: "DPE", name: "Alioune Diallo" },
+  {
+    id: "dpe",
+    unitCode: "DPE",
+    name: "Alioune Diallo",
+    photo: "/leadership/dpe.jpg",
+  },
   {
     id: "dipe",
     unitCode: "DIPE",
@@ -37,7 +42,12 @@ export const LEADERSHIP_DIVISION_CHIEFS: LeadershipMember[] = [
     photo: "/leadership/dipe.png",
   },
   { id: "dsps", unitCode: "DSPS", name: "Ibrahima Kalil Condé" },
-  { id: "dac", unitCode: "DAC", name: "Morikè Keita" },
+  {
+    id: "dac",
+    unitCode: "DAC",
+    name: "Morikè Keita",
+    photo: "/leadership/dac.webp",
+  },
   { id: "dee", unitCode: "DEE", name: null },
 ];
 
