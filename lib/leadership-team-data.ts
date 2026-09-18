@@ -37,7 +37,12 @@ export const LEADERSHIP_DIVISION_CHIEFS: LeadershipMember[] = [
     photo: "/leadership/dipe.png",
   },
   { id: "dsps", unitCode: "DSPS", name: "Ibrahima Kalil Condé" },
-  { id: "dac", unitCode: "DAC", name: "Morikè Keita" },
+  {
+    id: "dac",
+    unitCode: "DAC",
+    name: "Morikè Keita",
+    photo: "/leadership/dac.webp",
+  },
   { id: "dee", unitCode: "DEE", name: null },
 ];
 
