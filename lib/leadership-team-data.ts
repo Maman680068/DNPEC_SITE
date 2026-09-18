@@ -53,7 +53,12 @@ export const LEADERSHIP_DIVISION_CHIEFS: LeadershipMember[] = [
 
 /** Services rattachés au DNA (organigramme). */
 export const LEADERSHIP_SERVICE_CHIEFS: LeadershipMember[] = [
-  { id: "saf", unitCode: "SAF", name: "Toumany Kaba" },
+  {
+    id: "saf",
+    unitCode: "SAF",
+    name: "Toumany Kaba",
+    photo: "/leadership/saf.webp",
+  },
   { id: "rh", unitCode: "RH", name: "Balla Oularé" },
   { id: "csid", unitCode: "CSID", name: null },
 ];
