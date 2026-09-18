@@ -29,7 +29,12 @@ export const LEADERSHIP_DIRECTION: Array<LeadershipMember & { role: LeadershipRo
 
 /** Ordre d'affichage : DPE, DIPE, puis les autres divisions. */
 export const LEADERSHIP_DIVISION_CHIEFS: LeadershipMember[] = [
-  { id: "dpe", unitCode: "DPE", name: "Alioune Diallo" },
+  {
+    id: "dpe",
+    unitCode: "DPE",
+    name: "Alioune Diallo",
+    photo: "/leadership/dpe.jpg",
+  },
   {
     id: "dipe",
     unitCode: "DIPE",
