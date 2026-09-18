@@ -48,7 +48,12 @@ export const LEADERSHIP_DIVISION_CHIEFS: LeadershipMember[] = [
     name: "Morikè Keita",
     photo: "/leadership/dac.webp",
   },
-  { id: "dee", unitCode: "DEE", name: null },
+  {
+    id: "dee",
+    unitCode: "DEE",
+    name: "Nouhan Traoré",
+    photo: "/leadership/dee.webp",
+  },
 ];
 
 /** Services rattachés au DNA (organigramme). */
