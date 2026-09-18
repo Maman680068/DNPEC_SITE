@@ -51,7 +51,7 @@ export default function IndicateursSection({ indicators }: IndicateursSectionPro
       <h2 className="text-center text-navy text-xl sm:text-2xl font-heading font-semibold mb-7">
         {t.home.indicators}
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {indicators.map((indicator) => (
           <article
             key={indicator.id}

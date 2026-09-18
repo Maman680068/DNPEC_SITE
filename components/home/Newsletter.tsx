@@ -38,24 +38,24 @@ export default function Newsletter() {
   return (
     <div className="wrap">
       <div className="newsletter relative grid grid-cols-1 md:grid-cols-[56%_44%] rounded-[10px] overflow-hidden my-14 bg-navy">
-        <div className="nl-left bg-green text-white p-6 md:p-11 md:pl-10 md:pr-[120px] relative z-10">
+        <div className="nl-left bg-green text-white p-6 md:p-8 md:pl-8 md:pr-12 lg:p-11 lg:pl-10 lg:pr-[120px] relative z-10">
           <h2 className="text-white text-xl md:text-[26px] mb-3 max-w-[290px] whitespace-pre-line">
             {t.newsletter.heading}
           </h2>
           <p className="text-[13.5px] text-[#d7f0e2] max-w-[300px]">{t.newsletter.body}</p>
         </div>
-        <div className="bg-navy p-6 md:p-11 md:pl-[110px] md:pr-10 flex flex-col justify-center gap-3.5">
+        <div className="bg-navy p-6 md:p-8 md:pl-14 md:pr-8 lg:p-11 lg:pl-[110px] lg:pr-10 flex flex-col justify-center gap-3.5">
           {status === "success" ? (
             <p className="text-white text-sm">{t.newsletter.success}</p>
           ) : (
-            <form onSubmit={handleSubmit} className="flex gap-3 flex-col sm:flex-row">
+            <form onSubmit={handleSubmit} className="flex gap-3 flex-col lg:flex-row">
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder={t.newsletter.email}
-                className="flex-1 border-none rounded-lg px-5 text-base h-14 bg-white text-ink"
+                className="w-full lg:flex-1 border-none rounded-lg px-5 text-base h-14 bg-white text-ink"
               />
               <button
                 type="submit"
