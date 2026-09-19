@@ -1,14 +1,17 @@
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import ComingSoon from "@/components/admin/ComingSoon";
+import RpaeDashboard from "@/components/admin/rpae/RpaeDashboard";
+import { listRpaeSubmissions } from "@/lib/admin/rpae";
 
-export default function RevueScientifiqueAdminPage() {
+export default async function RevueScientifiqueAdminPage() {
+  const items = await listRpaeSubmissions();
+
   return (
     <div>
       <AdminPageHeader
         title="Revue scientifique (RPAE)"
         subtitle="Articles soumis : en attente de relecture, publiés, rejetés."
       />
-      <ComingSoon label="Tableau de bord de validation des articles RPAE" />
+      <RpaeDashboard items={items} />
     </div>
   );
 }
