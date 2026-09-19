@@ -19,6 +19,7 @@ import {
   type RpaeArticle,
 } from "./rpae";
 import { institutionalPageFallback } from "./institutional-fallbacks";
+import { WP_BROWSER_HEADERS } from "./wordpress-headers";
 
 
 /**
@@ -62,19 +63,11 @@ async function fetchFromWordpress<T>(path: string, options: WpFetchOptions = {})
 
   const url = `${WORDPRESS_API_URL}${path}`;
   try {
-    // Sans User-Agent de navigateur, le pare-feu de l'hébergement WordPress
-    // bloque silencieusement les requêtes serveur-à-serveur (retourne une
-    // page HTML au lieu du JSON attendu) — voir diagnostic migration cms.dnpec.gov.gn.
-    const headers = {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      Accept: "application/json",
-    };
     const res = await fetch(
       url,
       options.fresh
-        ? { cache: "no-store", headers }
-        : { next: { revalidate: 300, tags: ["wordpress"] }, headers },
+        ? { cache: "no-store", headers: WP_BROWSER_HEADERS }
+        : { next: { revalidate: 300, tags: ["wordpress"] }, headers: WP_BROWSER_HEADERS },
     );
 
     // --- DIAGNOSTIC TEMPORAIRE (à retirer une fois la cause identifiée) ---
