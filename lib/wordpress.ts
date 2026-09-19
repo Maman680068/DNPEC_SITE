@@ -76,12 +76,44 @@ async function fetchFromWordpress<T>(path: string, options: WpFetchOptions = {})
         ? { cache: "no-store", headers }
         : { next: { revalidate: 300, tags: ["wordpress"] }, headers },
     );
+
+    // --- DIAGNOSTIC TEMPORAIRE (à retirer une fois la cause identifiée) ---
+    // On a confirmé que fetch() reçoit un statut OK mais un corps HTML au
+    // lieu du JSON attendu (pare-feu de l'hébergement ?) — on inspecte donc
+    // les en-têtes de réponse et le début du corps avant tout traitement.
+    const allHeaders: string[] = [];
+    res.headers.forEach((value, key) => allHeaders.push(`${key}: ${value}`));
+    const notableHeaders = allHeaders.filter((line) => /^(server|cf-|x-|set-cookie)/i.test(line));
+    console.info(`[wordpress][debug] ${url} -> statut HTTP ${res.status}`);
+    console.info(
+      `[wordpress][debug] ${url} -> en-têtes notables (server/cf-/x-/set-cookie) :\n${
+        notableHeaders.join("\n") || "(aucun)"
+      }`,
+    );
+    console.info(`[wordpress][debug] ${url} -> tous les en-têtes :\n${allHeaders.join("\n")}`);
+    // --- fin diagnostic temporaire ---
+
     if (!res.ok) {
       console.warn(`[wordpress] ${url} -> HTTP ${res.status}, repli sur les données mock`);
       return null;
     }
-    console.info(`[wordpress] ${url} -> OK`);
-    return (await res.json()) as T;
+
+    const rawBody = await res.text();
+
+    // --- DIAGNOSTIC TEMPORAIRE (à retirer une fois la cause identifiée) ---
+    console.info(
+      `[wordpress][debug] ${url} -> 1000 premiers caractères du corps :\n${rawBody.slice(0, 1000)}`,
+    );
+    // --- fin diagnostic temporaire ---
+
+    try {
+      const parsed = JSON.parse(rawBody) as T;
+      console.info(`[wordpress] ${url} -> OK`);
+      return parsed;
+    } catch (parseError) {
+      console.warn(`[wordpress] ${url} -> réponse non-JSON, repli sur les données mock`, parseError);
+      return null;
+    }
   } catch (error) {
     console.warn(`[wordpress] ${url} -> échec de connexion, repli sur les données mock`, error);
     return null;
