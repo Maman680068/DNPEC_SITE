@@ -55,6 +55,8 @@ export type RpaeSubmissionMeta = {
   profilAuteur?: string;
   gradeAuteur?: string;
   fonctionAuteur?: string;
+  /** Renseigné uniquement pour le profil « étudiant ». */
+  encadrant?: string;
   theme?: string;
   editionAnnee?: string;
   titreArticle?: string;
@@ -168,6 +170,7 @@ export function parseRpaeMetadata(html: string): RpaeSubmissionMeta {
     profilAuteur: extractRpaeField(html, "profil-auteur"),
     gradeAuteur: extractRpaeField(html, "grade-auteur"),
     fonctionAuteur: extractRpaeField(html, "fonction-auteur"),
+    encadrant: extractRpaeField(html, "encadrant"),
     theme: extractRpaeField(html, "theme"),
     editionAnnee: extractRpaeField(html, "edition-annee"),
     titreArticle: extractRpaeField(html, "titre-article"),
