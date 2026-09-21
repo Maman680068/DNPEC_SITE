@@ -496,8 +496,10 @@ export const CONJONCTURE_SLUGS = new Set([
  * donc `modified` reflète bien mieux "mis à jour récemment" — `date` seule
  * placerait ces pages dans l'ordre où elles ont été créées la première fois,
  * ce qui peut sembler arbitraire si plusieurs ont été créées le même jour.
- * Si aucune page n'est publiée (API absente ou pages vides), repli sur les
- * cartes de démonstration pour que le Hero et le carrousel restent visibles.
+ * Si l'API est injoignable/en erreur, repli sur les cartes de démonstration
+ * pour que le Hero reste visible. Si l'API répond mais qu'aucune page n'est
+ * encore publiée, liste vide (Hero se masque alors, cf. count===0 dans
+ * components/home/Hero.tsx).
  */
 export async function getRecentPublicationCards(locale: Locale = "fr"): Promise<PublicationCard[]> {
   const results = await Promise.all(
@@ -519,7 +521,13 @@ export async function getRecentPublicationCards(locale: Locale = "fr"): Promise<
     .filter((card): card is PublicationCard => card !== null)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  return cards.length > 0 ? cards : mockPublicationCards;
+  if (cards.length > 0) return cards;
+
+  // getPageBySlug() ne distingue pas "page absente côté WP" d'une "API en
+  // panne" (les deux renvoient null) — sonde ici, séparément, si l'API
+  // répond réellement avant de conclure à une liste vide (Type A).
+  const reachable = await fetchFromWordpress<unknown>("/pages?per_page=1");
+  return reachable === null ? mockPublicationCards : [];
 }
 
 const TICKER_MAX_ITEMS = 10;
@@ -592,7 +600,8 @@ function mapWpPostToRpaeArticle(post: WpPost): RpaeArticle | null {
 
 /**
  * Articles RPAE publiés (catégorie `rpae`) — pour le catalogue public.
- * Repli mock si l'API est absente ou qu'aucun article n'est encore publié.
+ * Repli mock UNIQUEMENT si l'API est injoignable/en erreur (jamais si elle
+ * répond correctement avec 0 article — dans ce cas, liste vide légitime).
  */
 export async function getPublishedRpaeArticles(): Promise<RpaeArticle[]> {
   const cats = await fetchFromWordpress<{ id: number; slug: string }[]>(
@@ -606,17 +615,25 @@ export async function getPublishedRpaeArticles(): Promise<RpaeArticle[]> {
       `/posts?categories=${categoryId}&per_page=50&_embed`,
     );
   }
-  if (!posts || posts.length === 0) {
-    // Repli : recherche par préfixe de titre (cas où la catégorie manque).
-    posts = await fetchFromWordpress<WpPost[]>(`/posts?search=${encodeURIComponent("RPAE")}&per_page=50`);
+
+  let apiReachable = posts !== null;
+  if (posts === null || posts.length === 0) {
+    // Repli : recherche par préfixe de titre (cas où la catégorie manque ou est vide).
+    const searched = await fetchFromWordpress<WpPost[]>(`/posts?search=${encodeURIComponent("RPAE")}&per_page=50`);
+    if (searched !== null) {
+      apiReachable = true;
+      posts = searched;
+    }
   }
+
+  if (!apiReachable) return mockRpaeArticles;
 
   const articles = (posts ?? [])
     .map(mapWpPostToRpaeArticle)
     .filter((article): article is RpaeArticle => article !== null)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  return articles.length > 0 ? articles : mockRpaeArticles;
+  return articles;
 }
 
 export async function getRpaeArticleBySlug(slug: string): Promise<RpaeArticle | null> {
