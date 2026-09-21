@@ -41,7 +41,12 @@ export const LEADERSHIP_DIVISION_CHIEFS: LeadershipMember[] = [
     name: "Abdoulaye Mamadama Camara",
     photo: "/leadership/dipe.png",
   },
-  { id: "dsps", unitCode: "DSPS", name: "Ibrahima Kalil Condé" },
+  {
+    id: "dsps",
+    unitCode: "DSPS",
+    name: "Ibrahima Kalil Condé",
+    photo: "/leadership/dsps.jpg",
+  },
   {
     id: "dac",
     unitCode: "DAC",
