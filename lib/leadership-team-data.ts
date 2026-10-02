@@ -68,6 +68,11 @@ export const LEADERSHIP_SERVICE_CHIEFS: LeadershipMember[] = [
     name: "Toumany Kaba",
     photo: "/leadership/saf.webp",
   },
-  { id: "rh", unitCode: "RH", name: "Balla Oularé" },
+  {
+    id: "rh",
+    unitCode: "RH",
+    name: "Balla Oularé",
+    photo: "/leadership/rh.webp",
+  },
   { id: "csid", unitCode: "CSID", name: null },
 ];
