@@ -17,7 +17,6 @@ export const LEADERSHIP_DIRECTION: Array<LeadershipMember & { role: LeadershipRo
     role: "dn",
     name: "Abdoulaye Ibrahima Diallo",
     photo: "/leadership/dn.png",
-    biographyHref: "/la-dnpec/mot-du-directeur",
   },
   {
     id: "dna",
