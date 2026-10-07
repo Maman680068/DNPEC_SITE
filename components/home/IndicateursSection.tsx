@@ -7,6 +7,8 @@ import { useMessages } from "@/lib/i18n/use-locale";
 
 type IndicateursSectionProps = {
   indicators: Indicator[];
+  /** Ligne de source affichée sous les cartes (données du classeur de cadrage). */
+  sourceNote?: string;
 };
 
 const ICONS: Record<string, ReactNode> = {
@@ -44,7 +46,7 @@ function IndicatorIcon({ id }: { id: string }) {
   return ICONS[id] ?? ICONS.croissance;
 }
 
-export default function IndicateursSection({ indicators }: IndicateursSectionProps) {
+export default function IndicateursSection({ indicators, sourceNote }: IndicateursSectionProps) {
   const t = useMessages();
   return (
     <section className="py-8 sm:py-10">
@@ -73,6 +75,7 @@ export default function IndicateursSection({ indicators }: IndicateursSectionPro
           </article>
         ))}
       </div>
+      {sourceNote ? <p className="mt-4 text-center text-[12px] sm:text-[13px] text-muted">{sourceNote}</p> : null}
     </section>
   );
 }

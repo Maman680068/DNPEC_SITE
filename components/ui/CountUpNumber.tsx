@@ -9,14 +9,17 @@ type CountUpNumberProps = {
   className?: string;
 };
 
+// Signe moins typographique (U+2212), utilisé pour l'affichage des valeurs négatives.
+const MINUS = "\u2212";
+
 function parseMetric(raw: string): { target: number; decimals: number; prefix: string; suffix: string } {
   const trimmed = raw.trim();
-  const match = trimmed.match(/^([^0-9+\-]*)([+\-]?\d+(?:[.,]\d+)?)(.*)$/);
+  const match = trimmed.match(/^([^0-9+\-\u2212]*)([+\-\u2212]?\d+(?:[.,]\d+)?)(.*)$/);
   if (!match) {
     return { target: 0, decimals: 0, prefix: "", suffix: trimmed };
   }
   const [, prefix, numeric, suffix] = match;
-  const normalized = numeric.replace(",", ".");
+  const normalized = numeric.replace(MINUS, "-").replace(",", ".");
   const decimals = normalized.includes(".") ? (normalized.split(".")[1]?.length ?? 0) : 0;
   return {
     target: Number(normalized),
@@ -38,7 +41,9 @@ function formatMetric(
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
-  const sign = n < 0 ? "-" : n > 0 && prefix.includes("+") ? "" : "";
+  // Pas de « −0,0 » quand l'arrondi ramène la valeur à zéro (début d'animation).
+  const roundsToZero = Number(abs.toFixed(decimals)) === 0;
+  const sign = n < 0 && !roundsToZero ? MINUS : "";
   return `${prefix}${sign}${formatted}${suffix}`;
 }
 
