@@ -1,7 +1,7 @@
 import PageTitle from "@/components/ui/PageTitle";
 import PageEnConstruction from "@/components/ui/PageEnConstruction";
 import DonneesSection from "@/components/donnees/DonneesSection";
-import { getDonnees, rubriqueTitle } from "@/lib/donnees";
+import { getDonnees, rubriqueTitle, sourceText } from "@/lib/donnees";
 import { getLocale, getMessages } from "@/lib/i18n/locale";
 import { navTitleMetadata } from "@/lib/i18n/metadata";
 
@@ -19,7 +19,10 @@ export default async function DonneesPage() {
       <PageTitle
         eyebrow={t.nav["/donnees"]}
         title={t.donnees.title}
-        subtitle={`${t.donnees.subtitle(data.premiereAnnee, data.derniereAnnee)} ${t.donnees.sourceLabel}${colon} ${data.source}.`}
+        subtitle={`${t.donnees.subtitle(data.premiereAnnee, data.derniereAnnee)} ${t.donnees.sourceLabel}${colon} ${sourceText(
+          data,
+          locale,
+        )}.`}
       />
 
       <nav aria-label={t.donnees.jumpTo} className="flex flex-wrap gap-2 mb-6">

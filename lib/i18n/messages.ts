@@ -161,6 +161,8 @@ const fr = {
       plural ? `Années ${years} : estimations.` : `Année ${years} : estimation.`,
     sourceLabel: "Source",
     dataDate: "Données au",
+    scrollHint: "Faites défiler pour voir les années précédentes",
+    sourceFramework: (date: string) => `cadrage macroéconomique du ${date}`,
     title: "Données macroéconomiques",
     subtitle: (first: number, last: number) =>
       `Principaux agrégats de l'économie guinéenne, ${first}-${last}.`,
@@ -629,6 +631,8 @@ const en: typeof fr = {
       plural ? `${years}: estimates.` : `${years}: estimate.`,
     sourceLabel: "Source",
     dataDate: "Data as of",
+    scrollHint: "Scroll to see earlier years",
+    sourceFramework: (date: string) => `macroeconomic framework of ${date}`,
     title: "Macroeconomic data",
     subtitle: (first: number, last: number) => `Key aggregates of the Guinean economy, ${first}-${last}.`,
     jumpTo: "Go to section",
