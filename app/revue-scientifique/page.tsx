@@ -2,6 +2,13 @@ import LocalizedLink from "@/components/i18n/LocalizedLink";
 import PageTitle from "@/components/ui/PageTitle";
 import RevueTabs from "@/components/revue/RevueTabs";
 import { getPageBySlug, getPublishedRpaeArticles } from "@/lib/wordpress";
+import { sanitizeWpHtml } from "@/lib/sanitizeHtml";
+import type { InstitutionalPage } from "@/lib/types";
+
+/** RevueTabs (composant client) injecte ce HTML : il est nettoyé ici, côté serveur. */
+function safePage(page: InstitutionalPage | null): InstitutionalPage | null {
+  return page ? { ...page, content: sanitizeWpHtml(page.content) } : null;
+}
 import { getLocale, getMessages } from "@/lib/i18n/locale";
 
 export const revalidate = 300;
@@ -10,9 +17,9 @@ export default async function RevueScientifiquePage() {
   const locale = await getLocale();
   const t = await getMessages();
   const [presentation, equipe, instructions, articles] = await Promise.all([
-    getPageBySlug("rpae-presentation", locale),
-    getPageBySlug("rpae-equipe-editoriale", locale),
-    getPageBySlug("rpae-instructions-auteurs", locale),
+    getPageBySlug("rpae-presentation", locale).then(safePage),
+    getPageBySlug("rpae-equipe-editoriale", locale).then(safePage),
+    getPageBySlug("rpae-instructions-auteurs", locale).then(safePage),
     getPublishedRpaeArticles(),
   ]);
 

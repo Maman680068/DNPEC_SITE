@@ -1,6 +1,7 @@
 import type { Indicator, InstitutionalPage, NewsArticle, Partner, Publication, PublicationCard } from "./types";
 import { mockIndicators, mockNews, mockPartners, mockPublicationCards, mockPublications } from "./mock-data";
 import { decodeHtmlEntities } from "./decodeHtml";
+import { sanitizeWpHtml } from "./sanitizeHtml";
 import { extractImages } from "./extractImages";
 import type { Locale } from "./i18n/config";
 import {
@@ -16,6 +17,7 @@ import {
   profilLabel,
   resolveArticleYear,
   RPAE_CATEGORY_SLUG,
+  RPAE_INTERNAL_CATEGORY_SLUG,
   type RpaeArticle,
 } from "./rpae";
 import { institutionalPageFallback } from "./institutional-fallbacks";
@@ -151,12 +153,34 @@ type WpPost = {
   };
 };
 
-/** Retire les balises HTML et décode les entités — utilisé pour les champs texte brut (titre, extrait). */
+/**
+ * Texte brut (titre, extrait, métadonnées) : retire les balises PUIS décode
+ * les entités, pour qu'un « &lt;b&gt; » enregistré reste un texte. Le
+ * résultat est affiché par React comme du texte, jamais injecté en HTML.
+ */
 function stripHtml(html: string): string {
-  return decodeHtmlEntities(html)
-    .replace(/<[^>]*>/g, "")
+  return decodeHtmlEntities(html.replace(/<[^>]*>/g, ""))
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/** Article de la revue scientifique (catégories rpae / rpae-interne), à exclure des actualités. */
+function postIsRpae(post: WpPost): boolean {
+  const terms = post._embedded?.["wp:term"]?.flat() ?? [];
+  if (terms.some((term) => term.slug === RPAE_CATEGORY_SLUG || term.slug === RPAE_INTERNAL_CATEGORY_SLUG)) return true;
+  if (/^\s*\[RPAE\]/i.test(stripHtml(post.title.rendered))) return true;
+  return /<!--\s*rpae:/i.test(post.content.rendered);
+}
+
+/** Lien de fichier : seulement une URL http(s) absolue. */
+function safeHttpUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -207,7 +231,8 @@ function categoryForLocale(name: string, locale: Locale): string {
 }
 
 function mapWpPostToNewsArticle(post: WpPost, locale: Locale = "fr", isLocaleFallback = false): NewsArticle {
-  const content = decodeHtmlEntities(post.content.rendered);
+  // HTML injecté tel quel dans la page : nettoyé, jamais décodé (voir lib/sanitizeHtml.ts).
+  const content = sanitizeWpHtml(post.content.rendered);
   const featured = featuredCover(post._embedded?.["wp:featuredmedia"]?.[0]);
   const fromContent = bestImageUrl(extractImages(content).images[0]?.src);
   const categoryName = decodeHtmlEntities(post._embedded?.["wp:term"]?.[0]?.[0]?.name ?? "Actualité");
@@ -243,7 +268,7 @@ type WpPage = {
 function mapWpPageToInstitutionalPage(page: WpPage): InstitutionalPage {
   return {
     title: stripHtml(page.title.rendered),
-    content: decodeHtmlEntities(page.content.rendered),
+    content: sanitizeWpHtml(page.content.rendered),
     coverImage: page._embedded?.["wp:featuredmedia"]?.[0]?.source_url,
     date: page.date,
     modified: page.modified,
@@ -253,7 +278,9 @@ function mapWpPageToInstitutionalPage(page: WpPage): InstitutionalPage {
 // --- API publique ----------------------------------------------------------
 
 export async function getNews(locale: Locale = "fr"): Promise<NewsArticle[]> {
-  const data = await fetchFromWordpress<WpPost[]>("/posts?_embed&per_page=50");
+  const all = await fetchFromWordpress<WpPost[]>("/posts?_embed&per_page=50");
+  // La revue scientifique a son propre catalogue : jamais dans les actualités.
+  const data = all ? all.filter((post) => !postIsRpae(post)) : null;
   if (!data) return mockNews.map((article) => ({ ...article, isLocaleFallback: locale === "en" }));
   const englishPosts = data.filter(postIsEnglish);
   const frenchPosts = data.filter((post) => !postIsEnglish(post));
@@ -291,7 +318,7 @@ async function autoTranslatePage(page: InstitutionalPage): Promise<Institutional
     translateTextFrToEn(page.title),
     translateHtmlFrToEn(page.content),
   ]);
-  return { ...page, title, content, isLocaleFallback: false };
+  return { ...page, title, content: sanitizeWpHtml(content), isLocaleFallback: false };
 }
 
 async function autoTranslateArticle(article: NewsArticle): Promise<NewsArticle> {
@@ -300,7 +327,7 @@ async function autoTranslateArticle(article: NewsArticle): Promise<NewsArticle> 
     translateTextFrToEn(article.excerpt),
     article.content ? translateHtmlFrToEn(article.content) : Promise.resolve(article.content),
   ]);
-  return { ...article, title, excerpt, content, isLocaleFallback: false };
+  return { ...article, title, excerpt, content: content && sanitizeWpHtml(content), isLocaleFallback: false };
 }
 
 /** Liste d’actus : titres/extraits seulement (évite de saturer l’API de traduction). */
@@ -361,7 +388,7 @@ export async function getNewsBySlug(slug: string, locale: Locale = "fr"): Promis
       `/posts?slug=${encodeURIComponent(bare)}&_embed`,
       { fresh: true },
     );
-    if (data?.[0]) return mapWpPostToNewsArticle(data[0], locale, false);
+    if (data?.[0]) return postIsRpae(data[0]) ? null : mapWpPostToNewsArticle(data[0], locale, false);
     const mock = mockNews.find((article) => article.slug === bare || article.slug === slug);
     return mock ?? null;
   }
@@ -374,6 +401,9 @@ export async function getNewsBySlug(slug: string, locale: Locale = "fr"): Promis
     `/posts?slug=${encodeURIComponent(bare)}&_embed`,
     { fresh: true },
   );
+
+  if (enData?.[0] && postIsRpae(enData[0])) return null;
+  if (frData?.[0] && postIsRpae(frData[0])) return null;
 
   if (enData?.[0]) {
     const article = mapWpPostToNewsArticle(enData[0], locale, false);
@@ -593,6 +623,7 @@ export async function getPartners(): Promise<Partner[]> {
 }
 
 function mapWpPostToRpaeArticle(post: WpPost): RpaeArticle | null {
+  // Lecture des métadonnées (commentaires rpae:) uniquement — ce contenu n'est pas injecté.
   const content = decodeHtmlEntities(post.content.rendered);
   const meta = parseRpaeMetadata(content);
   // Hors catalogue : usage interne / commande (phase 4).
@@ -625,7 +656,7 @@ function mapWpPostToRpaeArticle(post: WpPost): RpaeArticle | null {
     editionAnnee: meta.editionAnnee,
     gradeAuteur: meta.gradeAuteur,
     fonctionAuteur: meta.fonctionAuteur,
-    fichierUrl: meta.fichierUrl,
+    fichierUrl: safeHttpUrl(meta.fichierUrl),
     fichierNom: meta.fichierNom,
   };
 }

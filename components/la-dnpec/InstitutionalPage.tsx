@@ -3,6 +3,7 @@ import PageEnConstruction from "@/components/ui/PageEnConstruction";
 import YearlyContentGrid from "@/components/la-dnpec/YearlyContentGrid";
 import LocaleFallbackNotice from "@/components/i18n/LocaleFallbackNotice";
 import { getPageBySlug } from "@/lib/wordpress";
+import { sanitizeWpHtml } from "@/lib/sanitizeHtml";
 import { getLocale, getMessages } from "@/lib/i18n/locale";
 
 type PhotoCaption = {
@@ -84,7 +85,7 @@ export default async function InstitutionalPage({
               {yearlyGrid ? (
                 <YearlyContentGrid html={page.content} />
               ) : (
-                <div dangerouslySetInnerHTML={{ __html: page.content }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizeWpHtml(page.content) }} />
               )}
             </div>
           </div>

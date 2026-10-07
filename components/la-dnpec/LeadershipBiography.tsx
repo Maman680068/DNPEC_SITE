@@ -5,6 +5,7 @@ import { getLeadershipDisplayName, getLeadershipMemberRole } from "@/lib/leaders
 import type { LeadershipMember, LeadershipRole } from "@/lib/leadership-team-data";
 import { getLocale, getMessages } from "@/lib/i18n/locale";
 import { localizeHref } from "@/lib/i18n/href";
+import { sanitizeWpHtml } from "@/lib/sanitizeHtml";
 
 type LeadershipBiographyProps = {
   member: LeadershipMember & { role?: LeadershipRole };
@@ -50,7 +51,7 @@ export default async function LeadershipBiography({ member }: LeadershipBiograph
             {member.biography?.[locale] ? (
               <div
                 className="article-content mt-8 w-full text-[15px] text-ink leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: member.biography[locale]! }}
+                dangerouslySetInnerHTML={{ __html: sanitizeWpHtml(member.biography[locale]) }}
               />
             ) : (
               <p className="mt-8 text-center text-muted text-[15px] leading-relaxed max-w-md">
