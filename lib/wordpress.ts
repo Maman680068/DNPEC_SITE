@@ -437,9 +437,14 @@ export async function getPageBySlug(slug: string, locale: Locale = "fr"): Promis
   return institutionalPageFallback(bare);
 }
 
+/**
+ * Repli sur les données par défaut de lib/mock-data.ts en cas d'échec de l'API
+ * ou de liste vide : ce repli servira tant que ces contenus n'auront pas été
+ * saisis dans WordPress.
+ */
 export async function getPublications(): Promise<Publication[]> {
   const data = await fetchFromWordpress<Publication[]>("/publications?_embed");
-  return data ?? mockPublications;
+  return data && data.length > 0 ? data : mockPublications;
 }
 
 /**
@@ -549,14 +554,24 @@ export async function getTickerAnnouncements(locale: Locale = "fr"): Promise<str
     .map((item) => item.title);
 }
 
+/**
+ * Repli sur les données par défaut de lib/mock-data.ts en cas d'échec de l'API
+ * ou de liste vide : ce repli servira tant que ces contenus n'auront pas été
+ * saisis dans WordPress.
+ */
 export async function getIndicators(): Promise<Indicator[]> {
   const data = await fetchFromWordpress<Indicator[]>("/indicateurs");
-  return data ?? mockIndicators;
+  return data && data.length > 0 ? data : mockIndicators;
 }
 
+/**
+ * Repli sur les données par défaut de lib/mock-data.ts en cas d'échec de l'API
+ * ou de liste vide : ce repli servira tant que ces contenus n'auront pas été
+ * saisis dans WordPress.
+ */
 export async function getPartners(): Promise<Partner[]> {
   const data = await fetchFromWordpress<Partner[]>("/partenaires");
-  return data ?? mockPartners;
+  return data && data.length > 0 ? data : mockPartners;
 }
 
 function mapWpPostToRpaeArticle(post: WpPost): RpaeArticle | null {
