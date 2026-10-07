@@ -9,10 +9,13 @@
  *              le plugin JWT Authentication for WP REST API) et un journal
  *              d'audit des validations/rejets. Aucune dépendance à un thème ou à un
  *              autre plugin (pas d'ACF requis) — 100% autonome.
- * Version:     2.1.0 — corrige le journal pour distinguer les articles RPAE
- *              des actualités (le tableau de bord revue scientifique de
- *              l'espace contributeurs utilise le même champ dnpec_log_action
- *              que les actualités, sur /wp/v2/posts).
+ * Version:     2.2.0 — modération par action (publier / rejeter) décidée
+ *              selon les droits WordPress, journal infalsifiable, lecture
+ *              limitée à ses propres brouillons pour un contributeur, URL
+ *              filtrées (http/https ou chemin du site), téléversement
+ *              d'images et de PDF (8 Mo) accordé aux contributeurs, import
+ *              de la liste par défaut (identifiant et ordre conservés).
+ *              2.1.0 : journal distinguant articles RPAE et actualités.
  * Author:      DNPEC
  *
  * Installation : wp-content/mu-plugins/dnpec-content-api.php — remplace le fichier
@@ -30,8 +33,8 @@
  *      inchangé) ; TOUS les statuts (brouillon/en attente/publié) pour un
  *      utilisateur connecté ayant le droit de modifier ce type de contenu
  *      (espace contributeurs).
- *   4. Routes REST authentifiées en écriture (créer / modifier / publier /
- *      rejeter) pour ces 3 types, avec statut automatique selon les droits
+ *   4. Routes REST authentifiées en écriture (créer / modifier, et
+ *      /moderation pour publier ou rejeter) pour ces 3 types, avec statut automatique selon les droits
  *      WordPress de la personne connectée (publie directement si elle en a
  *      le droit, sinon "en attente de relecture") — et journalisation de
  *      chaque publication/rejet déclenché depuis l'espace contributeurs.
@@ -152,7 +155,7 @@ add_action('init', function () {
         'auth_callback'     => 'dnpec_can_edit_meta',
     ];
     $url_field = $text_field;
-    $url_field['sanitize_callback'] = 'esc_url_raw';
+    $url_field['sanitize_callback'] = 'dnpec_sanitize_http_url';
 
     $textarea_field = $text_field;
     $textarea_field['sanitize_callback'] = 'sanitize_textarea_field';
@@ -315,9 +318,9 @@ add_action('save_post_dnpec_publication', function ($post_id) {
     if (isset($_POST['dnpec_description'])) update_post_meta($post_id, 'dnpec_description', sanitize_textarea_field(wp_unslash($_POST['dnpec_description'])));
     if (isset($_POST['dnpec_type'])) update_post_meta($post_id, 'dnpec_type', sanitize_text_field(wp_unslash($_POST['dnpec_type'])));
     if (isset($_POST['dnpec_year']) && $_POST['dnpec_year'] !== '') update_post_meta($post_id, 'dnpec_year', absint($_POST['dnpec_year']));
-    if (isset($_POST['dnpec_file_url'])) update_post_meta($post_id, 'dnpec_file_url', esc_url_raw(wp_unslash($_POST['dnpec_file_url'])));
+    if (isset($_POST['dnpec_file_url'])) update_post_meta($post_id, 'dnpec_file_url', dnpec_sanitize_http_url(wp_unslash($_POST['dnpec_file_url'])));
     if (isset($_POST['dnpec_file_size_kb']) && $_POST['dnpec_file_size_kb'] !== '') update_post_meta($post_id, 'dnpec_file_size_kb', absint($_POST['dnpec_file_size_kb']));
-    if (isset($_POST['dnpec_href'])) update_post_meta($post_id, 'dnpec_href', sanitize_text_field(wp_unslash($_POST['dnpec_href'])));
+    if (isset($_POST['dnpec_href'])) update_post_meta($post_id, 'dnpec_href', dnpec_sanitize_link(wp_unslash($_POST['dnpec_href'])));
 });
 
 add_action('save_post_dnpec_indicateur', function ($post_id) {
@@ -335,7 +338,7 @@ add_action('save_post_dnpec_partenaire', function ($post_id) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (!current_user_can('edit_post', $post_id)) return;
 
-    if (isset($_POST['dnpec_website_url'])) update_post_meta($post_id, 'dnpec_website_url', esc_url_raw(wp_unslash($_POST['dnpec_website_url'])));
+    if (isset($_POST['dnpec_website_url'])) update_post_meta($post_id, 'dnpec_website_url', dnpec_sanitize_http_url(wp_unslash($_POST['dnpec_website_url'])));
 });
 
 // -----------------------------------------------------------------------
@@ -343,10 +346,9 @@ add_action('save_post_dnpec_partenaire', function ($post_id) {
 // -----------------------------------------------------------------------
 
 /**
- * Enregistre une entrée d'audit. Appelée uniquement depuis les routes REST
- * de ce fichier (jamais exposée en écriture directe) — l'acteur et l'heure
- * viennent toujours du contexte serveur, jamais d'une valeur envoyée par le
- * client, pour que le journal reste fiable.
+ * Enregistre une entrée d'audit. Appelée uniquement par ce fichier, après
+ * une action de modération réellement effectuée : l'acteur et l'heure
+ * viennent du contexte serveur, jamais d'une valeur envoyée par le client.
  */
 function dnpec_log_action(string $action, string $entity_type, int $entity_id, string $entity_title) {
     $user = wp_get_current_user();
@@ -373,29 +375,94 @@ function dnpec_log_action(string $action, string $entity_type, int $entity_id, s
 }
 
 /**
+ * Peut modérer (publier / rejeter) le contenu d'un autre : administrateur ou
+ * éditeur (« Rédacteur en chef »). Un Auteur publie ses propres contenus
+ * mais ne modère pas ceux des autres.
+ */
+function dnpec_can_moderate(): bool {
+    return current_user_can('edit_others_posts') && current_user_can('publish_posts');
+}
+
+/**
  * Champ virtuel accepté en écriture sur /wp/v2/posts (actualités, RPAE) :
- * permet à l'espace contributeurs de déclencher une entrée de journal en
- * même temps qu'un PUT de changement de statut, sans route séparée.
- * N'est JAMAIS renvoyé en lecture (pas de get_callback) — écriture seule.
+ * inscrit une entrée de journal en même temps qu'un PUT de modération. Écrit
+ * seulement si l'action a réellement eu lieu et si la personne avait le
+ * droit de la faire (le changement de statut est déjà appliqué quand ce
+ * rappel s'exécute) — un contributeur ne peut donc pas inscrire une fausse
+ * validation. N'est jamais renvoyé en lecture.
  */
 add_action('rest_api_init', function () {
     register_rest_field('post', 'dnpec_log_action', [
         'update_callback' => function ($value, $post) {
             if (!is_string($value) || !in_array($value, ['publier', 'rejeter'], true)) return;
-            if (!current_user_can('edit_post', $post->ID)) return;
+            if (!dnpec_can_moderate() || !current_user_can('edit_post', $post->ID)) return;
+            $status = get_post_status($post->ID);
+            if ($value === 'publier' && $status !== 'publish') return;
+            if ($value === 'rejeter' && $status !== 'draft') return;
             // Un article WordPress "post" est soit une actualité, soit un
-            // article RPAE (catégorie rpae / rpae-interne) — on distingue
-            // les deux pour un journal lisible.
-            $isRpae = has_category(['rpae', 'rpae-interne'], $post);
-            dnpec_log_action($value, $isRpae ? 'rpae' : 'actualite', $post->ID, get_the_title($post));
+            // article RPAE (catégorie rpae / rpae-interne).
+            $isRpae = has_category(['rpae', 'rpae-interne'], $post->ID);
+            dnpec_log_action($value, $isRpae ? 'rpae' : 'actualite', $post->ID, get_the_title($post->ID));
         },
         'schema' => ['type' => 'string'],
     ]);
 });
 
 // -----------------------------------------------------------------------
-// 5. Routes REST — lecture (publique + espace contributeurs) et écriture
-//    (espace contributeurs uniquement), pour les 3 types de contenu.
+// 5. Téléversement de fichiers par les contributeurs
+// -----------------------------------------------------------------------
+
+const DNPEC_CONTRIBUTOR_MAX_UPLOAD = 8 * 1024 * 1024; // 8 Mo
+
+/** Contributeur (rôle sans droit natif de téléversement) qui reçoit ce droit ci-dessous. */
+function dnpec_is_limited_uploader($user = null): bool {
+    $user = $user ?: wp_get_current_user();
+    return $user && $user->exists() && in_array('contributor', (array) $user->roles, true);
+}
+
+/**
+ * Le rôle Contributeur n'a pas `upload_files` dans WordPress : il ne pourrait
+ * ni joindre une image à son article ni déposer le PDF d'une publication.
+ * On lui accorde ce droit, limité aux images et aux PDF de 8 Mo au plus.
+ */
+add_filter('user_has_cap', function ($allcaps, $caps, $args, $user) {
+    if (in_array('upload_files', (array) $caps, true) && dnpec_is_limited_uploader($user)) {
+        $allcaps['upload_files'] = true;
+    }
+    return $allcaps;
+}, 10, 4);
+
+add_filter('upload_mimes', function ($mimes) {
+    if (!dnpec_is_limited_uploader()) return $mimes;
+    return [
+        'jpg|jpeg|jpe' => 'image/jpeg',
+        'png'          => 'image/png',
+        'gif'          => 'image/gif',
+        'webp'         => 'image/webp',
+        'pdf'          => 'application/pdf',
+    ];
+});
+
+function dnpec_limit_contributor_upload($file) {
+    if (!dnpec_is_limited_uploader()) return $file;
+    // Envoi via l'API REST (corps brut) : WordPress ne renseigne pas 'size', on lit le fichier temporaire.
+    $size = !empty($file['size']) ? (int) $file['size'] : (!empty($file['tmp_name']) && is_file($file['tmp_name']) ? (int) filesize($file['tmp_name']) : 0);
+    if ($size > DNPEC_CONTRIBUTOR_MAX_UPLOAD) {
+        $file['error'] = 'Fichier trop volumineux (8 Mo maximum).';
+        return $file;
+    }
+    $check = wp_check_filetype($file['name'] ?? '');
+    if (empty($check['type'])) {
+        $file['error'] = 'Type de fichier non autorisé : images (JPG, PNG, GIF, WebP) et PDF uniquement.';
+    }
+    return $file;
+}
+add_filter('wp_handle_upload_prefilter', 'dnpec_limit_contributor_upload');
+add_filter('wp_handle_sideload_prefilter', 'dnpec_limit_contributor_upload');
+
+// -----------------------------------------------------------------------
+// 6. Routes REST — lecture (publique + espace contributeurs) et écriture
+//    (espace contributeurs uniquement) pour les types de contenu.
 // -----------------------------------------------------------------------
 
 add_action('rest_api_init', function () {
@@ -406,7 +473,7 @@ add_action('rest_api_init', function () {
                 'callback'            => function (WP_REST_Request $request) use ($config) {
                     return dnpec_rest_list($config);
                 },
-                'permission_callback' => '__return_true', // filtrage par statut fait dans le callback
+                'permission_callback' => '__return_true', // filtrage par statut et par auteur dans le rappel
             ],
             [
                 'methods'             => WP_REST_Server::CREATABLE,
@@ -425,7 +492,7 @@ add_action('rest_api_init', function () {
                 'callback'            => function (WP_REST_Request $request) use ($config) {
                     return dnpec_rest_get_one($config, (int) $request['id']);
                 },
-                'permission_callback' => '__return_true',
+                'permission_callback' => '__return_true', // contrôle par élément dans le rappel
             ],
             [
                 'methods'             => 'PUT,PATCH',
@@ -433,9 +500,24 @@ add_action('rest_api_init', function () {
                     return dnpec_rest_update($config, $request, (int) $request['id']);
                 },
                 'permission_callback' => function (WP_REST_Request $request) use ($config) {
-                    return current_user_can('edit_post', (int) $request['id']);
+                    $post = get_post((int) $request['id']);
+                    return $post && $post->post_type === $config['post_type'] && current_user_can('edit_post', $post->ID);
                 },
             ],
+        ]);
+
+        // Modération : publier ou rejeter (brouillon + marqueur), décidé ici
+        // à partir des droits WordPress — jamais d'un statut envoyé par le client.
+        register_rest_route('wp/v2', "/$slug/(?P<id>\\d+)/moderation", [
+            'methods'             => WP_REST_Server::CREATABLE,
+            'callback'            => function (WP_REST_Request $request) use ($config) {
+                return dnpec_rest_moderate($config, $request, (int) $request['id']);
+            },
+            'permission_callback' => function (WP_REST_Request $request) use ($config) {
+                $post = get_post((int) $request['id']);
+                return $post && $post->post_type === $config['post_type']
+                    && current_user_can('edit_post', $post->ID) && dnpec_can_moderate();
+            },
         ]);
     }
 
@@ -455,18 +537,20 @@ function dnpec_content_type_configs(): array {
         'publications' => [
             'post_type' => 'dnpec_publication',
             'edit_cap'  => 'edit_posts',
+            'entity'    => 'publication',
             'fields'    => [
                 'description' => ['meta' => 'dnpec_description', 'type' => 'string', 'sanitize' => 'sanitize_textarea_field'],
-                'type'        => ['meta' => 'dnpec_type', 'type' => 'string', 'sanitize' => 'sanitize_text_field'],
+                'type'        => ['meta' => 'dnpec_type', 'type' => 'string', 'sanitize' => 'dnpec_sanitize_publication_type'],
                 'year'        => ['meta' => 'dnpec_year', 'type' => 'int'],
-                'fileUrl'     => ['meta' => 'dnpec_file_url', 'type' => 'string', 'sanitize' => 'esc_url_raw'],
+                'fileUrl'     => ['meta' => 'dnpec_file_url', 'type' => 'string', 'sanitize' => 'dnpec_sanitize_http_url'],
                 'fileSizeKb'  => ['meta' => 'dnpec_file_size_kb', 'type' => 'int'],
-                'href'        => ['meta' => 'dnpec_href', 'type' => 'string', 'sanitize' => 'sanitize_text_field'],
+                'href'        => ['meta' => 'dnpec_href', 'type' => 'string', 'sanitize' => 'dnpec_sanitize_link'],
             ],
         ],
         'indicateurs' => [
             'post_type' => 'dnpec_indicateur',
             'edit_cap'  => 'edit_posts',
+            'entity'    => 'indicateur',
             'fields'    => [
                 'value'  => ['meta' => 'dnpec_value', 'type' => 'string', 'sanitize' => 'sanitize_text_field'],
                 'icon'   => ['meta' => 'dnpec_icon', 'type' => 'string', 'sanitize' => 'sanitize_text_field'],
@@ -477,11 +561,34 @@ function dnpec_content_type_configs(): array {
         'partenaires' => [
             'post_type' => 'dnpec_partenaire',
             'edit_cap'  => 'edit_posts',
+            'entity'    => 'partenaire',
             'fields'    => [
-                'websiteUrl' => ['meta' => 'dnpec_website_url', 'type' => 'string', 'sanitize' => 'esc_url_raw'],
+                'websiteUrl' => ['meta' => 'dnpec_website_url', 'type' => 'string', 'sanitize' => 'dnpec_sanitize_http_url'],
             ],
         ],
     ];
+}
+
+/** URL absolue http(s) uniquement (pas de javascript:, data:, ftp:…). */
+function dnpec_sanitize_http_url($value) {
+    $value = trim((string) $value);
+    if ($value === '') return '';
+    return esc_url_raw($value, ['http', 'https']);
+}
+
+/** Lien de destination : chemin relatif du site (« /… ») ou URL http(s). */
+function dnpec_sanitize_link($value) {
+    $value = trim((string) $value);
+    if ($value === '') return '';
+    if ($value[0] === '/' && substr($value, 0, 2) !== '//' && strpos($value, '\\') === false) {
+        return sanitize_text_field($value);
+    }
+    return dnpec_sanitize_http_url($value);
+}
+
+function dnpec_sanitize_publication_type($value) {
+    $value = sanitize_text_field((string) $value);
+    return array_key_exists($value, dnpec_publication_type_choices()) ? $value : '';
 }
 
 function dnpec_strip_empty(array $item) {
@@ -490,10 +597,15 @@ function dnpec_strip_empty(array $item) {
     });
 }
 
-/** Lecture : tous statuts si connecté avec droit d'édition, sinon publié uniquement (site public). */
+/**
+ * Lecture : visiteur anonyme → publiés uniquement (site public). Personne
+ * connectée avec droit d'édition → publiés + ses propres contenus (tous
+ * statuts) + ceux des autres seulement si elle peut les modifier
+ * (administrateur, éditeur).
+ */
 function dnpec_rest_list(array $config) {
-    $can_see_all = is_user_logged_in() && current_user_can($config['edit_cap']);
-    $statuses = $can_see_all ? ['publish', 'pending', 'draft'] : ['publish'];
+    $can_edit = is_user_logged_in() && current_user_can($config['edit_cap']);
+    $statuses = $can_edit ? ['publish', 'pending', 'draft'] : ['publish'];
 
     $posts = get_posts([
         'post_type'      => $config['post_type'],
@@ -503,9 +615,13 @@ function dnpec_rest_list(array $config) {
         'no_found_rows'  => true,
     ]);
 
-    return new WP_REST_Response(array_map(function ($post) use ($config) {
+    $visible = array_filter($posts, function ($post) {
+        return $post->post_status === 'publish' || current_user_can('edit_post', $post->ID);
+    });
+
+    return new WP_REST_Response(array_values(array_map(function ($post) use ($config) {
         return dnpec_format_item($config, $post);
-    }, $posts), 200);
+    }, $visible)), 200);
 }
 
 function dnpec_rest_get_one(array $config, int $id) {
@@ -526,6 +642,7 @@ function dnpec_format_item(array $config, WP_Post $post) {
         'slug'  => $post->post_name,
         'title' => get_the_title($post),
         'status' => $post->post_status,
+        'rejected' => (bool) get_post_meta($post->ID, 'dnpec_rejete', true),
         'authorId'   => (int) $post->post_author,
         'authorName' => get_the_author_meta('display_name', $post->post_author) ?: null,
     ];
@@ -551,7 +668,17 @@ function dnpec_format_item(array $config, WP_Post $post) {
         $item['logoUrl'] = $logo ?: null;
     }
 
-    return dnpec_strip_empty($item);
+    $item = dnpec_strip_empty($item);
+    if (empty($item['rejected'])) unset($item['rejected']);
+    return $item;
+}
+
+/** Image mise en avant : seulement une image existante de la médiathèque. */
+function dnpec_apply_featured_media(int $post_id, WP_REST_Request $request) {
+    $featured = (int) $request->get_param('featuredMediaId');
+    if ($featured <= 0) return;
+    if (get_post_type($featured) !== 'attachment' || !wp_attachment_is_image($featured)) return;
+    set_post_thumbnail($post_id, $featured);
 }
 
 function dnpec_rest_create(array $config, WP_REST_Request $request) {
@@ -560,31 +687,38 @@ function dnpec_rest_create(array $config, WP_REST_Request $request) {
         return new WP_Error('dnpec_invalid', 'Le titre est obligatoire.', ['status' => 400]);
     }
 
+    // Statut décidé par les droits WordPress : publié si la personne peut publier, sinon en attente.
     $status = current_user_can('publish_posts') ? 'publish' : 'pending';
 
-    $post_id = wp_insert_post([
+    $postarr = [
         'post_type'   => $config['post_type'],
         'post_status' => $status,
         'post_title'  => $title,
         'post_author' => get_current_user_id(),
-    ], true);
+    ];
+    // Import de la liste par défaut (administrateur) : identifiant et ordre d'affichage conservés.
+    if (current_user_can('edit_others_posts')) {
+        $slug = sanitize_title((string) $request->get_param('slug'));
+        if ($slug !== '') $postarr['post_name'] = $slug;
+        if ($request->get_param('order') !== null) $postarr['menu_order'] = (int) $request->get_param('order');
+    }
 
+    $post_id = wp_insert_post($postarr, true);
     if (is_wp_error($post_id)) {
         return new WP_Error('dnpec_create_failed', $post_id->get_error_message(), ['status' => 500]);
     }
 
     dnpec_apply_fields($config, $post_id, $request);
+    dnpec_apply_featured_media($post_id, $request);
 
-    // Image mise en avant (partenaires) : featuredMediaId optionnel envoyé par le client.
-    $featured = $request->get_param('featuredMediaId');
-    if ($featured) {
-        set_post_thumbnail($post_id, (int) $featured);
-    }
-
-    $post = get_post($post_id);
-    return new WP_REST_Response(dnpec_format_item($config, $post), 201);
+    return new WP_REST_Response(dnpec_format_item($config, get_post($post_id)), 201);
 }
 
+/**
+ * Modification des champs uniquement. Le statut n'est pas accepté ici (voir
+ * la route /moderation) ; seule exception : un contributeur qui corrige son
+ * propre contenu rejeté le renvoie en relecture.
+ */
 function dnpec_rest_update(array $config, WP_REST_Request $request, int $id) {
     $post = get_post($id);
     if (!$post || $post->post_type !== $config['post_type']) {
@@ -598,13 +732,11 @@ function dnpec_rest_update(array $config, WP_REST_Request $request, int $id) {
         $update['post_title'] = sanitize_text_field((string) $title);
     }
 
-    // Changement de statut explicite (publier / renvoyer en attente / rejeter → corbeille).
-    $requestedStatus = $request->get_param('status');
-    if (is_string($requestedStatus) && in_array($requestedStatus, ['publish', 'pending', 'draft', 'trash'], true)) {
-        if ($requestedStatus === 'publish' && !current_user_can('publish_posts')) {
-            return new WP_Error('dnpec_forbidden', "Vous n'avez pas le droit de publier directement.", ['status' => 403]);
-        }
-        $update['post_status'] = $requestedStatus;
+    $resubmit = $post->post_status === 'draft' && !current_user_can('publish_posts')
+        && (int) $post->post_author === get_current_user_id();
+    if ($resubmit) {
+        $update['post_status'] = 'pending';
+        delete_post_meta($id, 'dnpec_rejete');
     }
 
     if (count($update) > 1) {
@@ -615,26 +747,35 @@ function dnpec_rest_update(array $config, WP_REST_Request $request, int $id) {
     }
 
     dnpec_apply_fields($config, $id, $request);
+    dnpec_apply_featured_media($id, $request);
 
-    $featured = $request->get_param('featuredMediaId');
-    if ($featured) {
-        set_post_thumbnail($id, (int) $featured);
+    return new WP_REST_Response(dnpec_format_item($config, get_post($id)), 200);
+}
+
+/** Publier ou rejeter (brouillon + marqueur), puis inscription au journal. */
+function dnpec_rest_moderate(array $config, WP_REST_Request $request, int $id) {
+    $action = $request->get_param('action');
+    if (!in_array($action, ['publier', 'rejeter'], true)) {
+        return new WP_Error('dnpec_invalid', 'Action invalide (publier ou rejeter).', ['status' => 400]);
     }
 
-    // Journalisation : uniquement si le client déclenche explicitement une
-    // action de modération (voir dnpec_log_action côté espace contributeurs).
-    $logAction = $request->get_param('dnpec_log_action');
-    if (is_string($logAction) && in_array($logAction, ['publier', 'rejeter'], true)) {
-        $entityTypeLabels = [
-            'dnpec_publication' => 'publication',
-            'dnpec_indicateur'  => 'indicateur',
-            'dnpec_partenaire'  => 'partenaire',
-        ];
-        dnpec_log_action($logAction, $entityTypeLabels[$config['post_type']] ?? $config['post_type'], $id, get_the_title($id));
+    $result = wp_update_post([
+        'ID'          => $id,
+        'post_status' => $action === 'publier' ? 'publish' : 'draft',
+    ], true);
+    if (is_wp_error($result)) {
+        return new WP_Error('dnpec_update_failed', $result->get_error_message(), ['status' => 500]);
     }
 
-    $updatedPost = get_post($id);
-    return new WP_REST_Response(dnpec_format_item($config, $updatedPost), 200);
+    if ($action === 'publier') {
+        delete_post_meta($id, 'dnpec_rejete');
+    } else {
+        update_post_meta($id, 'dnpec_rejete', 1);
+    }
+
+    dnpec_log_action($action, $config['entity'], $id, get_the_title($id));
+
+    return new WP_REST_Response(dnpec_format_item($config, get_post($id)), 200);
 }
 
 function dnpec_apply_fields(array $config, int $post_id, WP_REST_Request $request) {
