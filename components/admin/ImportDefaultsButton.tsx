@@ -19,7 +19,11 @@ export default function ImportDefaultsButton({ type, missing }: ImportDefaultsBu
   const router = useRouter();
   const [state, setState] = useState<"idle" | "running" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
-  const label = type === "publications" ? "publications" : "partenaires";
+  const noun = (n: number) => `${type === "publications" ? "publication" : "partenaire"}${n > 1 ? "s" : ""}`;
+  const imported = (n: number) =>
+    type === "publications"
+      ? `${n} ${noun(n)} importée${n > 1 ? "s" : ""}.`
+      : `${n} ${noun(n)} importé${n > 1 ? "s" : ""}.`;
 
   if (missing === 0 && state === "idle") return null;
 
@@ -37,7 +41,7 @@ export default function ImportDefaultsButton({ type, missing }: ImportDefaultsBu
     const { created, errors } = result.data;
     setState(errors.length > 0 ? "error" : "done");
     setMessage(
-      `${created} ${label} importé${created > 1 ? "s" : ""}.` + (errors.length > 0 ? ` Échecs : ${errors.join(" ; ")}` : ""),
+      imported(created) + (errors.length > 0 ? ` Échecs : ${errors.join(" ; ")}` : ""),
     );
     router.refresh();
   }
@@ -45,7 +49,7 @@ export default function ImportDefaultsButton({ type, missing }: ImportDefaultsBu
   return (
     <div className="bg-white rounded-lg border border-line p-4 mb-5 flex flex-wrap items-center gap-3 justify-between">
       <p className="text-[13.5px] text-navy max-w-xl">
-        Le site affiche encore la liste par défaut de {missing} {label}. Dès qu&apos;un élément existe dans WordPress, cette
+        Le site affiche encore la liste par défaut de {missing} {noun(missing)}. Dès qu&apos;un élément existe dans WordPress, cette
         liste n&apos;est plus affichée : importez-la d&apos;abord pour ne rien perdre.
       </p>
       <div className="flex items-center gap-3">
