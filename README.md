@@ -148,6 +148,28 @@ Un `-> OK` confirme que les données affichées viennent réellement de
 WordPress ; un repli sur le mock explique pourquoi (code HTTP, erreur
 réseau) sans jamais faire planter la page.
 
+## Mettre à jour les données macroéconomiques
+
+La page `/donnees` et les indicateurs clés (accueil, `/quelques-chiffres`) lisent
+`data/donnees.json`, généré à partir du classeur de cadrage :
+
+```bash
+npm run import:donnees -- "/chemin/vers/Cadrage.xlsx"
+```
+
+- Le script (`scripts/import-donnees.mjs`) ne lit que les onglets `Site_Parametres`,
+  `Site_Indicateurs` et `Site_Series`, et uniquement les années jusqu'à
+  `derniere_annee`. Il refuse d'écrire si une ligne de la colonne « Contrôle »
+  n'affiche pas OK.
+- Ne committer que `data/donnees.json`. **Le classeur ne doit jamais être
+  committé** (il contient des prévisions confidentielles) : `*.xlsx` est ignoré
+  par git.
+- Si `data/donnees.json` est absent, le site revient à WordPress puis aux
+  données par défaut de `lib/mock-data.ts`.
+- Les libellés anglais des séries et des unités sont dans
+  `lib/i18n/messages.ts` (`en.donnees.seriesLabels`, `en.donnees.units`,
+  `en.indicators`) : à compléter si une série est ajoutée au classeur.
+
 ## Déployer sur Render
 
 Le dépôt inclut un `render.yaml` (Blueprint) minimal : Render détecte
