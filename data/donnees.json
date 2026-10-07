@@ -1,0 +1,1409 @@
+{
+  "source": "DNPEC, cadrage macroéconomique du 13 juin 2026",
+  "date": "2026-06-13",
+  "premiereAnnee": 2021,
+  "derniereAnnee": 2025,
+  "annees": [
+    {
+      "annee": 2021,
+      "statut": "Réalisé"
+    },
+    {
+      "annee": 2022,
+      "statut": "Réalisé"
+    },
+    {
+      "annee": 2023,
+      "statut": "Réalisé"
+    },
+    {
+      "annee": 2024,
+      "statut": "Estimation"
+    },
+    {
+      "annee": 2025,
+      "statut": "Estimation"
+    }
+  ],
+  "indicateurs": [
+    {
+      "cle": "croissance",
+      "libelle": "Taux de croissance du PIB réel",
+      "valeur": 0.0712156622764866,
+      "unite": "%",
+      "annee": 2025,
+      "statut": "Estimation"
+    },
+    {
+      "cle": "inflation",
+      "libelle": "Taux d'inflation (glissement fin décembre)",
+      "valeur": 0.0395756284575579,
+      "unite": "%",
+      "annee": 2025,
+      "statut": "Estimation"
+    },
+    {
+      "cle": "deficit",
+      "libelle": "Solde budgétaire dons inclus, en % du PIB",
+      "valeur": -0.0646708834127864,
+      "unite": "%",
+      "annee": 2025,
+      "statut": "Estimation"
+    },
+    {
+      "cle": "endettement",
+      "libelle": "Encours de la dette publique extérieure, en % du PIB",
+      "valeur": 0.273156910074354,
+      "unite": "%",
+      "annee": 2025,
+      "statut": "Estimation"
+    },
+    {
+      "cle": "courant",
+      "libelle": "Solde du compte courant (hors transferts publics), en % du PIB",
+      "valeur": -0.00278372754211063,
+      "unite": "%",
+      "annee": 2025,
+      "statut": "Estimation"
+    }
+  ],
+  "rubriques": [
+    {
+      "cle": "secteur-reel",
+      "series": [
+        {
+          "cle": "pib_croissance",
+          "libelle": "Croissance du PIB réel",
+          "unite": "%",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.0692929841212611,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.0453148261059657,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0659471758420103,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0646858596275075,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.0712156622764866,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "primaire_croissance",
+          "libelle": "Croissance du secteur primaire",
+          "unite": "%",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.0974781318227525,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.0896949951009545,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0628921048644169,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0736058725738655,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.0668825698885474,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "secondaire_croissance",
+          "libelle": "Croissance du secteur secondaire",
+          "unite": "%",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.0311084895102647,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": -0.0112126891079419,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0630046858118856,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0655595657922539,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.112253735930808,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "extractives_croissance",
+          "libelle": "dont activités extractives",
+          "unite": "%",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.0043424841057591,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": -0.035903223177875,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0252579351552325,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0617880930904657,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.137823235480697,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "tertiaire_croissance",
+          "libelle": "Croissance du secteur tertiaire",
+          "unite": "%",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.0671573163090684,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.0705535984618917,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0733006218042656,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0570236758599543,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.0420786753437092,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "pib_nominal_gnf",
+          "libelle": "PIB nominal",
+          "unite": "milliards GNF",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 245410.144,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 261347.507,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 305764.753,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 330512.865407351,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 358707.218096139,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "pib_nominal_usd",
+          "libelle": "PIB nominal",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 25136.7166835147,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 30109.1597926267,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 35927.2344624137,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 38705.5263252534,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 41526.1710441114,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "pib_tete_usd",
+          "libelle": "PIB par habitant",
+          "unite": "USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 1620.98942762547,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 1883.26572898954,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 2179.6064766349,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 2277.55363791329,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 2370.05737369614,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "population",
+          "libelle": "Population",
+          "unite": "milliers",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 15507.0207461727,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 15987.738389304,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 16483.3582793724,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 16994.342386033,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 17521.167,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "fbcf_pib",
+          "libelle": "Investissement (FBCF totale)",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.123906927824467,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.169083369140384,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.173863018802563,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.217966020048464,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.259515593244256,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "epargne_pib",
+          "libelle": "Épargne nationale",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.361456122204957,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.316765830102217,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.339588781837127,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.347648670706999,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.348709375904428,
+              "statut": "Estimation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "prix-monnaie",
+      "series": [
+        {
+          "cle": "inflation_fin",
+          "libelle": "Inflation (glissement fin décembre)",
+          "unite": "%",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.125320342230054,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.0858324650706399,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0606276747503567,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0305017124689611,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.0395756284575579,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "inflation_moy",
+          "libelle": "Inflation (moyenne annuelle)",
+          "unite": "%",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.125972882566935,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.104997325885914,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0477662709610516,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0510920841580766,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.0316179979322206,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "masse_monetaire",
+          "libelle": "Masse monétaire (M2)",
+          "unite": "milliards GNF",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 40581.5429488652,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 49598.5093874866,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 50337.5542746815,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 68147.62,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 94081.254777138,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "m2_pib",
+          "libelle": "Masse monétaire / PIB",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.165362125164904,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.189779921594915,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.164628374529099,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.206187495654698,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.262278677514437,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "change_usd",
+          "libelle": "Taux de change",
+          "unite": "GNF pour 1 USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 9763.01507829566,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 8680,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 8510.66767523908,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 8539.16473399583,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 8638.1,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "change_eur",
+          "libelle": "Taux de change",
+          "unite": "GNF pour 1 EUR",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 11549.2505873016,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 9042.61,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 9223.4622,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 9407.931444,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 10090,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "reserves_usd",
+          "libelle": "Avoirs extérieurs bruts au 31 décembre",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 2022.76409527184,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 1229.69156967815,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 1286.41980554665,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 1440.39908421355,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 3617.1459431891,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "reserves_mois",
+          "libelle": "Avoirs extérieurs bruts",
+          "unite": "mois d'importations",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 4.92451742326687,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 4.96,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 2.83,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 1.69,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 3.16,
+              "statut": "Estimation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "finances-publiques",
+      "series": [
+        {
+          "cle": "recettes_totales",
+          "libelle": "Recettes totales, dons compris",
+          "unite": "milliards GNF",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 21066.237817282,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 23430.8939283333,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 27570.2132053079,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 32523.3032115294,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 45585.8526556529,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "recettes_fiscales",
+          "libelle": "Recettes fiscales",
+          "unite": "milliards GNF",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 19051.583863282,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 21019.9309206667,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 23265.5862674444,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 28398.9590372222,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 40958.7397191111,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "recettes_minieres",
+          "libelle": "dont recettes fiscales minières",
+          "unite": "milliards GNF",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 6106.8843738459,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 6818.03170527389,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 6963.97656935769,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 8320.76965127217,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 7600.572214,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "depenses_totales",
+          "libelle": "Dépenses totales",
+          "unite": "milliards GNF",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 23423.2721894363,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 30162.8553232458,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 38905.9417522249,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 47067.7609147491,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 68783.7653364732,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "recettes_courantes_pib",
+          "libelle": "Recettes courantes",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.0776316070426248,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.0804290469878738,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0760898240859189,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0859239140425624,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.114184319837505,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "depenses_courantes_pib",
+          "libelle": "Dépenses courantes",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.0798595409777354,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.0791587899141744,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0731456442881326,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0773134918858263,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.105391187423003,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "depenses_capital_pib",
+          "libelle": "Dépenses en capital",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.015585870559272,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.0336072265425019,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0540957770022567,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0650947646180134,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.0863634298984642,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "solde_dons_inclus",
+          "libelle": "Solde budgétaire, dons inclus",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": -0.00960447002612205,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": -0.0257586593122256,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": -0.0370733658333634,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": -0.0440057233030669,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": -0.0646708834127864,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "solde_dons_exclus",
+          "libelle": "Solde budgétaire, dons exclus",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": -0.0130629462006033,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": -0.0289415643628561,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": -0.0428838395409068,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": -0.0498862254723382,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": -0.0695836522980997,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "solde_primaire",
+          "libelle": "Solde primaire",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.00878216378190629,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.0183451865276578,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.0223601581585502,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.0287966232400253,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.0317100248344658,
+              "statut": "Estimation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "balance-paiements",
+      "series": [
+        {
+          "cle": "exportations",
+          "libelle": "Exportations de biens (FAB)",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 10238.8775874423,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 8734.94777079124,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 8894.59120850693,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 11569.4319839232,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 14296.039630454,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "export_bauxite",
+          "libelle": "dont bauxite",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 2975.52647501706,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 3988.93055,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 5002.822453,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 6095.0380224,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 6059.82820081,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "export_or",
+          "libelle": "dont or",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 4403.70861339563,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 2573.75354397665,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 1296.710244588,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 1311.02139590408,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 2823.77510666674,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "importations",
+          "libelle": "Importations de biens (FAB)",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 4187.38533129745,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 4842.50572305917,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 4938.86377090725,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 7081.26886919104,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 10900.7570219454,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "solde_biens_services",
+          "libelle": "Solde des biens et services",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 5336.87397016771,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 3131.93854940045,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 3494.28607238897,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 1412.95223763103,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 619.199787254953,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "compte_courant_usd",
+          "libelle": "Solde du compte courant (hors transferts publics)",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 5090.21829123345,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 3374.56480838041,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 3699.99563582737,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": -458.410334717886,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": -115.59754605389,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "compte_courant_pib",
+          "libelle": "Solde du compte courant (hors transferts publics)",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.202501319298067,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.112077681065242,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.102985818173626,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": -0.0118435370408281,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": -0.00278372754211063,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "solde_global",
+          "libelle": "Solde global",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 840.021900106165,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 517.806970305987,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 1399.73929391344,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": -510.974767858217,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 498.024152603303,
+              "statut": "Estimation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cle": "dette",
+      "series": [
+        {
+          "cle": "dette_ext_usd",
+          "libelle": "Encours de la dette publique extérieure",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 5797.51001581788,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 6659.14054539171,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 9349.33660787108,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 10573.505836354,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 11343.1605696286,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "dette_ext_pib",
+          "libelle": "Encours de la dette publique extérieure",
+          "unite": "% du PIB",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.230639112053168,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.221166601501196,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.260229788008096,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.273178195472705,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.273156910074354,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "service_dette_usd",
+          "libelle": "Service de la dette publique extérieure",
+          "unite": "millions USD",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 66.8543208546848,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 88.4813576365949,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 70.5585642852759,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 111.991830716172,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 134.544417156702,
+              "statut": "Estimation"
+            }
+          ]
+        },
+        {
+          "cle": "service_dette_export",
+          "libelle": "Service de la dette extérieure",
+          "unite": "% des exportations",
+          "valeurs": [
+            {
+              "annee": 2021,
+              "valeur": 0.006337307701959,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2022,
+              "valeur": 0.00973221896027852,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2023,
+              "valeur": 0.00770289783880423,
+              "statut": "Réalisé"
+            },
+            {
+              "annee": 2024,
+              "valeur": 0.00946665082677845,
+              "statut": "Estimation"
+            },
+            {
+              "annee": 2025,
+              "valeur": 0.00921317577069806,
+              "statut": "Estimation"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

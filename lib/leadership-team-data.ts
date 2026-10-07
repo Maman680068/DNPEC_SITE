@@ -17,7 +17,6 @@ export const LEADERSHIP_DIRECTION: Array<LeadershipMember & { role: LeadershipRo
     role: "dn",
     name: "Abdoulaye Ibrahima Diallo",
     photo: "/leadership/dn.png",
-    biographyHref: "/la-dnpec/mot-du-directeur",
   },
   {
     id: "dna",
@@ -69,6 +68,11 @@ export const LEADERSHIP_SERVICE_CHIEFS: LeadershipMember[] = [
     name: "Toumany Kaba",
     photo: "/leadership/saf.webp",
   },
-  { id: "rh", unitCode: "RH", name: "Balla Oularé" },
+  {
+    id: "rh",
+    unitCode: "RH",
+    name: "Balla Oularé",
+    photo: "/leadership/rh.webp",
+  },
   { id: "csid", unitCode: "CSID", name: null },
 ];

@@ -20,6 +20,9 @@ import {
 } from "./rpae";
 import { institutionalPageFallback } from "./institutional-fallbacks";
 import { WP_BROWSER_HEADERS } from "./wordpress-headers";
+import { getDonnees } from "./donnees";
+import { formatIndicatorValue } from "./donnees-format";
+import { messages } from "./i18n/messages";
 
 
 /**
@@ -430,9 +433,14 @@ export async function getPageBySlug(slug: string, locale: Locale = "fr"): Promis
   return institutionalPageFallback(bare);
 }
 
+/**
+ * Repli sur les données par défaut de lib/mock-data.ts en cas d'échec de l'API
+ * ou de liste vide : ce repli servira tant que ces contenus n'auront pas été
+ * saisis dans WordPress.
+ */
 export async function getPublications(): Promise<Publication[]> {
   const data = await fetchFromWordpress<Publication[]>("/publications?_embed");
-  return data ?? mockPublications;
+  return data && data.length > 0 ? data : mockPublications;
 }
 
 /**
@@ -550,14 +558,39 @@ export async function getTickerAnnouncements(locale: Locale = "fr"): Promise<str
     .map((item) => item.title);
 }
 
-export async function getIndicators(): Promise<Indicator[]> {
+/**
+ * Indicateurs clés : data/donnees.json (issu du classeur de cadrage) en
+ * priorité. Si le fichier manque, WordPress puis les données par défaut de
+ * lib/mock-data.ts (en cas d'échec de l'API ou de liste vide) — ce dernier
+ * repli servira tant que ces contenus n'auront pas été saisis dans WordPress.
+ */
+export async function getIndicators(locale: Locale = "fr"): Promise<Indicator[]> {
+  const donnees = await getDonnees();
+  if (donnees && donnees.indicateurs.length > 0) {
+    return donnees.indicateurs.map((indicateur) => ({
+      id: indicateur.cle,
+      label: indicateur.libelle,
+      value: formatIndicatorValue(indicateur.valeur, indicateur.unite, locale),
+      icon: mockIndicators.find((mock) => mock.id === indicateur.cle)?.icon ?? "",
+      tone: mockIndicators.find((mock) => mock.id === indicateur.cle)?.tone ?? "navy",
+      period:
+        indicateur.statut === "Estimation"
+          ? `${indicateur.annee} (${messages[locale].donnees.estimate})`
+          : String(indicateur.annee),
+    }));
+  }
   const data = await fetchFromWordpress<Indicator[]>("/indicateurs");
-  return data ?? mockIndicators;
+  return data && data.length > 0 ? data : mockIndicators;
 }
 
+/**
+ * Repli sur les données par défaut de lib/mock-data.ts en cas d'échec de l'API
+ * ou de liste vide : ce repli servira tant que ces contenus n'auront pas été
+ * saisis dans WordPress.
+ */
 export async function getPartners(): Promise<Partner[]> {
   const data = await fetchFromWordpress<Partner[]>("/partenaires");
-  return data ?? mockPartners;
+  return data && data.length > 0 ? data : mockPartners;
 }
 
 function mapWpPostToRpaeArticle(post: WpPost): RpaeArticle | null {

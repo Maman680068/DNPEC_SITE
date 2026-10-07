@@ -18,6 +18,7 @@ import {
   CONJONCTURE_SLUGS,
 } from "@/lib/wordpress";
 import { getLocale, getMessages } from "@/lib/i18n/locale";
+import { getIndicatorsSourceNote } from "@/lib/donnees";
 
 // Revalidation ISR explicite (déjà fixée à 300s au niveau du fetch dans
 // lib/wordpress.ts) — documentée ici pour que la fréquence de rafraîchissement
@@ -27,8 +28,9 @@ export const revalidate = 300;
 export default async function Home() {
   const locale = await getLocale();
   const t = await getMessages();
-  const [indicators, news, partners, recentPublications] = await Promise.all([
-    getIndicators(),
+  const [indicators, indicatorsSourceNote, news, partners, recentPublications] = await Promise.all([
+    getIndicators(locale),
+    getIndicatorsSourceNote(locale),
     getNews(locale),
     getPartners(),
     getRecentPublicationCards(locale),
@@ -61,7 +63,7 @@ export default async function Home() {
         ) : null}
 
         <RevealOnScroll>
-          <IndicateursSection indicators={indicators} />
+          <IndicateursSection indicators={indicators} sourceNote={indicatorsSourceNote ?? undefined} />
         </RevealOnScroll>
 
         <RevealOnScroll>
