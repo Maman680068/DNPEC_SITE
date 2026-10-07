@@ -115,7 +115,7 @@ export async function getActualite(id: string): Promise<AdminActualiteDetail | n
   };
 }
 
-// --- Publications / Indicateurs / Partenaires (mu-plugin) ------------------
+// --- Publications / Partenaires (mu-plugin) ---------------------------------
 
 export type AdminPublication = {
   id: string;
@@ -127,19 +127,6 @@ export type AdminPublication = {
   fileUrl?: string;
   fileSizeKb?: number;
   href?: string;
-  status: string;
-  authorId: number;
-  authorName?: string;
-};
-
-export type AdminIndicateur = {
-  id: string;
-  slug: string;
-  label: string;
-  value?: string;
-  icon?: string;
-  tone?: string;
-  period?: string;
   status: string;
   authorId: number;
   authorName?: string;
@@ -173,13 +160,6 @@ export function listPublications(): Promise<AdminPublication[]> {
 }
 export function getPublication(id: string): Promise<AdminPublication | null> {
   return getContentOne<AdminPublication>(`/publications/${id}`);
-}
-
-export function listIndicateurs(): Promise<AdminIndicateur[]> {
-  return listContent<AdminIndicateur>("/indicateurs");
-}
-export function getIndicateur(id: string): Promise<AdminIndicateur | null> {
-  return getContentOne<AdminIndicateur>(`/indicateurs/${id}`);
 }
 
 export function listPartenaires(): Promise<AdminPartenaire[]> {

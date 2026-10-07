@@ -5,7 +5,6 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 const SECTIONS = [
   { href: "/espace-contributeurs/actualites", title: "Actualités", description: "Créer ou modifier un article." },
-  { href: "/espace-contributeurs/indicateurs", title: "Indicateurs", description: "Chiffres clés affichés sur l'accueil." },
   { href: "/espace-contributeurs/publications", title: "Publications", description: "Documents et rapports du site." },
   { href: "/espace-contributeurs/partenaires", title: "Partenaires", description: "Logos et liens partenaires." },
   {
@@ -34,6 +33,10 @@ export default async function EspaceContributeursAccueil() {
             : "Votre contenu est enregistré en brouillon et sera publié après validation par un administrateur."
         }
       />
+
+      <p className="text-[13.5px] text-muted mb-5">
+        Les indicateurs clés et la page Données sont mis à jour à partir du classeur de cadrage.
+      </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {SECTIONS.map((section) => (

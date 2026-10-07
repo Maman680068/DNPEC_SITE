@@ -13,7 +13,6 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: "/espace-contributeurs", label: "Accueil" },
   { href: "/espace-contributeurs/actualites", label: "Actualités" },
-  { href: "/espace-contributeurs/indicateurs", label: "Indicateurs" },
   { href: "/espace-contributeurs/publications", label: "Publications" },
   { href: "/espace-contributeurs/partenaires", label: "Partenaires" },
   { href: "/espace-contributeurs/revue-scientifique", label: "Revue scientifique" },
