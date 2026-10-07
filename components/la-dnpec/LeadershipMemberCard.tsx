@@ -1,7 +1,7 @@
 import Link from "next/link";
 import LeadershipPhotoPlaceholder from "@/components/la-dnpec/LeadershipPhotoPlaceholder";
 import type { LeadershipMember } from "@/lib/leadership-team-data";
-import { getLeadershipDisplayName, leadershipBiographyHref } from "@/lib/leadership-team-utils";
+import { leadershipBiographyHref } from "@/lib/leadership-team-utils";
 
 type LeadershipMemberCardProps = {
   member: LeadershipMember;

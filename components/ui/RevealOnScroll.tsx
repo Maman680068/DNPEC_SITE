@@ -22,6 +22,8 @@ export default function RevealOnScroll({ children, className = "", delayMs = 0 }
     if (!node) return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // Préférence système lue après le montage (inaccessible au rendu serveur).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPhase("done");
       return;
     }

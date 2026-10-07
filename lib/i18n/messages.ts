@@ -1,4 +1,3 @@
-import type { Locale } from "./config";
 
 const fr = {
   htmlLang: "fr",

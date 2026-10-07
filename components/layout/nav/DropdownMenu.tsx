@@ -50,6 +50,8 @@ export default function DropdownMenu({
   useLayoutEffect(() => {
     if (level !== 2) return;
     if (!isOpen) {
+      // Synchronisation avec la mise en page mesurée (DOM) : usage prévu d'un effet de mise en page.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpenToLeft(false);
       return;
     }
