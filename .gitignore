@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# classeurs Excel (données confidentielles, ne jamais committer)
+*.xlsx

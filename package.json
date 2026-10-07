@@ -12,7 +12,8 @@
     "lint": "eslint",
     "seed:rpae": "node --env-file=.env.local scripts/seed-rpae-wp.mjs",
     "seed:rpae-files": "node --env-file=.env.local scripts/attach-rpae-files.mjs",
-    "seed:en": "node scripts/seed-wp-en.mjs"
+    "seed:en": "node scripts/seed-wp-en.mjs",
+    "import:donnees": "node scripts/import-donnees.mjs"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.2",
@@ -31,6 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
+    "exceljs": "^4.4.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

@@ -87,9 +87,10 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/donnees",
     children: [
       { label: "Secteur réel", href: "/donnees#secteur-reel" },
-      { label: "Finances publiques (TOFE)", href: "/donnees#tofe" },
+      { label: "Prix et monnaie", href: "/donnees#prix-monnaie" },
+      { label: "Finances publiques", href: "/donnees#finances-publiques" },
       { label: "Balance des paiements", href: "/donnees#balance-paiements" },
-      { label: "Situation monétaire intégrée (SMI)", href: "/donnees#smi" },
+      { label: "Dette publique", href: "/donnees#dette" },
     ],
   },
   { label: "Actualités", href: "/actualites" },
