@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import LocalizedLink from "@/components/i18n/LocalizedLink";
 import type { InstitutionalPage } from "@/lib/types";
 import type { RpaeArticle } from "@/lib/rpae";
@@ -124,19 +124,23 @@ function ArticlesCatalog({
   const [themeFilter, setThemeFilter] = useState<string>("all");
   const [query, setQuery] = useState("");
 
-  useEffect(() => {
+  // Nouvelle année demandée depuis le sommaire : on ajuste le filtre pendant le rendu.
+  const [prevInitialYear, setPrevInitialYear] = useState(initialYear);
+  if (initialYear !== prevInitialYear) {
+    setPrevInitialYear(initialYear);
     if (initialYear) setYearFilter(initialYear);
-  }, [initialYear]);
+  }
 
   const years = useMemo(() => uniqueYears(articles), [articles]);
+  const profilLabels = t.rpae.profils;
   const profils = useMemo(() => {
     const map = new Map<string, string>();
     for (const a of articles) {
-      const label = t.rpae.profils[a.profil as keyof typeof t.rpae.profils] ?? a.profilLabel;
+      const label = profilLabels[a.profil as keyof typeof profilLabels] ?? a.profilLabel;
       map.set(a.profil, label);
     }
     return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1], locale === "en" ? "en" : "fr"));
-  }, [articles, locale, t.rpae.profils]);
+  }, [articles, locale, profilLabels]);
   const themes = useMemo(
     () =>
       [...new Set(articles.map((a) => a.theme))].sort((a, b) =>

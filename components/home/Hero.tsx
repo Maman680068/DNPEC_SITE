@@ -57,7 +57,7 @@ export default function Hero({ publications }: HeroProps) {
     setIndex(i);
   }
 
-  function PreviewImage({ className }: { className?: string }) {
+  function renderPreviewImage(className?: string) {
     if (!previewSrc) {
       return (
         <div className={`flex items-center justify-center bg-[#e8ecf2] text-muted text-sm p-6 text-center ${className ?? ""}`}>
@@ -157,7 +157,7 @@ export default function Hero({ publications }: HeroProps) {
               key={current.slug}
               className="absolute inset-0 overflow-hidden rounded-sm rotate-[-6deg] shadow-xl border-[3px] border-navy-dark bg-white hero-fade"
             >
-              <PreviewImage className="w-full h-full object-cover object-top" />
+              {renderPreviewImage("w-full h-full object-cover object-top")}
             </div>
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function Hero({ publications }: HeroProps) {
           key={`mobile-${current.slug}`}
           className="lg:hidden relative h-[220px] mx-5 mb-5 -mt-2 rounded-md overflow-hidden border-2 border-navy-dark bg-white hero-fade"
         >
-          <PreviewImage className="w-full h-full object-cover object-top" />
+          {renderPreviewImage("w-full h-full object-cover object-top")}
         </div>
 
         {count > 1 && (
