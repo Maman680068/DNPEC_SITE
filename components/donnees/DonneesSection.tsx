@@ -1,4 +1,5 @@
 import DonneesChart, { type ChartSeries } from "@/components/donnees/DonneesChart";
+import TableScroller from "@/components/donnees/TableScroller";
 import type { Locale } from "@/lib/i18n/config";
 import { localizeHref } from "@/lib/i18n/href";
 import { messages } from "@/lib/i18n/messages";
@@ -7,6 +8,7 @@ import {
   isSubSeries,
   rubriqueTitle,
   serieLabel,
+  sourceText,
   unitLabel,
   type Donnees,
   type DonneesRubrique,
@@ -60,6 +62,10 @@ export default function DonneesSection({ data, rubrique, locale }: DonneesSectio
       : null;
 
   const estimatedList = [...estimated];
+  const source = sourceText(data, locale);
+  const dataDate = formatDataDate(data.date, locale);
+  // Pas de « Données au … » quand la source contient déjà la date du cadrage.
+  const showDate = !source.includes(dataDate);
 
   return (
     <section id={rubrique.cle} className="scroll-mt-20 bg-white rounded-2xl shadow-[0_10px_28px_rgba(13,32,71,0.08)] p-4 sm:p-6">
@@ -93,7 +99,7 @@ export default function DonneesSection({ data, rubrique, locale }: DonneesSectio
         </div>
       ) : null}
 
-      <div className="overflow-x-auto">
+      <TableScroller hint={t.scrollHint}>
         <table className="w-full min-w-[620px] border-collapse text-[13px] sm:text-sm">
           <caption className="sr-only">{t.tableCaption(title)}</caption>
           <thead>
@@ -153,12 +159,12 @@ export default function DonneesSection({ data, rubrique, locale }: DonneesSectio
             })}
           </tbody>
         </table>
-      </div>
+      </TableScroller>
 
       <p className="mt-4 text-[12px] sm:text-[13px] text-muted">
         {estimatedList.length > 0 ? `${t.estimatesNote(yearRangeLabel(estimatedList), estimatedList.length > 1)} ` : ""}
         {t.sourceLabel}
-        {colon} {data.source}. {t.dataDate} {formatDataDate(data.date, locale)}.
+        {colon} {source}.{showDate ? ` ${t.dataDate} ${dataDate}.` : ""}
       </p>
     </section>
   );

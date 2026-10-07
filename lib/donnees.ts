@@ -3,7 +3,7 @@ import path from "node:path";
 import { cache } from "react";
 import type { Locale } from "./i18n/config";
 import { messages } from "./i18n/messages";
-import { yearRangeLabel } from "./donnees-format";
+import { formatDataDate, yearRangeLabel } from "./donnees-format";
 
 /**
  * Données macroéconomiques publiées (data/donnees.json), générées depuis le
@@ -62,6 +62,19 @@ export const getDonnees = cache(async (): Promise<Donnees | null> => {
   }
 });
 
+/**
+ * Source dans la langue demandée. Le classeur la donne en français
+ * (« DNPEC, cadrage macroéconomique du 13 juin 2026 ») ; en anglais, cette
+ * formule est traduite à partir de la date du cadrage. Toute autre source est
+ * affichée telle quelle.
+ */
+export function sourceText(data: Donnees, locale: Locale): string {
+  if (locale === "fr") return data.source;
+  const match = data.source.match(/^(.*?)cadrage macroéconomique du .+$/i);
+  if (!match) return data.source;
+  return `${match[1]}${messages[locale].donnees.sourceFramework(formatDataDate(data.date, locale))}`;
+}
+
 /** Années publiées en estimation (ex. [2024, 2025]). */
 export function estimatedYears(data: Donnees): number[] {
   return data.annees.filter((a) => a.statut === "Estimation").map((a) => a.annee);
@@ -73,7 +86,7 @@ export async function getIndicatorsSourceNote(locale: Locale): Promise<string | 
   if (!data) return null;
   const t = messages[locale].donnees;
   const years = estimatedYears(data);
-  const note = `${t.sourceLabel}${locale === "en" ? ":" : "\u00a0:"} ${data.source}.`;
+  const note = `${t.sourceLabel}${locale === "en" ? ":" : "\u00a0:"} ${sourceText(data, locale)}.`;
   return years.length > 0 ? `${note} ${t.estimatesNote(yearRangeLabel(years), years.length > 1)}` : note;
 }
 
