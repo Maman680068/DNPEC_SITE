@@ -6,6 +6,7 @@ import {
   ADMIN_LOGIN_PATH,
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_EXPIRED_PATH,
+  ADMIN_SESSION_HINT_COOKIE,
 } from "@/lib/admin/constants";
 
 export function middleware(request: NextRequest) {
@@ -23,7 +24,11 @@ export function middleware(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = ADMIN_LOGIN_PATH;
       url.searchParams.set("next", pathname);
-      return NextResponse.redirect(url);
+      // Session disparue (cookie expiré avec le jeton) : on le dit.
+      if (request.cookies.has(ADMIN_SESSION_HINT_COOKIE)) url.searchParams.set("expiree", "1");
+      const response = NextResponse.redirect(url);
+      response.cookies.delete(ADMIN_SESSION_HINT_COOKIE);
+      return response;
     }
     return NextResponse.next();
   }

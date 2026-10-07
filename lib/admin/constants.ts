@@ -7,6 +7,12 @@
 export const ADMIN_BASE_PATH = "/espace-contributeurs";
 export const ADMIN_LOGIN_PATH = "/espace-contributeurs/connexion";
 export const ADMIN_SESSION_COOKIE = "dnpec_session";
+/**
+ * Témoin sans contenu, posé à la connexion pour 30 jours : quand le cookie de
+ * session disparaît (il expire avec le jeton JWT), il permet d'afficher
+ * « Session expirée » au lieu d'une page de connexion muette.
+ */
+export const ADMIN_SESSION_HINT_COOKIE = "dnpec_session_active";
 /** Efface une session refusée par WordPress puis renvoie à la connexion (voir la route correspondante). */
 export const ADMIN_SESSION_EXPIRED_PATH = "/espace-contributeurs/session-expiree";
 export const SESSION_EXPIRED_MESSAGE = "Session expirée, reconnectez-vous.";

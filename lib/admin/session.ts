@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
-import { ADMIN_SESSION_COOKIE } from "./constants";
+import { ADMIN_SESSION_COOKIE, ADMIN_SESSION_HINT_COOKIE } from "./constants";
 
 /**
  * Session de l'espace contributeurs — un seul cookie httpOnly contenant le
@@ -99,9 +99,17 @@ export async function setAdminSession(session: AdminSession): Promise<void> {
     path: "/",
     maxAge,
   });
+  store.set(ADMIN_SESSION_HINT_COOKIE, "1", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+  });
 }
 
 export async function clearAdminSession(): Promise<void> {
   const store = await cookies();
   store.delete(ADMIN_SESSION_COOKIE);
+  store.delete(ADMIN_SESSION_HINT_COOKIE);
 }
