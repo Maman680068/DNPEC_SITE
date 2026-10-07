@@ -470,7 +470,9 @@ export async function getPageBySlug(slug: string, locale: Locale = "fr"): Promis
  */
 export async function getPublications(): Promise<Publication[]> {
   const data = await fetchFromWordpress<Publication[]>("/publications?_embed");
-  return data && data.length > 0 ? data : mockPublications;
+  if (!data || data.length === 0) return mockPublications;
+  // Lien du PDF : seulement une URL http(s) (affiché tel quel dans un <a href>).
+  return data.map((publication) => ({ ...publication, fileUrl: safeHttpUrl(publication.fileUrl) }));
 }
 
 /**
@@ -611,8 +613,16 @@ export async function getIndicators(locale: Locale = "fr"): Promise<Indicator[]>
  * saisis dans WordPress.
  */
 export async function getPartners(): Promise<Partner[]> {
-  const data = await fetchFromWordpress<Partner[]>("/partenaires");
-  return data && data.length > 0 ? data : mockPartners;
+  const data = await fetchFromWordpress<(Partner & { slug?: string })[]>("/partenaires");
+  if (!data || data.length === 0) return mockPartners;
+  // WordPress renvoie l'identifiant numérique ; le site range « simandou » et
+  // « guinee » dans la rangée du bas d'après leur slug (voir PartnersSection).
+  return data.map(({ slug, ...partner }) => ({
+    ...partner,
+    id: slug || partner.id,
+    websiteUrl: safeHttpUrl(partner.websiteUrl),
+    logoUrl: safeHttpUrl(partner.logoUrl),
+  }));
 }
 
 function mapWpPostToRpaeArticle(post: WpPost): RpaeArticle | null {

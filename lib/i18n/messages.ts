@@ -150,6 +150,13 @@ const fr = {
     nextNews: "Actualité suivante",
     readMore: "Lire la suite",
   },
+  notFound: {
+    code: "Erreur 404",
+    title: "Page introuvable",
+    body: "La page demandée n'existe pas ou a été déplacée. Vous pouvez revenir à l'accueil ou consulter nos actualités.",
+    home: "Retour à l'accueil",
+    news: "Voir les actualités",
+  },
   // En français, les libellés des indicateurs viennent de data/donnees.json
   // (ou des données par défaut) : aucune surcharge ici.
   indicators: {} as Record<string, string>,
@@ -338,6 +345,7 @@ const fr = {
     carouselSlides: "Diapositives du carrousel",
     newsPending:
       "Le texte complet, les photos et documents liés à cette actualité seront publiés ici par la cellule éditoriale, après validation du profil « Validateur / Publicateur ».",
+    downloadPdf: "Télécharger le document",
     pdfPending:
       "Le document PDF associé à cette publication ({year}) sera déposé ici par la cellule éditoriale, avec indication du poids du fichier et téléchargement direct.",
     searchPublication: "Rechercher une publication...",
@@ -616,6 +624,13 @@ const en: typeof fr = {
     nextNews: "Next story",
     readMore: "Read more",
   },
+  notFound: {
+    code: "Error 404",
+    title: "Page not found",
+    body: "The page you are looking for does not exist or has moved. You can go back to the home page or read our news.",
+    home: "Back to home",
+    news: "See the news",
+  },
   indicators: {
     croissance: "Real GDP growth rate",
     inflation: "Inflation rate (year-on-year, end-December)",
@@ -857,6 +872,7 @@ const en: typeof fr = {
     carouselSlides: "Carousel slides",
     newsPending:
       "The full text, photos and related documents for this news item will be published here by the editorial team, after validation by the Publisher profile.",
+    downloadPdf: "Download the document",
     pdfPending:
       "The PDF for this publication ({year}) will be uploaded here by the editorial team, with file size and a direct download.",
     searchPublication: "Search a publication...",
