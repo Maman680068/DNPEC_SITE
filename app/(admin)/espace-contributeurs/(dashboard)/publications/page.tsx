@@ -1,14 +1,26 @@
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminError from "@/components/admin/AdminError";
 import StatusBadge from "@/components/admin/StatusBadge";
 import ModerationActions from "@/components/admin/ModerationActions";
+import ImportDefaultsButton from "@/components/admin/ImportDefaultsButton";
 import { listPublications } from "@/lib/admin/data";
+import { readAdminResult } from "@/lib/admin/page-data";
 import { getAdminSession } from "@/lib/admin/session";
-import { canPublishDirectly } from "@/lib/admin/constants";
+import { canModerate as rolesCanModerate, isAdministrator } from "@/lib/admin/constants";
+import { mockPublications, publicationTypes } from "@/lib/mock-data";
+
+function typeLabel(value: string): string {
+  return publicationTypes.find((t) => t.value === value)?.label ?? value;
+}
 
 export default async function PublicationsAdminPage() {
-  const [items, session] = await Promise.all([listPublications(), getAdminSession()]);
-  const canModerate = session ? canPublishDirectly(session.roles) : false;
+  const [result, session] = await Promise.all([listPublications(), getAdminSession()]);
+  const { data, error } = readAdminResult(result);
+  const items = data ?? [];
+  const canModerate = session ? rolesCanModerate(session.roles) : false;
+  const existingSlugs = new Set(items.map((item) => item.slug));
+  const missingDefaults = mockPublications.filter((entry) => !existingSlugs.has(entry.slug)).length;
 
   return (
     <div>
@@ -25,7 +37,13 @@ export default async function PublicationsAdminPage() {
         }
       />
 
-      {items.length === 0 ? (
+      {!error && session && isAdministrator(session.roles) && (
+        <ImportDefaultsButton type="publications" missing={missingDefaults} />
+      )}
+
+      {error ? (
+        <AdminError message={error} />
+      ) : items.length === 0 ? (
         <p className="text-muted text-sm">Aucune publication pour le moment.</p>
       ) : (
         <div className="bg-white rounded-lg border border-line divide-y divide-line">
@@ -39,17 +57,19 @@ export default async function PublicationsAdminPage() {
                   >
                     {item.title || "(sans titre)"}
                   </Link>
-                  <StatusBadge status={item.status} />
+                  <StatusBadge status={item.status} rejected={item.rejected} />
                 </div>
                 <p className="text-muted text-[13px] mt-1">
                   {item.year ?? "—"}
-                  {item.type ? ` · ${item.type}` : ""}
+                  {item.type ? ` · ${typeLabel(item.type)}` : ""}
+                  {item.fileUrl ? " · PDF joint" : ""}
                   {item.authorName ? ` · ${item.authorName}` : ""}
                 </p>
               </div>
               <ModerationActions
-                apiPath={`/api/admin/publications/${item.id}`}
+                apiPath={`/api/admin/publications/${item.id}/moderation`}
                 status={item.status}
+                rejected={item.rejected}
                 canModerate={canModerate}
               />
             </div>

@@ -1,9 +1,11 @@
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminError from "@/components/admin/AdminError";
 import RpaeDashboard from "@/components/admin/rpae/RpaeDashboard";
 import { listRpaeSubmissions } from "@/lib/admin/rpae";
+import { readAdminResult } from "@/lib/admin/page-data";
 
 export default async function RevueScientifiqueAdminPage() {
-  const items = await listRpaeSubmissions();
+  const { data, error } = readAdminResult(await listRpaeSubmissions());
 
   return (
     <div>
@@ -11,7 +13,7 @@ export default async function RevueScientifiqueAdminPage() {
         title="Revue scientifique (RPAE)"
         subtitle="Articles soumis : en attente de relecture, publiés, rejetés."
       />
-      <RpaeDashboard items={items} />
+      {error ? <AdminError message={error} /> : <RpaeDashboard items={data ?? []} />}
     </div>
   );
 }

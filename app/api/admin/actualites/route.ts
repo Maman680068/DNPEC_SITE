@@ -1,55 +1,66 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
-  requireTrustedOrigin,
-  requireSession,
+  callWordpress,
+  confirmWordpressUser,
+  errorResponse,
   isErrorResponse,
-  readWordpressJson,
   parseJsonBody,
+  requireSession,
+  requireTrustedOrigin,
+  sessionExpiredResponse,
 } from "@/lib/admin/api-helpers";
-import { wordpressAuthedFetch } from "@/lib/admin/wordpress-auth";
-import { ensureCategoryId } from "@/lib/admin/actualites";
-import { canPublishDirectly } from "@/lib/admin/constants";
+import { checkSelectableCategory } from "@/lib/admin/actualites";
+import { revalidateContent } from "@/lib/revalidate-content";
 
 export const runtime = "nodejs";
 
 type ActualiteInput = {
-  title?: string;
-  excerpt?: string;
-  content?: string;
-  categoryName?: string;
-  featuredMediaId?: number;
+  title?: unknown;
+  excerpt?: unknown;
+  content?: unknown;
+  categoryId?: unknown;
+  featuredMediaId?: unknown;
 };
 
 export async function POST(request: NextRequest) {
   const originError = requireTrustedOrigin(request);
   if (originError) return originError;
-
   const session = await requireSession();
   if (isErrorResponse(session)) return session;
 
   const body = await parseJsonBody<ActualiteInput>(request);
-  if (!body?.title?.trim()) {
-    return NextResponse.json({ error: "Le titre est obligatoire." }, { status: 400 });
-  }
+  const title = typeof body?.title === "string" ? body.title.trim() : "";
+  if (!title) return NextResponse.json({ error: "Le titre est obligatoire." }, { status: 400 });
 
-  const categoryId = body.categoryName ? await ensureCategoryId(session.token, body.categoryName) : null;
+  // Statut décidé par le serveur selon les droits confirmés par WordPress, jamais par le navigateur.
+  const confirmed = await confirmWordpressUser(session);
+  if (!confirmed.ok) return confirmed.response;
+  const status = confirmed.user.capabilities.publish_posts ? "publish" : "pending";
 
   const payload: Record<string, unknown> = {
-    title: body.title,
-    excerpt: body.excerpt ?? "",
-    content: body.content ?? "",
-    status: canPublishDirectly(session.roles) ? "publish" : "pending",
+    title,
+    excerpt: typeof body?.excerpt === "string" ? body.excerpt : "",
+    content: typeof body?.content === "string" ? body.content : "",
+    status,
   };
-  if (categoryId) payload.categories = [categoryId];
-  if (body.featuredMediaId) payload.featured_media = body.featuredMediaId;
 
-  const res = await wordpressAuthedFetch("/posts", session.token, {
+  const categoryId = Number(body?.categoryId);
+  if (Number.isInteger(categoryId) && categoryId > 0) {
+    const check = await checkSelectableCategory(session, categoryId);
+    if (!check.ok) return check.expired ? sessionExpiredResponse() : NextResponse.json({ error: check.error }, { status: 400 });
+    payload.categories = [categoryId];
+  }
+  const featuredMediaId = Number(body?.featuredMediaId);
+  if (Number.isInteger(featuredMediaId) && featuredMediaId > 0) payload.featured_media = featuredMediaId;
+
+  const result = await callWordpress(session, "/posts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const result = await readWordpressJson(res);
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
-  return NextResponse.json(result.data, { status: 201 });
+  if (!result.ok) return errorResponse(result);
+  const post = result.data as { slug?: string; status?: string };
+  if (post.status === "publish") revalidateContent({ type: "post", slug: post.slug });
+  return NextResponse.json(post, { status: 201 });
 }

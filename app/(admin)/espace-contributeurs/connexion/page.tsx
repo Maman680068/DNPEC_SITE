@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { safeNextPath, SESSION_EXPIRED_MESSAGE } from "@/lib/admin/constants";
 
 function ConnexionForm() {
   const router = useRouter();
@@ -27,8 +28,8 @@ function ConnexionForm() {
       if (!res.ok) {
         throw new Error(data?.error || "Connexion impossible.");
       }
-      const next = searchParams.get("next") || "/espace-contributeurs";
-      router.push(next);
+      // Seulement un chemin de l'espace contributeurs (jamais un autre site).
+      router.push(safeNextPath(searchParams.get("next")));
       router.refresh();
     } catch (error) {
       setStatus("error");
@@ -86,8 +87,14 @@ function ConnexionForm() {
             />
           </label>
 
+          {status === "idle" && searchParams.get("expiree") === "1" && (
+            <p role="status" className="text-navy bg-yellow/20 rounded-md px-3 py-2 text-sm font-medium">
+              {SESSION_EXPIRED_MESSAGE}
+            </p>
+          )}
+
           {status === "error" && (
-            <p className="text-red text-sm font-medium">{errorMessage}</p>
+            <p role="alert" className="text-red text-sm font-medium">{errorMessage}</p>
           )}
 
           <button

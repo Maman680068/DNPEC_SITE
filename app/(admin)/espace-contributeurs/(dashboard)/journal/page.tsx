@@ -1,5 +1,7 @@
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminError from "@/components/admin/AdminError";
 import { listJournal } from "@/lib/admin/data";
+import { readAdminResult } from "@/lib/admin/page-data";
 
 const ACTION_LABELS: Record<string, string> = {
   publier: "a publié",
@@ -17,20 +19,20 @@ const ENTITY_LABELS: Record<string, string> = {
 function formatDate(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" });
+  return date.toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Africa/Conakry" });
 }
 
 export default async function JournalAdminPage() {
-  const entries = await listJournal();
+  const { data, error } = readAdminResult(await listJournal());
+  const entries = data ?? [];
 
   return (
     <div>
-      <AdminPageHeader
-        title="Journal des validations"
-        subtitle="Qui a publié ou rejeté quoi, et quand."
-      />
+      <AdminPageHeader title="Journal des validations" subtitle="Qui a publié ou rejeté quoi, et quand." />
 
-      {entries.length === 0 ? (
+      {error ? (
+        <AdminError message={error} />
+      ) : entries.length === 0 ? (
         <p className="text-muted text-sm">Aucune validation ou rejet enregistré pour le moment.</p>
       ) : (
         <div className="bg-white rounded-lg border border-line divide-y divide-line">

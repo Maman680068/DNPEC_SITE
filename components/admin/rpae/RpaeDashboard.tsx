@@ -5,13 +5,21 @@ import Link from "next/link";
 import type { AdminRpaeListItem } from "@/lib/admin/rpae";
 import { RPAE_USAGE_LABELS } from "@/lib/rpae";
 
-type TabKey = "pending" | "publish" | "draft";
+type TabKey = "pending" | "publish" | "rejected" | "draft";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "pending", label: "En attente de relecture" },
   { key: "publish", label: "Publiés" },
-  { key: "draft", label: "Rejetés" },
+  { key: "rejected", label: "Rejetés" },
+  { key: "draft", label: "Brouillons" },
 ];
+
+/** Onglet d'un article : « Rejetés » ne contient que les brouillons portant le marqueur de refus. */
+function tabOf(item: AdminRpaeListItem): TabKey | null {
+  if (item.status === "pending" || item.status === "publish") return item.status;
+  if (item.status === "draft") return item.rejected ? "rejected" : "draft";
+  return null;
+}
 
 function formatDate(iso: string): string {
   const date = new Date(iso);
@@ -23,14 +31,15 @@ export default function RpaeDashboard({ items }: { items: AdminRpaeListItem[] })
   const [active, setActive] = useState<TabKey>("pending");
 
   const counts = useMemo(() => {
-    const result: Record<TabKey, number> = { pending: 0, publish: 0, draft: 0 };
+    const result: Record<TabKey, number> = { pending: 0, publish: 0, rejected: 0, draft: 0 };
     for (const item of items) {
-      if (item.status in result) result[item.status as TabKey] += 1;
+      const tab = tabOf(item);
+      if (tab) result[tab] += 1;
     }
     return result;
   }, [items]);
 
-  const filtered = items.filter((item) => item.status === active);
+  const filtered = items.filter((item) => tabOf(item) === active);
 
   return (
     <div>

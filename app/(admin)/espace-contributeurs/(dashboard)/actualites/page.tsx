@@ -1,20 +1,24 @@
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminError from "@/components/admin/AdminError";
 import StatusBadge from "@/components/admin/StatusBadge";
 import ModerationActions from "@/components/admin/ModerationActions";
 import { listActualites } from "@/lib/admin/data";
+import { readAdminResult } from "@/lib/admin/page-data";
 import { getAdminSession } from "@/lib/admin/session";
-import { canPublishDirectly } from "@/lib/admin/constants";
+import { canModerate as rolesCanModerate } from "@/lib/admin/constants";
 
 export default async function ActualitesAdminPage() {
-  const [items, session] = await Promise.all([listActualites(), getAdminSession()]);
-  const canModerate = session ? canPublishDirectly(session.roles) : false;
+  const [result, session] = await Promise.all([listActualites(), getAdminSession()]);
+  const { data, error } = readAdminResult(result);
+  const items = data ?? [];
+  const canModerate = session ? rolesCanModerate(session.roles) : false;
 
   return (
     <div>
       <AdminPageHeader
         title="Actualités"
-        subtitle="Créer ou modifier un article du site."
+        subtitle="Créer ou modifier un article du site. Les articles de la revue scientifique sont gérés dans leur propre rubrique."
         action={
           <Link
             href="/espace-contributeurs/actualites/nouveau"
@@ -25,7 +29,9 @@ export default async function ActualitesAdminPage() {
         }
       />
 
-      {items.length === 0 ? (
+      {error ? (
+        <AdminError message={error} />
+      ) : items.length === 0 ? (
         <p className="text-muted text-sm">Aucun article pour le moment.</p>
       ) : (
         <div className="bg-white rounded-lg border border-line divide-y divide-line">
@@ -39,7 +45,7 @@ export default async function ActualitesAdminPage() {
                   >
                     {item.title || "(sans titre)"}
                   </Link>
-                  <StatusBadge status={item.status} />
+                  <StatusBadge status={item.status} rejected={item.rejected} />
                 </div>
                 <p className="text-muted text-[13px] mt-1">
                   {item.categoryName ?? "Sans catégorie"}
@@ -47,8 +53,9 @@ export default async function ActualitesAdminPage() {
                 </p>
               </div>
               <ModerationActions
-                apiPath={`/api/admin/actualites/${item.id}`}
+                apiPath={`/api/admin/actualites/${item.id}/moderation`}
                 status={item.status}
+                rejected={item.rejected}
                 canModerate={canModerate}
               />
             </div>

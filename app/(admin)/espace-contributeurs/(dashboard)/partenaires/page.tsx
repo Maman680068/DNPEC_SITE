@@ -1,14 +1,22 @@
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminError from "@/components/admin/AdminError";
 import StatusBadge from "@/components/admin/StatusBadge";
 import ModerationActions from "@/components/admin/ModerationActions";
+import ImportDefaultsButton from "@/components/admin/ImportDefaultsButton";
 import { listPartenaires } from "@/lib/admin/data";
+import { readAdminResult } from "@/lib/admin/page-data";
 import { getAdminSession } from "@/lib/admin/session";
-import { canPublishDirectly } from "@/lib/admin/constants";
+import { canModerate as rolesCanModerate, isAdministrator } from "@/lib/admin/constants";
+import { mockPartners } from "@/lib/mock-data";
 
 export default async function PartenairesAdminPage() {
-  const [items, session] = await Promise.all([listPartenaires(), getAdminSession()]);
-  const canModerate = session ? canPublishDirectly(session.roles) : false;
+  const [result, session] = await Promise.all([listPartenaires(), getAdminSession()]);
+  const { data, error } = readAdminResult(result);
+  const items = data ?? [];
+  const canModerate = session ? rolesCanModerate(session.roles) : false;
+  const existingSlugs = new Set(items.map((item) => item.slug));
+  const missingDefaults = mockPartners.filter((entry) => !existingSlugs.has(entry.id)).length;
 
   return (
     <div>
@@ -25,7 +33,13 @@ export default async function PartenairesAdminPage() {
         }
       />
 
-      {items.length === 0 ? (
+      {!error && session && isAdministrator(session.roles) && (
+        <ImportDefaultsButton type="partenaires" missing={missingDefaults} />
+      )}
+
+      {error ? (
+        <AdminError message={error} />
+      ) : items.length === 0 ? (
         <p className="text-muted text-sm">Aucun partenaire pour le moment.</p>
       ) : (
         <div className="bg-white rounded-lg border border-line divide-y divide-line">
@@ -37,18 +51,19 @@ export default async function PartenairesAdminPage() {
                     href={`/espace-contributeurs/partenaires/${item.id}`}
                     className="text-navy font-semibold text-[15px] hover:underline"
                   >
-                    {item.name || "(sans nom)"}
+                    {item.name || "(sans titre)"}
                   </Link>
-                  <StatusBadge status={item.status} />
+                  <StatusBadge status={item.status} rejected={item.rejected} />
                 </div>
                 <p className="text-muted text-[13px] mt-1">
-                  {item.websiteUrl ?? "Pas de site web"}
+                  {item.websiteUrl ?? "Sans site web"}
                   {item.authorName ? ` · ${item.authorName}` : ""}
                 </p>
               </div>
               <ModerationActions
-                apiPath={`/api/admin/partenaires/${item.id}`}
+                apiPath={`/api/admin/partenaires/${item.id}/moderation`}
                 status={item.status}
+                rejected={item.rejected}
                 canModerate={canModerate}
               />
             </div>

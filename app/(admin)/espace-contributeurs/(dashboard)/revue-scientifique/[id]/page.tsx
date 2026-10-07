@@ -3,9 +3,11 @@ import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import StatusBadge from "@/components/admin/StatusBadge";
 import RpaeModerationPanel from "@/components/admin/rpae/RpaeModerationPanel";
+import AdminError from "@/components/admin/AdminError";
+import { readAdminResult } from "@/lib/admin/page-data";
 import { getRpaeSubmission } from "@/lib/admin/rpae";
 import { getAdminSession } from "@/lib/admin/session";
-import { canPublishDirectly } from "@/lib/admin/constants";
+import { canModerate as rolesCanModerate } from "@/lib/admin/constants";
 import { usageLabel } from "@/lib/rpae";
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -28,10 +30,20 @@ function InfoRow({ label, value }: { label: string; value?: string }) {
 
 export default async function RpaeSubmissionDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const [item, session] = await Promise.all([getRpaeSubmission(id), getAdminSession()]);
-  if (!item) notFound();
+  const [result, session] = await Promise.all([getRpaeSubmission(id), getAdminSession()]);
+  const { data: item, error } = readAdminResult(result);
+  if (!error && !item) notFound();
+  if (error || !item) {
+    return (
+      <div className="max-w-3xl">
+        <AdminPageHeader title="Revue scientifique" />
+        <AdminError message={error ?? "Article introuvable."} />
+      </div>
+    );
+  }
 
-  const canModerate = session ? canPublishDirectly(session.roles) : false;
+  // Boutons réservés aux administrateurs et éditeurs (droits revérifiés par le serveur à chaque action).
+  const canModerate = session ? rolesCanModerate(session.roles) : false;
   const { meta } = item;
 
   return (
@@ -46,7 +58,7 @@ export default async function RpaeSubmissionDetailPage({ params }: PageProps) {
       <AdminPageHeader
         title={item.title || "(sans titre)"}
         subtitle={`${item.auteur} · ${formatDate(item.date)}`}
-        action={<StatusBadge status={item.status} />}
+        action={<StatusBadge status={item.status} rejected={item.rejected} />}
       />
 
       <div className="bg-white rounded-lg border border-line p-6 mb-6">
@@ -76,7 +88,7 @@ export default async function RpaeSubmissionDetailPage({ params }: PageProps) {
             <dd className="text-[14.5px] text-ink leading-relaxed mt-1.5 whitespace-pre-line">{meta.resume}</dd>
           </div>
         )}
-        {meta.fichierUrl && (
+        {meta.fichierUrl && /^https?:\/\//i.test(meta.fichierUrl) && (
           <a
             href={meta.fichierUrl}
             target="_blank"
@@ -89,10 +101,10 @@ export default async function RpaeSubmissionDetailPage({ params }: PageProps) {
       </div>
 
       {canModerate ? (
-        <RpaeModerationPanel id={item.id} status={item.status} />
+        <RpaeModerationPanel id={item.id} status={item.status} rejected={item.rejected} internal={item.internal} />
       ) : (
         <p className="text-muted text-sm">
-          Seul un administrateur peut valider ou rejeter un article de la revue scientifique.
+          Seul un administrateur ou un éditeur peut valider ou rejeter un article de la revue scientifique.
         </p>
       )}
     </div>

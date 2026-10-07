@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { LOCALE_COOKIE, LOCALE_HEADER, LOCALE_PATHNAME_HEADER } from "@/lib/i18n/config";
-import { ADMIN_BASE_PATH, ADMIN_LOGIN_PATH, ADMIN_SESSION_COOKIE } from "@/lib/admin/constants";
+import {
+  ADMIN_BASE_PATH,
+  ADMIN_LOGIN_PATH,
+  ADMIN_SESSION_COOKIE,
+  ADMIN_SESSION_EXPIRED_PATH,
+} from "@/lib/admin/constants";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -10,7 +15,7 @@ export function middleware(request: NextRequest) {
   // vérification de session avant de laisser passer (la validité réelle du
   // jeton est revérifiée par WordPress à chaque appel API côté serveur).
   if (pathname === ADMIN_BASE_PATH || pathname.startsWith(`${ADMIN_BASE_PATH}/`)) {
-    if (pathname === ADMIN_LOGIN_PATH) {
+    if (pathname === ADMIN_LOGIN_PATH || pathname === ADMIN_SESSION_EXPIRED_PATH) {
       return NextResponse.next();
     }
     const hasSession = request.cookies.has(ADMIN_SESSION_COOKIE);

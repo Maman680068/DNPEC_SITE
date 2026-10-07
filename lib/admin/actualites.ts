@@ -1,38 +1,55 @@
-import { wordpressAuthedFetch } from "./wordpress-auth";
+import type { AdminSession } from "./session";
+import { callWordpress } from "./api-helpers";
+import { HIDDEN_CATEGORY_SLUGS } from "./data";
+import { RPAE_CATEGORY_SLUG, RPAE_INTERNAL_CATEGORY_SLUG } from "@/lib/rpae";
 
 /**
- * Récupère l'ID d'une catégorie WordPress par son nom, ou la crée si elle
- * n'existe pas. Ressemble à ensureWpCategoryId (lib/rpae.ts) mais passe par
- * wordpressAuthedFetch pour inclure les en-têtes anti-pare-feu et le jeton
- * de la personne connectée.
+ * Outils des routes « actualités » de l'espace contributeurs : catégories
+ * choisies dans une liste (un contributeur ne peut pas en créer), et
+ * reconnaissance des articles de la revue scientifique, qui ont leur propre
+ * circuit de validation.
  */
-export async function ensureCategoryId(token: string, name: string): Promise<number | null> {
-  const trimmed = name.trim();
-  if (!trimmed) return null;
-  const slug = trimmed
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-  if (!slug) return null;
 
-  try {
-    const listRes = await wordpressAuthedFetch(`/categories?slug=${encodeURIComponent(slug)}`, token);
-    if (listRes.ok) {
-      const existing = (await listRes.json()) as { id: number }[];
-      if (existing[0]?.id) return existing[0].id;
-    }
+export type WpPostEdit = {
+  id: number;
+  slug: string;
+  status: string;
+  author: number;
+  categories: number[];
+  title: { raw?: string; rendered: string };
+  content: { raw?: string; rendered: string };
+};
 
-    const createRes = await wordpressAuthedFetch("/categories", token, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: trimmed, slug }),
-    });
-    if (!createRes.ok) return null;
-    const created = (await createRes.json()) as { id?: number };
-    return created.id ?? null;
-  } catch {
-    return null;
+/** Catégorie choisie dans le formulaire : doit exister et ne pas être une catégorie technique. */
+export async function checkSelectableCategory(
+  session: AdminSession,
+  categoryId: number,
+): Promise<{ ok: true } | { ok: false; error: string; expired: boolean }> {
+  const result = await callWordpress(session, `/categories/${categoryId}`);
+  if (!result.ok) {
+    return result.expired
+      ? { ok: false, error: result.error, expired: true }
+      : { ok: false, error: "Catégorie inconnue.", expired: false };
   }
+  const slug = (result.data as { slug?: string }).slug ?? "";
+  if (HIDDEN_CATEGORY_SLUGS.has(slug)) {
+    return { ok: false, error: "Cette catégorie ne peut pas être choisie ici.", expired: false };
+  }
+  return { ok: true };
+}
+
+/** Identifiants des catégories rpae / rpae-interne. */
+export async function rpaeCategoryIdsFor(session: AdminSession): Promise<number[]> {
+  const ids: number[] = [];
+  for (const slug of [RPAE_CATEGORY_SLUG, RPAE_INTERNAL_CATEGORY_SLUG]) {
+    const result = await callWordpress(session, `/categories?slug=${slug}`);
+    if (result.ok && Array.isArray(result.data) && result.data[0]?.id) ids.push(result.data[0].id);
+  }
+  return ids;
+}
+
+export function isRpaePost(post: WpPostEdit, rpaeIds: number[]): boolean {
+  if (post.categories.some((id) => rpaeIds.includes(id))) return true;
+  if (/^\s*\[RPAE\]/i.test(post.title.raw ?? post.title.rendered)) return true;
+  return /<!--\s*rpae:/i.test(post.content.raw ?? post.content.rendered);
 }

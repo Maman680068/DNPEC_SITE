@@ -21,11 +21,24 @@ export type WordpressUser = {
   id: number;
   name: string;
   roles: string[];
+  /** Droits WordPress effectifs (publish_posts, edit_others_posts…), tels que confirmés par WordPress. */
+  capabilities: Record<string, boolean>;
 };
 
 export type WordpressLoginResult =
   | { ok: true; token: string; user: WordpressUser }
-  | { ok: false; error: string };
+  | { ok: false; error: string; badCredentials: boolean };
+
+/**
+ * Jeton refusé par WordPress : expiré, signature invalide (plugin JWT,
+ * codes jwt_auth_*), ou requête traitée comme anonyme (rest_not_logged_in).
+ * À distinguer d'un simple manque de droit (rest_cannot_*), qui ne doit pas
+ * déconnecter la personne.
+ */
+export function isSessionRejected(status: number, code: string | undefined): boolean {
+  if (code && /^jwt_auth_/.test(code)) return true;
+  return status === 401 && (!code || code === "rest_not_logged_in");
+}
 
 /**
  * Connexion via le plugin JWT — endpoint hors namespace wp/v2 :
@@ -34,7 +47,7 @@ export type WordpressLoginResult =
 export async function loginToWordpress(username: string, password: string): Promise<WordpressLoginResult> {
   const root = wordpressSiteRoot();
   if (!root) {
-    return { ok: false, error: "WORDPRESS_API_URL n'est pas configurée sur ce serveur." };
+    return { ok: false, error: "WORDPRESS_API_URL n'est pas configurée sur ce serveur.", badCredentials: false };
   }
 
   let tokenRes: Response;
@@ -46,7 +59,7 @@ export async function loginToWordpress(username: string, password: string): Prom
       cache: "no-store",
     });
   } catch {
-    return { ok: false, error: "Impossible de contacter le serveur WordPress." };
+    return { ok: false, error: "Impossible de contacter le serveur WordPress.", badCredentials: false };
   }
 
   const rawBody = await tokenRes.text();
@@ -56,31 +69,39 @@ export async function loginToWordpress(username: string, password: string): Prom
   } catch {
     return {
       ok: false,
-      error:
-        "Le serveur WordPress n'a pas répondu en JSON (probablement le pare-feu de l'hébergement — voir diagnostic en cours).",
+      error: "Le serveur WordPress n'a pas répondu en JSON (pare-feu de l'hébergement ?).",
+      badCredentials: false,
     };
   }
 
   if (!tokenRes.ok) {
-    const message =
-      (parsed as { message?: string } | null)?.message ?? "Identifiant ou mot de passe incorrect.";
-    return { ok: false, error: stripHtmlTags(message) };
+    // Le plugin JWT répond 403 pour un identifiant ou un mot de passe incorrect.
+    const badCredentials = tokenRes.status === 401 || tokenRes.status === 403;
+    return {
+      ok: false,
+      error: badCredentials ? "Identifiant ou mot de passe incorrect." : `Erreur WordPress (HTTP ${tokenRes.status}).`,
+      badCredentials,
+    };
   }
 
   const data = parsed as { token?: string };
   if (!data.token) {
-    return { ok: false, error: "Réponse WordPress inattendue (jeton absent)." };
+    return { ok: false, error: "Réponse WordPress inattendue (jeton absent).", badCredentials: false };
   }
 
   const user = await fetchWordpressMe(data.token);
   if (!user) {
-    return { ok: false, error: "Connexion réussie mais impossible de récupérer le profil WordPress." };
+    return {
+      ok: false,
+      error: "Connexion réussie mais impossible de récupérer le profil WordPress.",
+      badCredentials: false,
+    };
   }
 
   return { ok: true, token: data.token, user };
 }
 
-/** GET {WORDPRESS_API_URL}/users/me?context=edit — nécessite le jeton du plugin JWT. */
+/** GET {WORDPRESS_API_URL}/users/me?context=edit — rôles et droits confirmés par WordPress. */
 export async function fetchWordpressMe(token: string): Promise<WordpressUser | null> {
   if (!WORDPRESS_API_URL) return null;
   try {
@@ -90,15 +111,16 @@ export async function fetchWordpressMe(token: string): Promise<WordpressUser | n
     });
     if (!res.ok) return null;
     const raw = await res.text();
-    const data = JSON.parse(raw) as { id: number; name: string; roles?: string[] };
-    return { id: data.id, name: data.name, roles: data.roles ?? [] };
+    const data = JSON.parse(raw) as {
+      id: number;
+      name: string;
+      roles?: string[];
+      capabilities?: Record<string, boolean>;
+    };
+    return { id: data.id, name: data.name, roles: data.roles ?? [], capabilities: data.capabilities ?? {} };
   } catch {
     return null;
   }
-}
-
-function stripHtmlTags(text: string): string {
-  return text.replace(/<[^>]*>/g, "").trim();
 }
 
 /**

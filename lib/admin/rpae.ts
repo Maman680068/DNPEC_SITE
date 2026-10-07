@@ -1,15 +1,17 @@
-import { getAdminSession } from "./session";
-import { wordpressAuthedFetch } from "./wordpress-auth";
 import { decodeHtmlEntities } from "@/lib/decodeHtml";
 import {
   parseRpaeMetadata,
   resolveArticleYear,
   authorDisplayName,
   profilLabel,
+  isInternalRpaeUsage,
   RPAE_CATEGORY_SLUG,
   RPAE_INTERNAL_CATEGORY_SLUG,
   type RpaeSubmissionMeta,
 } from "@/lib/rpae";
+import { fetchAllPages, fetchCategories, withSession, type AdminResult, type WpPostRaw } from "./data";
+import { isRefusedRpae } from "./markers";
+import { wordpressAuthedFetch, isSessionRejected } from "./wordpress-auth";
 
 /**
  * Couche de lecture RPAE pour l'espace contributeurs — contrairement au
@@ -20,19 +22,10 @@ import {
  */
 
 function stripHtml(html: string): string {
-  return decodeHtmlEntities(html)
-    .replace(/<[^>]*>/g, "")
+  return decodeHtmlEntities(html.replace(/<[^>]*>/g, ""))
     .replace(/\s+/g, " ")
     .trim();
 }
-
-type WpPostRaw = {
-  id: number;
-  status: string;
-  date: string;
-  title: { rendered: string };
-  content: { rendered: string; raw?: string };
-};
 
 export type AdminRpaeListItem = {
   id: string;
@@ -44,39 +37,23 @@ export type AdminRpaeListItem = {
   year: number;
   date: string;
   status: string;
+  /** Brouillon portant le marqueur de refus du comité. */
+  rejected: boolean;
   usage: string;
+  /** Usage interne ou sur commande : jamais publié sur le site. */
+  internal: boolean;
 };
 
 export type AdminRpaeDetail = AdminRpaeListItem & {
   meta: RpaeSubmissionMeta;
 };
 
-async function findCategoryId(token: string, slug: string): Promise<number | null> {
-  try {
-    const res = await wordpressAuthedFetch(`/categories?slug=${encodeURIComponent(slug)}`, token);
-    if (!res.ok) return null;
-    const list = (await res.json()) as { id: number }[];
-    return list[0]?.id ?? null;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchPostsByCategory(token: string, categoryId: number): Promise<WpPostRaw[]> {
-  try {
-    const statusParams = ["publish", "pending", "draft"].map((s) => `status[]=${s}`).join("&");
-    const res = await wordpressAuthedFetch(`/posts?categories=${categoryId}&per_page=100&${statusParams}`, token);
-    if (!res.ok) return [];
-    return (await res.json()) as WpPostRaw[];
-  } catch {
-    return [];
-  }
-}
-
 function mapPost(post: WpPostRaw): { item: AdminRpaeListItem; meta: RpaeSubmissionMeta } {
-  const content = decodeHtmlEntities(post.content.rendered);
+  // Métadonnées lues dans les commentaires rpae: — texte affiché par React, jamais injecté en HTML.
+  const content = decodeHtmlEntities(post.content.raw ?? post.content.rendered);
   const meta = parseRpaeMetadata(content);
   const title = meta.titreArticle || stripHtml(post.title.rendered).replace(/^\[RPAE\]\s*/i, "").trim();
+  const usage = meta.usage ?? "publication";
 
   return {
     item: {
@@ -89,49 +66,52 @@ function mapPost(post: WpPostRaw): { item: AdminRpaeListItem; meta: RpaeSubmissi
       year: resolveArticleYear(meta, post.date),
       date: post.date,
       status: post.status,
-      usage: meta.usage ?? "publication",
+      rejected: post.status === "draft" && isRefusedRpae(content),
+      usage,
+      internal: isInternalRpaeUsage(usage),
     },
     meta,
   };
 }
 
-export async function listRpaeSubmissions(): Promise<AdminRpaeListItem[]> {
-  const session = await getAdminSession();
-  if (!session) return [];
+export function listRpaeSubmissions(): Promise<AdminResult<AdminRpaeListItem[]>> {
+  return withSession(async (session) => {
+    const categories = await fetchCategories(session);
+    if (!categories.ok) return categories;
+    const ids = categories.data
+      .filter((c) => c.slug === RPAE_CATEGORY_SLUG || c.slug === RPAE_INTERNAL_CATEGORY_SLUG)
+      .map((c) => c.id);
+    if (ids.length === 0) return { ok: true, data: [] };
 
-  const [publicId, internalId] = await Promise.all([
-    findCategoryId(session.token, RPAE_CATEGORY_SLUG),
-    findCategoryId(session.token, RPAE_INTERNAL_CATEGORY_SLUG),
-  ]);
-  const categoryIds = [publicId, internalId].filter((id): id is number => id !== null);
+    const statusParams = ["publish", "pending", "draft"].map((s) => `status[]=${s}`).join("&");
+    const posts = await fetchAllPages<WpPostRaw>(session, `/posts?categories=${ids.join(",")}&${statusParams}`);
+    if (!posts.ok) return posts;
 
-  const postLists = await Promise.all(categoryIds.map((id) => fetchPostsByCategory(session.token, id)));
-  const seen = new Set<number>();
-  const merged: WpPostRaw[] = [];
-  for (const list of postLists) {
-    for (const post of list) {
-      if (seen.has(post.id)) continue;
-      seen.add(post.id);
-      merged.push(post);
-    }
-  }
-
-  return merged
-    .map((post) => mapPost(post).item)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return {
+      ok: true,
+      data: posts.data
+        .map((post) => mapPost(post).item)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    };
+  });
 }
 
-export async function getRpaeSubmission(id: string): Promise<AdminRpaeDetail | null> {
-  const session = await getAdminSession();
-  if (!session) return null;
-
-  try {
-    const res = await wordpressAuthedFetch(`/posts/${id}`, session.token);
-    if (!res.ok) return null;
-    const post = (await res.json()) as WpPostRaw;
-    const { item, meta } = mapPost(post);
-    return { ...item, meta };
-  } catch {
-    return null;
-  }
+export function getRpaeSubmission(id: string): Promise<AdminResult<AdminRpaeDetail | null>> {
+  return withSession(async (session) => {
+    let res: Response;
+    try {
+      res = await wordpressAuthedFetch(`/posts/${encodeURIComponent(id)}?context=edit`, session.token);
+    } catch {
+      return { ok: false, expired: false, error: "Impossible de contacter le serveur WordPress." };
+    }
+    const body = (await res.json().catch(() => null)) as (WpPostRaw & { code?: string; message?: string }) | null;
+    if (!res.ok) {
+      if (isSessionRejected(res.status, body?.code)) return { ok: false, expired: true, error: "Session expirée." };
+      if (res.status === 404) return { ok: true, data: null };
+      return { ok: false, expired: false, error: `WordPress n'a pas pu fournir cet article (HTTP ${res.status}).` };
+    }
+    if (!body) return { ok: false, expired: false, error: "Réponse WordPress invalide." };
+    const { item, meta } = mapPost(body);
+    return { ok: true, data: { ...item, meta } };
+  });
 }
