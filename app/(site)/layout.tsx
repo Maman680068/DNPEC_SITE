@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, IBM_Plex_Sans } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import SiteHeader from "@/components/layout/SiteHeader";
 import MainNav from "@/components/layout/MainNav";
 import Footer from "@/components/layout/Footer";

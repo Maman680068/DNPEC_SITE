@@ -27,6 +27,11 @@ services:
       # d'articles RPAE (app/api/rpae-submission/route.ts). Tant qu'elles ne
       # sont pas définies, le formulaire affiche une erreur claire plutôt que
       # d'échouer silencieusement.
+      # Obligatoire pour l'espace contributeurs : secret de signature du
+      # cookie de session (32 caractères au moins, aléatoires). Sans lui, la
+      # connexion à /espace-contributeurs est refusée avec un message clair.
+      - key: ADMIN_SESSION_SECRET
+        sync: false
       - key: WORDPRESS_APP_USER
         sync: false
       - key: WORDPRESS_APP_PASSWORD

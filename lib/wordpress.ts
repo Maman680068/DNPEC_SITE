@@ -1,6 +1,6 @@
 import type { Indicator, InstitutionalPage, NewsArticle, Partner, Publication, PublicationCard } from "./types";
 import { mockIndicators, mockNews, mockPartners, mockPublicationCards, mockPublications } from "./mock-data";
-import { decodeHtmlEntities } from "./decodeHtml";
+import { decodeHtmlEntities, decodeTextFields } from "./decodeHtml";
 import { sanitizeWpHtml } from "./sanitizeHtml";
 import { extractImages } from "./extractImages";
 import type { Locale } from "./i18n/config";
@@ -21,6 +21,7 @@ import {
   type RpaeArticle,
 } from "./rpae";
 import { institutionalPageFallback } from "./institutional-fallbacks";
+import { WP_BROWSER_HEADERS } from "./wordpress-headers";
 import { getDonnees } from "./donnees";
 import { formatIndicatorValue } from "./donnees-format";
 import { messages } from "./i18n/messages";
@@ -67,19 +68,11 @@ async function fetchFromWordpress<T>(path: string, options: WpFetchOptions = {})
 
   const url = `${WORDPRESS_API_URL}${path}`;
   try {
-    // Sans User-Agent de navigateur, le pare-feu de l'hébergement WordPress
-    // bloque silencieusement les requêtes serveur-à-serveur (retourne une
-    // page HTML au lieu du JSON attendu) — voir diagnostic migration cms.dnpec.gov.gn.
-    const headers = {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      Accept: "application/json",
-    };
     const res = await fetch(
       url,
       options.fresh
-        ? { cache: "no-store", headers }
-        : { next: { revalidate: 300, tags: ["wordpress"] }, headers },
+        ? { cache: "no-store", headers: WP_BROWSER_HEADERS }
+        : { next: { revalidate: 300, tags: ["wordpress"] }, headers: WP_BROWSER_HEADERS },
     );
 
     // --- DIAGNOSTIC TEMPORAIRE (à retirer une fois la cause identifiée) ---
@@ -477,7 +470,12 @@ export async function getPageBySlug(slug: string, locale: Locale = "fr"): Promis
  */
 export async function getPublications(): Promise<Publication[]> {
   const data = await fetchFromWordpress<Publication[]>("/publications?_embed");
-  return data && data.length > 0 ? data : mockPublications;
+  if (!data || data.length === 0) return mockPublications;
+  // Lien du PDF : seulement une URL http(s) (affiché tel quel dans un <a href>).
+  return data.map((publication) => ({
+    ...decodeTextFields(publication, ["title", "description"]),
+    fileUrl: safeHttpUrl(publication.fileUrl),
+  }));
 }
 
 /**
@@ -609,7 +607,9 @@ export async function getIndicators(locale: Locale = "fr"): Promise<Indicator[]>
     }));
   }
   const data = await fetchFromWordpress<Indicator[]>("/indicateurs");
-  return data && data.length > 0 ? data : mockIndicators;
+  return data && data.length > 0
+    ? data.map((indicator) => decodeTextFields(indicator, ["label", "value", "period"]))
+    : mockIndicators;
 }
 
 /**
@@ -618,8 +618,16 @@ export async function getIndicators(locale: Locale = "fr"): Promise<Indicator[]>
  * saisis dans WordPress.
  */
 export async function getPartners(): Promise<Partner[]> {
-  const data = await fetchFromWordpress<Partner[]>("/partenaires");
-  return data && data.length > 0 ? data : mockPartners;
+  const data = await fetchFromWordpress<(Partner & { slug?: string })[]>("/partenaires");
+  if (!data || data.length === 0) return mockPartners;
+  // WordPress renvoie l'identifiant numérique ; le site range « simandou » et
+  // « guinee » dans la rangée du bas d'après leur slug (voir PartnersSection).
+  return data.map(({ slug, ...partner }) => ({
+    ...decodeTextFields(partner, ["name"]),
+    id: slug || partner.id,
+    websiteUrl: safeHttpUrl(partner.websiteUrl),
+    logoUrl: safeHttpUrl(partner.logoUrl),
+  }));
 }
 
 function mapWpPostToRpaeArticle(post: WpPost): RpaeArticle | null {
