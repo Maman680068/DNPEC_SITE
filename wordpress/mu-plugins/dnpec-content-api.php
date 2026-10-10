@@ -9,7 +9,13 @@
  *              le plugin JWT Authentication for WP REST API) et un journal
  *              d'audit des validations/rejets. Aucune dépendance à un thème ou à un
  *              autre plugin (pas d'ACF requis) — 100% autonome.
- * Version:     2.2.0 — modération par action (publier / rejeter) décidée
+ * Version:     2.3.0 — titres renvoyés en texte brut (« Note d'analyse »
+ *              au lieu de « Note d&#8217;analyse »), journal verrouillé
+ *              (invisible dans wp-admin, écrit seulement par ce fichier,
+ *              lu seulement par les administrateurs et éditeurs), liste
+ *              des fichiers et auteurs des contenus masqués aux visiteurs
+ *              anonymes.
+ *              2.2.0 : modération par action (publier / rejeter) décidée
  *              selon les droits WordPress, journal infalsifiable, lecture
  *              limitée à ses propres brouillons pour un contributeur, URL
  *              filtrées (http/https ou chemin du site), téléversement
@@ -119,23 +125,30 @@ add_action('init', function () {
         'query_var'          => false,
     ]);
 
-    // Journal d'audit : jamais édité à la main, rempli par dnpec_log_action()
-    // ci-dessous. show_ui à true uniquement pour pouvoir le consulter/purger
-    // manuellement en cas de besoin technique — l'espace contributeurs a sa
-    // propre page de consultation (lecture seule) via la route REST dédiée.
+    // Journal d'audit : rempli uniquement par dnpec_log_action() ci-dessous.
+    // Invisible dans wp-admin et sans aucun droit de création, de
+    // modification ou de suppression, pour personne (administrateur
+    // compris) : wp_insert_post() appelé par ce fichier ne vérifie pas les
+    // droits, c'est donc le seul chemin d'écriture. Lecture : route REST
+    // /wp/v2/journal, réservée aux administrateurs et éditeurs.
     register_post_type('dnpec_journal', [
         'labels' => [
             'name'          => 'Journal des validations (DNPEC)',
             'singular_name' => 'Entrée de journal',
-            'all_items'     => 'Journal des validations',
         ],
         'public'             => false,
-        'show_ui'            => true,
-        'show_in_menu'       => true,
-        'menu_icon'          => 'dashicons-list-view',
+        'show_ui'            => false,
+        'show_in_menu'       => false,
+        'show_in_nav_menus'  => false,
+        'show_in_admin_bar'  => false,
         'show_in_rest'       => false,
+        'exclude_from_search' => true,
         'supports'           => ['title'],
-        'capability_type'    => 'post',
+        'capability_type'    => ['dnpec_journal_entry', 'dnpec_journal_entries'],
+        'capabilities'       => [
+            'create_posts' => 'do_not_allow',
+        ],
+        'map_meta_cap'       => true,
         'has_archive'        => false,
         'rewrite'            => false,
         'query_var'          => false,
@@ -185,14 +198,48 @@ add_action('init', function () {
     // -- dnpec_partenaire : Partner (lib/types.ts) ----------------------
     register_post_meta('dnpec_partenaire', 'dnpec_website_url', $url_field);
 
-    // -- dnpec_journal : entrée d'audit ----------------------------------
-    register_post_meta('dnpec_journal', 'dnpec_actor_id', $int_field);
-    register_post_meta('dnpec_journal', 'dnpec_actor_name', $text_field);
-    register_post_meta('dnpec_journal', 'dnpec_action', $text_field);
-    register_post_meta('dnpec_journal', 'dnpec_entity_type', $text_field);
-    register_post_meta('dnpec_journal', 'dnpec_entity_id', $int_field);
-    register_post_meta('dnpec_journal', 'dnpec_entity_title', $text_field);
+    // -- dnpec_journal : entrée d'audit, en lecture seule ----------------
+    // Aucun droit de modification (auth_callback false) et absente de l'API
+    // REST native : seul dnpec_log_action() l'écrit, par update_post_meta().
+    $journal_text = $text_field;
+    $journal_text['show_in_rest'] = false;
+    $journal_text['auth_callback'] = '__return_false';
+    $journal_int = $int_field;
+    $journal_int['show_in_rest'] = false;
+    $journal_int['auth_callback'] = '__return_false';
+    foreach (dnpec_journal_meta_keys() as $key => $type) {
+        register_post_meta('dnpec_journal', $key, $type === 'int' ? $journal_int : $journal_text);
+    }
 });
+
+function dnpec_journal_meta_keys(): array {
+    return [
+        'dnpec_actor_id'     => 'int',
+        'dnpec_actor_name'   => 'string',
+        'dnpec_action'       => 'string',
+        'dnpec_entity_type'  => 'string',
+        'dnpec_entity_id'    => 'int',
+        'dnpec_entity_title' => 'string',
+    ];
+}
+
+/**
+ * Journal : aucune entrée ne peut être créée, modifiée, supprimée ni lue
+ * par les écrans ou routes natifs de WordPress, quel que soit le rôle.
+ * Ses champs sont aussi protégés (masqués du bloc « Champs personnalisés »).
+ */
+add_filter('map_meta_cap', function ($caps, $cap, $user_id, $args) {
+    $journal_caps = ['edit_post', 'delete_post', 'read_post', 'publish_post',
+        'edit_post_meta', 'add_post_meta', 'delete_post_meta'];
+    if (!in_array($cap, $journal_caps, true) || empty($args[0])) return $caps;
+    $post = get_post((int) $args[0]);
+    if ($post && $post->post_type === 'dnpec_journal') return ['do_not_allow'];
+    return $caps;
+}, 10, 4);
+
+add_filter('is_protected_meta', function ($protected, $meta_key) {
+    return array_key_exists($meta_key, dnpec_journal_meta_keys()) ? true : $protected;
+}, 10, 2);
 
 function dnpec_can_edit_meta() {
     return current_user_can('edit_posts');
@@ -402,7 +449,7 @@ add_action('rest_api_init', function () {
             // Un article WordPress "post" est soit une actualité, soit un
             // article RPAE (catégorie rpae / rpae-interne).
             $isRpae = has_category(['rpae', 'rpae-interne'], $post->ID);
-            dnpec_log_action($value, $isRpae ? 'rpae' : 'actualite', $post->ID, get_the_title($post->ID));
+            dnpec_log_action($value, $isRpae ? 'rpae' : 'actualite', $post->ID, dnpec_plain_title($post->ID));
         },
         'schema' => ['type' => 'string'],
     ]);
@@ -459,6 +506,20 @@ function dnpec_limit_contributor_upload($file) {
 }
 add_filter('wp_handle_upload_prefilter', 'dnpec_limit_contributor_upload');
 add_filter('wp_handle_sideload_prefilter', 'dnpec_limit_contributor_upload');
+
+/**
+ * Fichiers déposés : un fichier envoyé pour un contenu encore en attente ne
+ * doit pas apparaître dans la liste publique GET /wp/v2/media. La liste est
+ * réservée aux personnes connectées. La lecture d'un fichier précis
+ * (/wp/v2/media/123, utilisée par _embed pour l'image d'un article publié)
+ * reste ouverte.
+ */
+add_filter('rest_pre_dispatch', function ($result, $server, $request) {
+    if ($result !== null || is_user_logged_in()) return $result;
+    if (!in_array($request->get_method(), ['GET', 'HEAD'], true)) return $result;
+    if (!preg_match('#^/wp/v2/media/?$#', $request->get_route())) return $result;
+    return new WP_Error('rest_forbidden', 'La liste des fichiers est réservée aux personnes connectées.', ['status' => 401]);
+}, 10, 3);
 
 // -----------------------------------------------------------------------
 // 6. Routes REST — lecture (publique + espace contributeurs) et écriture
@@ -521,13 +582,11 @@ add_action('rest_api_init', function () {
         ]);
     }
 
-    // Journal : lecture seule, réservée aux personnes connectées pouvant éditer du contenu.
+    // Journal : lecture seule, réservée aux administrateurs et éditeurs.
     register_rest_route('wp/v2', '/journal', [
         'methods'             => WP_REST_Server::READABLE,
         'callback'            => 'dnpec_rest_get_journal',
-        'permission_callback' => function () {
-            return current_user_can('edit_posts');
-        },
+        'permission_callback' => 'dnpec_can_moderate',
     ]);
 });
 
@@ -636,16 +695,30 @@ function dnpec_rest_get_one(array $config, int $id) {
     return new WP_REST_Response(dnpec_format_item($config, $post), 200);
 }
 
+/**
+ * Titre tel qu'enregistré, en texte brut. get_the_title() applique
+ * wptexturize et renverrait « Note d&#8217;analyse » : le site affiche ces
+ * titres comme du texte, il recevrait l'entité au lieu de l'apostrophe.
+ */
+function dnpec_plain_title($post): string {
+    $post = get_post($post);
+    return $post ? (string) $post->post_title : '';
+}
+
 function dnpec_format_item(array $config, WP_Post $post) {
     $item = [
         'id'    => (string) $post->ID,
         'slug'  => $post->post_name,
-        'title' => get_the_title($post),
+        'title' => dnpec_plain_title($post),
         'status' => $post->post_status,
         'rejected' => (bool) get_post_meta($post->ID, 'dnpec_rejete', true),
-        'authorId'   => (int) $post->post_author,
-        'authorName' => get_the_author_meta('display_name', $post->post_author) ?: null,
     ];
+    // Auteur : seulement pour une personne connectée (espace contributeurs),
+    // jamais pour un visiteur anonyme du site public.
+    if (is_user_logged_in()) {
+        $item['authorId'] = (int) $post->post_author;
+        $item['authorName'] = get_the_author_meta('display_name', $post->post_author) ?: null;
+    }
 
     foreach ($config['fields'] as $jsonKey => $fieldConfig) {
         $raw = get_post_meta($post->ID, $fieldConfig['meta'], true);
@@ -773,7 +846,7 @@ function dnpec_rest_moderate(array $config, WP_REST_Request $request, int $id) {
         update_post_meta($id, 'dnpec_rejete', 1);
     }
 
-    dnpec_log_action($action, $config['entity'], $id, get_the_title($id));
+    dnpec_log_action($action, $config['entity'], $id, dnpec_plain_title($id));
 
     return new WP_REST_Response(dnpec_format_item($config, get_post($id)), 200);
 }

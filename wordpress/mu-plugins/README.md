@@ -3,7 +3,7 @@
 Module « must-use » du WordPress headless de la DNPEC (TasteWP). Il fournit
 au site Next.js les contenus Publications, Partenaires (et Indicateurs, en
 secours) et le journal des validations de l'espace contributeurs
-(`/espace-contributeurs`). Version actuelle : **2.2.0**.
+(`/espace-contributeurs`). Version actuelle : **2.3.0**.
 
 Ce fichier est la référence : la copie installée sur WordPress doit lui être
 identique.
@@ -17,7 +17,7 @@ identique.
 3. Remplacer `dnpec-content-api.php` par ce fichier, tel quel.
 4. Rien à activer : WordPress charge automatiquement les modules de ce
    dossier. Vérifier dans *Extensions → Extensions indispensables* que
-   « DNPEC — API contenu » apparaît en version 2.2.0.
+   « DNPEC — API contenu » apparaît en version 2.3.0.
 
 Prérequis : le plugin **JWT Authentication for WP REST API** (connexion de
 l'espace contributeurs), déjà installé sur TasteWP, avec sa clé
@@ -36,9 +36,23 @@ l'espace contributeurs), déjà installé sur TasteWP, avec sa clé
   éditeurs (`edit_others_posts`). Rejeter = brouillon + marqueur « rejeté »
   (rien n'est supprimé). Chaque action est inscrite au journal, avec le nom
   de la personne connectée.
-- **Journal infalsifiable** : sur les articles (`/wp/v2/posts`), le champ
-  `dnpec_log_action` n'est pris en compte que si l'action a réellement eu
-  lieu et si la personne avait le droit de la faire.
+- **Journal infalsifiable** :
+  - seul ce module écrit dans le journal. Le journal n'apparaît plus dans
+    wp-admin et personne, administrateur compris, ne peut y créer, modifier
+    ou supprimer une entrée, ni en changer les champs ;
+  - sur les articles (`/wp/v2/posts`), le champ `dnpec_log_action` n'est
+    pris en compte que si l'action a réellement eu lieu et si la personne
+    avait le droit de la faire ;
+  - lecture réservée aux administrateurs et éditeurs.
+- **Titres en texte brut** : les routes renvoient le titre tel qu'il a été
+  saisi (« Note d'analyse »), sans la mise en forme typographique de
+  WordPress qui produisait « Note d&#8217;analyse ».
+- **Visiteurs anonymes** : ils ne voient ni l'auteur des contenus
+  (`authorId`, `authorName`), ni la liste des fichiers déposés
+  (`GET /wp/v2/media` → 401). Un fichier précis reste lisible
+  (`/wp/v2/media/{id}`, utilisé pour l'image des articles publiés), et son
+  adresse directe reste publique : ne pas déposer un document avant sa date
+  de diffusion.
 - **Téléversement** : le rôle Contributeur reçoit le droit de téléverser,
   limité aux images (JPG, PNG, GIF, WebP) et aux PDF de 8 Mo au plus.
 - **Liens filtrés** : site web, fichier PDF et lien de destination
@@ -49,12 +63,13 @@ l'espace contributeurs), déjà installé sur TasteWP, avec sa clé
 
 | Route | Méthode | Qui | Rôle |
 |---|---|---|---|
-| `/publications`, `/partenaires`, `/indicateurs` | GET | tout le monde | Liste. Visiteur : contenus publiés. Personne connectée : publiés + ses propres contenus (tous statuts) + ceux des autres si elle peut les modifier. |
+| `/publications`, `/partenaires`, `/indicateurs` | GET | tout le monde | Liste. Visiteur : contenus publiés, sans auteur. Personne connectée : publiés + ses propres contenus (tous statuts) + ceux des autres si elle peut les modifier. |
 | `/…/{id}` | GET | tout le monde | Un élément publié, ou non publié si la personne peut le modifier. |
 | `/…` | POST | `edit_posts` | Créer. Statut décidé par les droits (publié ou en attente). `slug` et `order` acceptés seulement pour un administrateur/éditeur (import de la liste par défaut). |
 | `/…/{id}` | PUT | `edit_post` sur cet élément | Modifier les champs. Le statut n'est pas modifiable ici ; un contributeur qui corrige son contenu rejeté le renvoie en relecture. |
 | `/…/{id}/moderation` | POST `{ "action": "publier" \| "rejeter" }` | `edit_others_posts` + `publish_posts` | Publier, ou rejeter (brouillon + marqueur). Inscrit l'action au journal. |
-| `/journal` | GET | `edit_posts` | 200 dernières entrées du journal (lecture seule). |
+| `/journal` | GET | administrateur, éditeur (`edit_others_posts` + `publish_posts`) | 200 dernières entrées du journal (lecture seule). |
+| `/media` (route native) | GET | personne connectée | Liste des fichiers : refusée aux visiteurs anonymes (401). `/media/{id}` reste ouvert. |
 | `/posts` (champ `dnpec_log_action`) | PUT | voir ci-dessus | Inscrit au journal la publication ou le rejet d'une actualité ou d'un article RPAE fait depuis l'espace contributeurs. |
 
 Champs : Publications → `title`, `description`, `type`, `year`, `fileUrl`,
