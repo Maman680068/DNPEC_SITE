@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getAdminSession } from "@/lib/admin/session";
-import { canPublishDirectly } from "@/lib/admin/constants";
+import { canModerate, canPublishDirectly } from "@/lib/admin/constants";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 const SECTIONS = [
@@ -16,12 +16,14 @@ const SECTIONS = [
     href: "/espace-contributeurs/journal",
     title: "Journal des validations",
     description: "Historique de qui a validé ou rejeté quoi.",
+    moderatorsOnly: true,
   },
 ];
 
 export default async function EspaceContributeursAccueil() {
   const session = await getAdminSession();
   const peutPublierDirectement = session ? canPublishDirectly(session.roles) : false;
+  const sections = SECTIONS.filter((section) => !section.moderatorsOnly || (session && canModerate(session.roles)));
 
   return (
     <div>
@@ -39,7 +41,7 @@ export default async function EspaceContributeursAccueil() {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {SECTIONS.map((section) => (
+        {sections.map((section) => (
           <Link
             key={section.href}
             href={section.href}

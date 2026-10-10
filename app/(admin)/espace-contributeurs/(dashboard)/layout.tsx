@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin/session";
-import { roleLabel, ADMIN_SESSION_EXPIRED_PATH } from "@/lib/admin/constants";
+import { roleLabel, canModerate, ADMIN_SESSION_EXPIRED_PATH } from "@/lib/admin/constants";
 import AdminShell from "@/components/admin/AdminShell";
 
 /**
@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <AdminShell name={session.name} roleLabel={roleLabel(session.roles)}>
+    <AdminShell name={session.name} roleLabel={roleLabel(session.roles)} canModerate={canModerate(session.roles)}>
       {children}
     </AdminShell>
   );

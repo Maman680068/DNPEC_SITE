@@ -1,7 +1,7 @@
 import { getAdminSession, type AdminSession } from "./session";
 import { isSessionRejected, wordpressAuthedFetch } from "./wordpress-auth";
 import { isRejectedActualite } from "./markers";
-import { decodeHtmlEntities } from "@/lib/decodeHtml";
+import { decodeHtmlEntities, decodeTextFields } from "@/lib/decodeHtml";
 import { RPAE_CATEGORY_SLUG, RPAE_INTERNAL_CATEGORY_SLUG } from "@/lib/rpae";
 
 /**
@@ -245,34 +245,40 @@ export type AdminPartenaire = {
   authorName?: string;
 };
 
-async function listContent<T>(path: string): Promise<AdminResult<T[]>> {
+/** Champs texte décodés (« d&#8217;analyse » → « d’analyse ») : affichés comme du texte, jamais comme du HTML. */
+async function listContent<T extends object>(path: string, textKeys: readonly (keyof T)[]): Promise<AdminResult<T[]>> {
   return withSession(async (session) => {
     const result = await fetchJson<T[]>(session, path);
     if (!result.ok) return result;
-    return { ok: true, data: Array.isArray(result.data.body) ? result.data.body : [] };
+    const items = Array.isArray(result.data.body) ? result.data.body : [];
+    return { ok: true, data: items.map((item) => decodeTextFields(item, textKeys)) };
   });
 }
 
-async function getContentOne<T>(path: string): Promise<AdminResult<T | null>> {
+async function getContentOne<T extends object>(path: string, textKeys: readonly (keyof T)[]): Promise<AdminResult<T | null>> {
   return withSession(async (session) => {
     const result = await fetchJson<T>(session, path);
     if (!result.ok) return result.error.includes("Introuvable") ? { ok: true, data: null } : result;
-    return { ok: true, data: result.data.body };
+    return { ok: true, data: decodeTextFields(result.data.body, textKeys) };
   });
 }
 
+const PUBLICATION_TEXT = ["title", "description", "authorName"] as const;
+const PARTENAIRE_TEXT = ["name", "authorName"] as const;
+const JOURNAL_TEXT = ["actorName", "entityTitle"] as const;
+
 export function listPublications(): Promise<AdminResult<AdminPublication[]>> {
-  return listContent<AdminPublication>("/publications");
+  return listContent<AdminPublication>("/publications", PUBLICATION_TEXT);
 }
 export function getPublication(id: string): Promise<AdminResult<AdminPublication | null>> {
-  return getContentOne<AdminPublication>(`/publications/${encodeURIComponent(id)}`);
+  return getContentOne<AdminPublication>(`/publications/${encodeURIComponent(id)}`, PUBLICATION_TEXT);
 }
 
 export function listPartenaires(): Promise<AdminResult<AdminPartenaire[]>> {
-  return listContent<AdminPartenaire>("/partenaires");
+  return listContent<AdminPartenaire>("/partenaires", PARTENAIRE_TEXT);
 }
 export function getPartenaire(id: string): Promise<AdminResult<AdminPartenaire | null>> {
-  return getContentOne<AdminPartenaire>(`/partenaires/${encodeURIComponent(id)}`);
+  return getContentOne<AdminPartenaire>(`/partenaires/${encodeURIComponent(id)}`, PARTENAIRE_TEXT);
 }
 
 // --- Journal des validations -------------------------------------------------
@@ -289,7 +295,7 @@ export type AdminJournalEntry = {
 };
 
 export function listJournal(): Promise<AdminResult<AdminJournalEntry[]>> {
-  return listContent<AdminJournalEntry>("/journal");
+  return listContent<AdminJournalEntry>("/journal", JOURNAL_TEXT);
 }
 
 // Réutilisés par la lecture RPAE (lib/admin/rpae.ts).

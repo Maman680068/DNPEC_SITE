@@ -13,6 +13,7 @@ import {
 import { isRpaePost, rpaeCategoryIdsFor, type WpPostEdit } from "@/lib/admin/actualites";
 import { ACTUALITE_REJECT_MARKER, isRejectedActualite, withoutRejectMarkers } from "@/lib/admin/markers";
 import { revalidateContent } from "@/lib/revalidate-content";
+import { isNumericId } from "@/lib/admin/constants";
 
 export const runtime = "nodejs";
 
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const originError = requireTrustedOrigin(request);
   if (originError) return originError;
   const { id } = await params;
+  if (!isNumericId(id)) return NextResponse.json({ error: "Introuvable." }, { status: 404 });
   const session = await requireSession();
   if (isErrorResponse(session)) return session;
 

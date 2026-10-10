@@ -6,12 +6,13 @@ import ActualiteForm from "@/components/admin/forms/ActualiteForm";
 import { getActualite, HIDDEN_CATEGORY_SLUGS, listCategories } from "@/lib/admin/data";
 import { readAdminResult } from "@/lib/admin/page-data";
 import { getAdminSession } from "@/lib/admin/session";
-import { canPublishDirectly } from "@/lib/admin/constants";
+import { isNumericId, canPublishDirectly } from "@/lib/admin/constants";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export default async function ModifierActualitePage({ params }: PageProps) {
   const { id } = await params;
+  if (!isNumericId(id)) notFound();
   const [itemResult, categoriesResult, session] = await Promise.all([
     getActualite(id),
     listCategories(),

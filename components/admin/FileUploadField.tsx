@@ -63,6 +63,9 @@ export default function FileUploadField({ label, accept, onUploaded, onUploading
         {status === "done" && <span className="text-xs text-green-dark font-semibold">Fichier envoyé</span>}
       </label>
       <span className="text-[12px] font-normal text-muted">8 Mo maximum.</span>
+      <span className="text-[12px] font-normal text-muted">
+        Le fichier est accessible en ligne dès son envoi : ne déposez pas un document avant sa date de diffusion.
+      </span>
       {previewUrl && accept?.startsWith("image") && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={previewUrl} alt="" className="mt-1 h-20 w-20 object-cover rounded-md border border-line" />

@@ -15,6 +15,7 @@ import { RPAE_REFUSE_MARKER, isRefusedRpae, withoutRejectMarkers } from "@/lib/a
 import { isInternalRpaeUsage, parseRpaeMetadata, RPAE_INTERNAL_CATEGORY_SLUG } from "@/lib/rpae";
 import { decodeHtmlEntities } from "@/lib/decodeHtml";
 import { revalidateContent } from "@/lib/revalidate-content";
+import { isNumericId } from "@/lib/admin/constants";
 
 export const runtime = "nodejs";
 
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const originError = requireTrustedOrigin(request);
   if (originError) return originError;
   const { id } = await params;
+  if (!isNumericId(id)) return NextResponse.json({ error: "Introuvable." }, { status: 404 });
   const session = await requireSession();
   if (isErrorResponse(session)) return session;
 

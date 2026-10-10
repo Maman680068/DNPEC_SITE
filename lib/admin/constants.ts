@@ -67,3 +67,8 @@ export function roleLabel(roles: string[]): string {
   if (known) return ROLE_LABELS_FR[known];
   return roles[0] ?? "Compte";
 }
+
+/** Identifiant WordPress dans une adresse de l'espace : chiffres uniquement, sinon 404. */
+export function isNumericId(id: string): boolean {
+  return /^\d{1,18}$/.test(id);
+}

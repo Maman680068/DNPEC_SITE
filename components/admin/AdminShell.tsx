@@ -8,6 +8,8 @@ import { usePathname, useRouter } from "next/navigation";
 type NavItem = {
   href: string;
   label: string;
+  /** Réservé aux administrateurs et éditeurs. */
+  moderatorsOnly?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -16,7 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/espace-contributeurs/publications", label: "Publications" },
   { href: "/espace-contributeurs/partenaires", label: "Partenaires" },
   { href: "/espace-contributeurs/revue-scientifique", label: "Revue scientifique" },
-  { href: "/espace-contributeurs/journal", label: "Journal des validations" },
+  { href: "/espace-contributeurs/journal", label: "Journal des validations", moderatorsOnly: true },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -27,10 +29,12 @@ function isActive(pathname: string, href: string): boolean {
 type AdminShellProps = {
   name: string;
   roleLabel: string;
+  canModerate: boolean;
   children: React.ReactNode;
 };
 
-export default function AdminShell({ name, roleLabel, children }: AdminShellProps) {
+export default function AdminShell({ name, roleLabel, canModerate, children }: AdminShellProps) {
+  const navItems = NAV_ITEMS.filter((item) => canModerate || !item.moderatorsOnly);
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -97,7 +101,7 @@ export default function AdminShell({ name, roleLabel, children }: AdminShellProp
           } lg:block w-full lg:w-64 shrink-0 bg-white border-r border-line lg:min-h-[calc(100vh-64px)]`}
         >
           <ul className="p-3 flex flex-col gap-1">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const active = isActive(pathname, item.href);
               return (
                 <li key={item.href}>

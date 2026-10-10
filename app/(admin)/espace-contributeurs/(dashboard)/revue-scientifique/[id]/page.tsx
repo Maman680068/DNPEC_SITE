@@ -7,7 +7,7 @@ import AdminError from "@/components/admin/AdminError";
 import { readAdminResult } from "@/lib/admin/page-data";
 import { getRpaeSubmission } from "@/lib/admin/rpae";
 import { getAdminSession } from "@/lib/admin/session";
-import { canModerate as rolesCanModerate } from "@/lib/admin/constants";
+import { isNumericId, canModerate as rolesCanModerate } from "@/lib/admin/constants";
 import { usageLabel } from "@/lib/rpae";
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -30,6 +30,7 @@ function InfoRow({ label, value }: { label: string; value?: string }) {
 
 export default async function RpaeSubmissionDetailPage({ params }: PageProps) {
   const { id } = await params;
+  if (!isNumericId(id)) notFound();
   const [result, session] = await Promise.all([getRpaeSubmission(id), getAdminSession()]);
   const { data: item, error } = readAdminResult(result);
   if (!error && !item) notFound();

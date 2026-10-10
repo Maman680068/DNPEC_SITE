@@ -16,7 +16,7 @@ const ALLOWED_TYPES: Record<string, string> = {
 
 /**
  * Nom de fichier pour l'en-tête Content-Disposition : version ASCII de
- * secours (accents retirés, « ’ » et « — » remplacés) et version UTF-8
+ * secours (accents retirés, « ’ », « — » et séparateurs d'en-tête remplacés) et version UTF-8
  * complète (filename*, RFC 5987). Un en-tête HTTP ne peut pas contenir
  * « ’ » tel quel : c'est ce qui faisait échouer l'envoi de
  * « note d’analyse.pdf » avec un message trompeur.
@@ -30,7 +30,8 @@ function contentDisposition(name: string, extension: string): string {
       .replace(/[’‘]/g, "'")
       .replace(/[–—]/g, "-")
       .replace(/[^\x20-\x7e]/g, "_")
-      .replace(/'/g, "_") || `fichier.${extension}`;
+      // Séparateurs d'en-tête HTTP (« ; », « , », « = », guillemets…) remplacés.
+      .replace(/[';,=()<>@:[\]?{}]/g, "_") || `fichier.${extension}`;
   const encoded = encodeURIComponent(base).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
   return `attachment; filename="${ascii}"; filename*=UTF-8''${encoded}`;
 }
@@ -45,8 +46,13 @@ export async function POST(request: NextRequest) {
   const session = await requireSession();
   if (isErrorResponse(session)) return session;
 
-  // Taille contrôlée avant de lire le corps de la requête.
-  const declared = Number(request.headers.get("content-length") ?? "0");
+  // Taille contrôlée avant de lire le corps : formData() lirait tout en
+  // mémoire, donc une requête sans taille annoncée est refusée.
+  const lengthHeader = request.headers.get("content-length");
+  const declared = lengthHeader !== null && /^\d+$/.test(lengthHeader.trim()) ? Number(lengthHeader) : NaN;
+  if (!Number.isFinite(declared)) {
+    return NextResponse.json({ error: "Taille du fichier non annoncée : envoi refusé." }, { status: 411 });
+  }
   if (declared > MAX_SIZE_BYTES + MULTIPART_OVERHEAD) {
     return NextResponse.json({ error: "Fichier trop volumineux (8 Mo maximum)." }, { status: 413 });
   }

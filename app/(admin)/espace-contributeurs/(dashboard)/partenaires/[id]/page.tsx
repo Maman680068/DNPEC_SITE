@@ -6,12 +6,13 @@ import PartenaireForm from "@/components/admin/forms/PartenaireForm";
 import { getPartenaire } from "@/lib/admin/data";
 import { readAdminResult } from "@/lib/admin/page-data";
 import { getAdminSession } from "@/lib/admin/session";
-import { canPublishDirectly } from "@/lib/admin/constants";
+import { isNumericId, canPublishDirectly } from "@/lib/admin/constants";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export default async function ModifierPartenairePage({ params }: PageProps) {
   const { id } = await params;
+  if (!isNumericId(id)) notFound();
   const [result, session] = await Promise.all([getPartenaire(id), getAdminSession()]);
   const { data: item, error } = readAdminResult(result);
   if (!error && !item) notFound();

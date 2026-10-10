@@ -1,6 +1,6 @@
 import type { Indicator, InstitutionalPage, NewsArticle, Partner, Publication, PublicationCard } from "./types";
 import { mockIndicators, mockNews, mockPartners, mockPublicationCards, mockPublications } from "./mock-data";
-import { decodeHtmlEntities } from "./decodeHtml";
+import { decodeHtmlEntities, decodeTextFields } from "./decodeHtml";
 import { sanitizeWpHtml } from "./sanitizeHtml";
 import { extractImages } from "./extractImages";
 import type { Locale } from "./i18n/config";
@@ -472,7 +472,10 @@ export async function getPublications(): Promise<Publication[]> {
   const data = await fetchFromWordpress<Publication[]>("/publications?_embed");
   if (!data || data.length === 0) return mockPublications;
   // Lien du PDF : seulement une URL http(s) (affiché tel quel dans un <a href>).
-  return data.map((publication) => ({ ...publication, fileUrl: safeHttpUrl(publication.fileUrl) }));
+  return data.map((publication) => ({
+    ...decodeTextFields(publication, ["title", "description"]),
+    fileUrl: safeHttpUrl(publication.fileUrl),
+  }));
 }
 
 /**
@@ -604,7 +607,9 @@ export async function getIndicators(locale: Locale = "fr"): Promise<Indicator[]>
     }));
   }
   const data = await fetchFromWordpress<Indicator[]>("/indicateurs");
-  return data && data.length > 0 ? data : mockIndicators;
+  return data && data.length > 0
+    ? data.map((indicator) => decodeTextFields(indicator, ["label", "value", "period"]))
+    : mockIndicators;
 }
 
 /**
@@ -618,7 +623,7 @@ export async function getPartners(): Promise<Partner[]> {
   // WordPress renvoie l'identifiant numérique ; le site range « simandou » et
   // « guinee » dans la rangée du bas d'après leur slug (voir PartnersSection).
   return data.map(({ slug, ...partner }) => ({
-    ...partner,
+    ...decodeTextFields(partner, ["name"]),
     id: slug || partner.id,
     websiteUrl: safeHttpUrl(partner.websiteUrl),
     logoUrl: safeHttpUrl(partner.logoUrl),

@@ -1,7 +1,10 @@
+import { notFound } from "next/navigation";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminError from "@/components/admin/AdminError";
 import { listJournal } from "@/lib/admin/data";
 import { readAdminResult } from "@/lib/admin/page-data";
+import { getAdminSession } from "@/lib/admin/session";
+import { canModerate } from "@/lib/admin/constants";
 
 const ACTION_LABELS: Record<string, string> = {
   publier: "a publié",
@@ -23,6 +26,9 @@ function formatDate(iso: string): string {
 }
 
 export default async function JournalAdminPage() {
+  // Réservé aux administrateurs et éditeurs (WordPress refuse aussi la lecture aux autres).
+  const session = await getAdminSession();
+  if (!session || !canModerate(session.roles)) notFound();
   const { data, error } = readAdminResult(await listJournal());
   const entries = data ?? [];
 
