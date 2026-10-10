@@ -62,6 +62,8 @@ export default function CountUpNumber({ value, className = "" }: CountUpNumberPr
     if (!node) return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // Préférence système lue après le montage (inaccessible au rendu serveur).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplay(value);
       return;
     }
@@ -92,7 +94,7 @@ export default function CountUpNumber({ value, className = "" }: CountUpNumberPr
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [value]);
+  }, [value, numberLocale]);
 
   return (
     <span ref={ref} className={className}>

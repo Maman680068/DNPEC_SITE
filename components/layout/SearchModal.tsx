@@ -48,15 +48,9 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
     if (!open) return;
 
     const trimmed = query.trim();
-    if (trimmed.length < SUGGEST_MIN_CHARS) {
-      abortRef.current?.abort();
-      setResults(null);
-      setLoading(false);
-      setActiveIndex(-1);
-      return;
-    }
+    // Requête trop courte : état déjà remis à zéro par handleQueryChange.
+    if (trimmed.length < SUGGEST_MIN_CHARS) return;
 
-    setLoading(true);
     const timer = setTimeout(async () => {
       abortRef.current?.abort();
       const controller = new AbortController();
@@ -85,6 +79,18 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
       abortRef.current?.abort();
     };
   }, [query, open, locale]);
+
+  function handleQueryChange(next: string) {
+    setQuery(next);
+    if (next.trim().length < SUGGEST_MIN_CHARS) {
+      abortRef.current?.abort();
+      setResults(null);
+      setLoading(false);
+      setActiveIndex(-1);
+    } else {
+      setLoading(true);
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -152,7 +158,7 @@ export default function SearchModal({ open, onClose }: SearchModalProps) {
             autoFocus
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => handleQueryChange(event.target.value)}
             onKeyDown={handleInputKeyDown}
             placeholder={t.search.sitePlaceholder}
             autoComplete="off"

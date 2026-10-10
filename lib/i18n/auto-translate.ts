@@ -1,3 +1,4 @@
+import { decode } from "he";
 /**
  * Traduction automatique FR → EN (contenu WordPress).
  * Utilise MyMemory (gratuit, sans clé) ; les résultats sont mis en cache
@@ -84,6 +85,10 @@ export async function translateTextFrToEn(text: string): Promise<string> {
  * Traduit le HTML en préservant les balises : seuls les nœuds texte
  * (hors script/style) sont envoyés au moteur de traduction.
  */
+function escapeHtmlText(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 export async function translateHtmlFrToEn(html: string): Promise<string> {
   if (!html.trim()) return html;
 
@@ -112,7 +117,10 @@ export async function translateHtmlFrToEn(html: string): Promise<string> {
       out.push(seg);
       continue;
     }
-    out.push(await translateTextFrToEn(seg));
+    // Segment de texte : on traduit le texte décodé, puis on ré-échappe le
+    // résultat pour qu'il reste du texte (un « &lt;img…&gt; » ne doit jamais
+    // redevenir une balise après traduction).
+    out.push(escapeHtmlText(await translateTextFrToEn(decode(seg))));
   }
 
   return out.join("");

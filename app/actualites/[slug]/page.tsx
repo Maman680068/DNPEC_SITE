@@ -5,6 +5,7 @@ import ContentPlaceholder from "@/components/ui/ContentPlaceholder";
 import LocaleFallbackNotice from "@/components/i18n/LocaleFallbackNotice";
 import { getNewsBySlug } from "@/lib/wordpress";
 import { extractImages } from "@/lib/extractImages";
+import { sanitizeWpHtml } from "@/lib/sanitizeHtml";
 import { getLocale, getMessages } from "@/lib/i18n/locale";
 import { dateLocale } from "@/lib/i18n/config";
 
@@ -60,7 +61,7 @@ export default async function ActualitePage({ params }: ActualitePageProps) {
             <>
               <div
                 className="article-content text-[15px] text-ink leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: contentText }}
+                dangerouslySetInnerHTML={{ __html: sanitizeWpHtml(contentText) }}
               />
               {contentImages.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6 mb-6">

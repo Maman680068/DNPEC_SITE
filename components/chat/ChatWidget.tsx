@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useEffectEvent } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import LocalizedLink from "@/components/i18n/LocalizedLink";
 import { useLocale } from "@/lib/i18n/use-locale";
 import { messages } from "@/lib/i18n/messages";
@@ -55,7 +55,7 @@ export default function ChatWidget() {
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const persist = useEffectEvent((next: ChatMessage[], nextMode: "demo" | "claude") => {
+  function persist(next: ChatMessage[], nextMode: "demo" | "claude") {
     try {
       localStorage.setItem(
         `${STORAGE_KEY}-${locale}`,
@@ -64,12 +64,15 @@ export default function ChatWidget() {
     } catch {
       /* ignore */
     }
-  });
+  }
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(`${STORAGE_KEY}-${locale}`);
       if (!raw) {
+        // Lecture de localStorage (système externe, inaccessible au rendu serveur) :
+        // l'état est synchronisé après le montage, c'est l'usage prévu d'un effet.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setChatMessages([
           { id: newId(), role: "assistant", content: t.welcome },
         ]);
